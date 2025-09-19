@@ -37,6 +37,7 @@ Route::prefix('application')->name('application.')->middleware('auth')->group(fu
     // Gestion des colis - CRUD complet
     Route::get('/colis', [ApplicationController::class, 'ecomProductList'])->name('ecom-product-list');
     Route::get('/colis/tous', [ApplicationController::class, 'ecomProductListAll'])->name('ecom-product-list-all');
+    Route::get('/colis/ramasses', [ApplicationController::class, 'ecomProductListRamasses'])->name('ecom-product-list-ramasses')->middleware('can:voir_colis_ramasses');
     Route::get('/colis/nouveau', [ApplicationController::class, 'ecomProductAdd'])->name('ecom-product-add');
     Route::post('/colis', [ApplicationController::class, 'ecomProductStore'])->name('ecom-product-store');
     Route::get('/colis/{id}', [ApplicationController::class, 'ecomProductShow'])->name('ecom-product-show');

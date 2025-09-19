@@ -27,6 +27,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit_colis',
             'delete_colis',
             'marquer_recupere_colis',
+            'voir_colis_ramasses',
             
             // Gestion des clients
             'view_clients',
@@ -92,7 +93,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Admin - Gestion complète sauf super admin
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions([
-            'view_colis', 'create_colis', 'edit_colis', 'delete_colis', 'marquer_recupere_colis',
+            'view_colis', 'create_colis', 'edit_colis', 'delete_colis', 'marquer_recupere_colis', 'voir_colis_ramasses',
             'view_clients', 'create_clients', 'edit_clients', 'delete_clients',
             'view_users', 'create_users', 'edit_users',
             'view_agences', 'create_agences', 'edit_agences', 'delete_agences',
@@ -106,7 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Gestionnaire - Gestion des colis et clients
         $gestionnaireRole = Role::firstOrCreate(['name' => 'gestionnaire']);
         $gestionnaireRole->syncPermissions([
-            'view_colis', 'create_colis', 'edit_colis', 'marquer_recupere_colis',
+            'view_colis', 'create_colis', 'edit_colis', 'marquer_recupere_colis', 'voir_colis_ramasses',
             'view_clients', 'create_clients', 'edit_clients',
             'view_agences', 'view_destinations',
             'view_livreurs', 'view_colis_recuperes', 'view_mes_colis', 'view_colis_detail',

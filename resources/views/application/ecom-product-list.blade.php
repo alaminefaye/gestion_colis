@@ -45,7 +45,7 @@
         <div class="d-flex align-items-center justify-content-between">
           <div>
             <h5>Colis En Cours</h5>
-            <small class="text-muted">Colis non récupérés et non livrés</small>
+            <small class="text-muted">Colis en attente (non ramassés, non récupérés et non livrés)</small>
           </div>
           <div>
             <a href="{{ route('application.ecom-product-list-all') }}" class="btn btn-outline-secondary me-2">

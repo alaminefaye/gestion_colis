@@ -16,9 +16,9 @@ class ApplicationController extends Controller
      */
     public function ecomProductList()
     {
-        // Exclure les colis récupérés à la gare ou livrés
+        // Exclure les colis récupérés à la gare, ramassés ou livrés
         $colis = Colis::where('recupere_gare', false)
-                      ->where('statut_livraison', '!=', 'livre')
+                      ->where('statut_livraison', 'en_attente')
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
         return view('application.ecom-product-list', compact('colis'));
@@ -31,6 +31,18 @@ class ApplicationController extends Controller
     {
         $colis = Colis::orderBy('created_at', 'desc')->paginate(10);
         return view('application.ecom-product-list-all', compact('colis'));
+    }
+
+    /**
+     * Liste des colis ramassés avec informations du livreur
+     */
+    public function ecomProductListRamasses()
+    {
+        $colis = Colis::where('statut_livraison', 'ramasse')
+                      ->with(['livreurRamassage']) // Charger la relation livreur
+                      ->orderBy('ramasse_le', 'desc')
+                      ->paginate(10);
+        return view('application.ecom-product-list-ramasses', compact('colis'));
     }
 
     /**

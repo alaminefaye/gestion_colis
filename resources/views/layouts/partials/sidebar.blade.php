@@ -40,6 +40,9 @@
             @can('create_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-add') }}">Ajouter un Colis</a></li>
             @endcan
+            @can('voir_colis_ramasses')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-list-ramasses') }}">Colis Ramassés</a></li>
+            @endcan
             @can('view_colis_recuperes')
             <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.colis.recuperes') }}">Colis Récupérés</a></li>
             @endcan
