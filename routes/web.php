@@ -101,7 +101,7 @@ Route::get('/livreur/dashboard', [LivreurController::class, 'dashboard'])->name(
 Route::get('/livreur/mes-colis', [LivreurController::class, 'mesColis'])->name('livreur.mes-colis')->middleware(['auth', 'can:view_mes_colis']);
 
 // Détail d'un colis
-Route::get('/colis/{colis}/detail', [LivreurController::class, 'detailColis'])->name('colis.detail')->middleware('auth');
+Route::get('/colis/{colis}/detail', [LivreurController::class, 'detailColis'])->name('colis.detail')->middleware(['auth', 'can:view_colis_detail']);
 
 // Scan QR Routes
 Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {

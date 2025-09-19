@@ -76,6 +76,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'livrer_colis',
             'view_colis_recuperes',
             'view_mes_colis', // Voir ses propres colis (livreur)
+            'view_colis_detail', // Voir les détails complets d'un colis
         ];
 
         foreach ($permissions as $permission) {
@@ -97,7 +98,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_agences', 'create_agences', 'edit_agences', 'delete_agences',
             'view_destinations', 'create_destinations', 'edit_destinations', 'delete_destinations',
             'view_livreurs', 'create_livreurs', 'edit_livreurs', 'delete_livreurs',
-            'view_colis_recuperes', 'view_mes_colis',
+            'view_colis_recuperes', 'view_mes_colis', 'view_colis_detail',
             'scan_qr_colis', 'ramasser_colis', 'livrer_colis', // Admin peut aussi scanner
             'view_dashboard', 'view_analytics',
         ]);
@@ -108,7 +109,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_colis', 'create_colis', 'edit_colis', 'marquer_recupere_colis',
             'view_clients', 'create_clients', 'edit_clients',
             'view_agences', 'view_destinations',
-            'view_livreurs', 'view_colis_recuperes', 'view_mes_colis',
+            'view_livreurs', 'view_colis_recuperes', 'view_mes_colis', 'view_colis_detail',
             'scan_qr_colis', 'ramasser_colis', 'livrer_colis', // Gestionnaire peut scanner
             'view_dashboard', 'view_analytics',
         ]);
@@ -129,6 +130,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'ramasser_colis', 
             'livrer_colis',
             'view_mes_colis', // Livreur peut voir ses propres colis
+            'view_colis_detail', // Livreur peut voir les détails des colis
             'view_dashboard',
         ]);
 
