@@ -42,21 +42,23 @@
           @csrf
           <div class="row">
             <div class="col-md-12">
-              <div class="mb-3">
-                <label class="form-label">QR Code ou N° Courrier <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <input type="text" class="form-control @error('code') is-invalid @enderror" 
-                         name="code" value="{{ old('code') }}" required 
-                         placeholder="Scanner le QR Code ou saisir le numéro de courrier" id="codeInput">
-                  <button type="button" class="btn btn-outline-secondary" id="scanButton">
-                    <i class="ti ti-camera me-2"></i>Scanner
-                  </button>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="ti ti-search me-2"></i>Rechercher
-                  </button>
+              <div class="form-group position-relative">
+                <label for="codeInput" class="form-label">QR Code ou N° Courrier *</label>
+                <input type="text" class="form-control @error('code') is-invalid @enderror" 
+                       name="code" id="codeInput" 
+                       placeholder="Scanner ou taper le code (ex: TEST001)" 
+                       value="{{ old('code') }}" required autocomplete="off">
+                
+                <!-- Dropdown pour suggestions -->
+                <div id="suggestions-dropdown" class="dropdown-menu w-100" style="display: none; position: absolute; top: 100%; z-index: 1000;">
                 </div>
+                
                 @error('code')
-                  <div class="invalid-feedback">{{ $message }}</div>
+                  <div class="invalid-feedback d-block">
+                    <div class="alert alert-danger mt-2 mb-0">
+                      {!! $message !!}
+                    </div>
+                  </div>
                 @enderror
                 <small class="text-muted">
                   <strong>Note:</strong> Pour utiliser la caméra, le site doit être en HTTPS. 
@@ -68,6 +70,16 @@
                 </small>
               </div>
             </div>
+          </div>
+          
+          <!-- Boutons d'action -->
+          <div class="mt-3 d-flex gap-2">
+            <button type="button" class="btn btn-primary" id="scanButton">
+              <i class="ti ti-camera me-2"></i>Scanner
+            </button>
+            <button type="submit" class="btn btn-success">
+              <i class="ti ti-search me-2"></i>Rechercher
+            </button>
           </div>
           
           <!-- Zone de scan caméra -->
@@ -93,59 +105,6 @@
       </div>
     </div>
 
-    <!-- Instructions -->
-    <div class="card">
-      <div class="card-header">
-        <h5>Instructions d'utilisation</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="d-flex align-items-start mb-3">
-              <div class="avtar avtar-s bg-light-primary me-3 mt-1">
-                <span class="f-16">1</span>
-              </div>
-              <div>
-                <h6 class="mb-1">Scannez ou Tapez</h6>
-                <p class="text-muted mb-0">Utilisez votre appareil pour scanner le QR Code ou tapez le numéro manuellement.</p>
-              </div>
-            </div>
-            
-            <div class="d-flex align-items-start mb-3">
-              <div class="avtar avtar-s bg-light-success me-3 mt-1">
-                <span class="f-16">2</span>
-              </div>
-              <div>
-                <h6 class="mb-1">Recherchez le Colis</h6>
-                <p class="text-muted mb-0">Le système trouvera automatiquement le colis correspondant.</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-6">
-            <div class="d-flex align-items-start mb-3">
-              <div class="avtar avtar-s bg-light-warning me-3 mt-1">
-                <span class="f-16">3</span>
-              </div>
-              <div>
-                <h6 class="mb-1">Actions disponibles</h6>
-                <p class="text-muted mb-0">Ramasser le colis ou le marquer comme livré selon le statut.</p>
-              </div>
-            </div>
-            
-            <div class="d-flex align-items-start mb-3">
-              <div class="avtar avtar-s bg-light-info me-3 mt-1">
-                <span class="f-16">4</span>
-              </div>
-              <div>
-                <h6 class="mb-1">Suivi automatique</h6>
-                <p class="text-muted mb-0">Vos actions sont automatiquement associées à votre compte livreur.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Solution alternative -->
     <div class="card border-warning">
@@ -167,34 +126,6 @@
       </div>
     </div>
 
-    <!-- Exemples de QR Codes -->
-    @if(\App\Models\Colis::whereNotNull('qr_code')->exists())
-    <div class="card">
-      <div class="card-header">
-        <h5>Exemples de Codes Disponibles</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          @foreach(\App\Models\Colis::whereNotNull('qr_code')->where('recupere_gare', false)->take(6)->get() as $colis)
-          <div class="col-md-4 mb-3">
-            <div class="card border">
-              <div class="card-body text-center py-3">
-                <h6 class="mb-1">{{ $colis->numero_courrier }}</h6>
-                <code class="small clickable-code" onclick="fillCode('{{ $colis->numero_courrier }}')" style="cursor: pointer;" title="Cliquer pour remplir">{{ $colis->numero_courrier }}</code>
-                <div class="mt-2">
-                  <span class="badge bg-light-{{ $colis->statut_color }}">{{ $colis->statut_livraison_label }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          @endforeach
-        </div>
-        <div class="text-center">
-          <small class="text-muted">Cliquez sur un code pour le copier dans le champ de recherche</small>
-        </div>
-      </div>
-    </div>
-    @endif
   </div>
 </div>
 @endsection
@@ -247,6 +178,31 @@
   color: white !important;
   transform: scale(1.05);
 }
+
+/* Styles pour les suggestions */
+#suggestions-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background: white;
+}
+
+#suggestions-dropdown .dropdown-item {
+  border-bottom: 1px solid #f8f9fa;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+#suggestions-dropdown .dropdown-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+}
+
+#suggestions-dropdown .dropdown-item:last-child {
+  border-bottom: none;
+}
 </style>
 @endpush
 
@@ -280,8 +236,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Variables pour le scanner QR
-  let html5QrcodeScanner;
+  // Variables globales pour le scanner
+  let html5QrcodeScanner = null;
   let isScanning = false;
 
   // Bouton pour démarrer le scan
@@ -296,6 +252,15 @@ document.addEventListener('DOMContentLoaded', function() {
     scanButton.innerHTML = '<i class="ti ti-camera me-2"></i>Scan en cours...';
     scanButton.disabled = true;
     
+    startScanning();
+  });
+
+  // Bouton pour arrêter le scan
+  document.getElementById('stopScan').addEventListener('click', function() {
+    stopScanning();
+  });
+
+  function startScanning() {
     // Configuration du scanner
     const config = {
       fps: 10,
@@ -354,11 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ne pas afficher les erreurs de scan (normales)
     // console.warn('Erreur de scan:', error);
   }
-
-  // Bouton pour arrêter le scan
-  document.getElementById('stopScan').addEventListener('click', function() {
-    stopScanning();
-  });
 
   // Fonction pour arrêter le scan
   function stopScanning() {
@@ -454,6 +414,102 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('codeInput').value = code;
     document.getElementById('codeInput').focus();
     showNotification('Code copié ! Cliquez sur "Rechercher" pour continuer.', 'success');
+  }
+
+  // Fonction pour remplir depuis les suggestions d'erreur
+  window.fillCodeFromError = function(code) {
+    document.getElementById('codeInput').value = code;
+    document.getElementById('codeInput').focus();
+    // Cacher le message d'erreur
+    const errorDiv = document.querySelector('.invalid-feedback');
+    if (errorDiv) {
+      errorDiv.style.display = 'none';
+    }
+    showNotification('Code sélectionné ! Cliquez sur "Rechercher".', 'info');
+  }
+
+  // Autocomplétion pour le champ de recherche
+  const codeInput = document.getElementById('codeInput');
+  const suggestionsDropdown = document.getElementById('suggestions-dropdown');
+  let debounceTimer = null;
+
+  codeInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(debounceTimer);
+    
+    if (query.length < 2) {
+      hideSuggestions();
+      return;
+    }
+
+    // Debounce de 300ms
+    debounceTimer = setTimeout(() => {
+      fetchSuggestions(query);
+    }, 300);
+  });
+
+  codeInput.addEventListener('blur', function() {
+    // Délai pour permettre le clic sur une suggestion
+    setTimeout(hideSuggestions, 200);
+  });
+
+  function fetchSuggestions(query) {
+    fetch(`{{ route('scan.suggestions') }}?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(data => {
+        showSuggestions(data);
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des suggestions:', error);
+        hideSuggestions();
+      });
+  }
+
+  function showSuggestions(suggestions) {
+    if (suggestions.length === 0) {
+      hideSuggestions();
+      return;
+    }
+
+    let html = '';
+    suggestions.forEach(suggestion => {
+      const statusColor = getStatusColor(suggestion.statut);
+      html += `
+        <div class="dropdown-item d-flex justify-content-between align-items-center" 
+             onclick="selectSuggestion('${suggestion.code}')" style="cursor: pointer;">
+          <div>
+            <strong>${suggestion.code}</strong><br>
+            <small class="text-muted">${suggestion.label}</small>
+          </div>
+          <span class="badge bg-${statusColor}">${suggestion.statut}</span>
+        </div>
+      `;
+    });
+
+    suggestionsDropdown.innerHTML = html;
+    suggestionsDropdown.style.display = 'block';
+  }
+
+  function hideSuggestions() {
+    suggestionsDropdown.style.display = 'none';
+  }
+
+  function selectSuggestion(code) {
+    codeInput.value = code;
+    hideSuggestions();
+    codeInput.focus();
+    showNotification('Code sélectionné ! Cliquez sur "Rechercher".', 'success');
+  }
+
+  function getStatusColor(statut) {
+    const colors = {
+      'En attente': 'secondary',
+      'Ramassé': 'warning',
+      'En transit': 'info',
+      'Livré': 'success'
+    };
+    return colors[statut] || 'secondary';
   }
 });
 </script>

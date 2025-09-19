@@ -61,7 +61,24 @@ class ScanQRController extends Controller
 
 
         if (!$colis) {
-            return back()->withErrors(['code' => 'Aucun colis trouvé avec ce code.']);
+            // Rechercher des codes similaires pour suggestions  
+            $suggestions = Colis::where('numero_courrier', 'LIKE', '%' . $request->code . '%')
+                                ->orWhere('qr_code', 'LIKE', '%' . $request->code . '%')
+                                ->where('recupere_gare', false)
+                                ->take(5)
+                                ->pluck('numero_courrier')
+                                ->toArray();
+            
+            $message = "❌ Aucun colis trouvé avec le code : <strong>{$request->code}</strong>";
+            
+            if (!empty($suggestions)) {
+                $message .= "<br><br>🔍 <strong>Codes similaires disponibles :</strong><br>";
+                foreach ($suggestions as $suggestion) {
+                    $message .= "• <span class='text-primary' style='cursor: pointer;' onclick='fillCodeFromError(\"{$suggestion}\")'>{$suggestion}</span><br>";
+                }
+            }
+            
+            return back()->withErrors(['code' => $message]);
         }
 
         return view('scan.resultat', compact('colis', 'livreur'));
@@ -95,7 +112,7 @@ class ScanQRController extends Controller
 
         $livreur = Livreur::find($request->livreur_id);
 
-        return back()->with('success', "Colis ramassé avec succès par {$livreur->nom_complet}!");
+        return redirect()->route('livreur.mes-colis')->with('success', "Colis ramassé avec succès par {$livreur->nom_complet}!");
     }
 
     /**
@@ -142,7 +159,7 @@ class ScanQRController extends Controller
 
         $livreur = Livreur::find($request->livreur_id);
 
-        return back()->with('success', "Colis livré avec succès par {$livreur->nom_complet}!");
+        return redirect()->route('livreur.mes-colis')->with('success', "Colis livré avec succès par {$livreur->nom_complet}!");
     }
 
     /**
@@ -167,6 +184,35 @@ class ScanQRController extends Controller
             'statut_livraison' => 'en_transit'
         ]);
 
-        return back()->with('success', 'Colis marqué comme en transit!');
+        return redirect()->route('livreur.mes-colis')->with('success', 'Colis marqué comme en transit!');
+    }
+
+    /**
+     * API pour suggestions de codes
+     */
+    public function suggestions(Request $request)
+    {
+        $query = $request->get('q', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $suggestions = Colis::where('recupere_gare', false)
+                           ->where(function($q) use ($query) {
+                               $q->where('numero_courrier', 'LIKE', '%' . $query . '%')
+                                 ->orWhere('qr_code', 'LIKE', '%' . $query . '%');
+                           })
+                           ->take(8)
+                           ->get(['numero_courrier', 'nom_beneficiaire', 'statut_livraison'])
+                           ->map(function($colis) {
+                               return [
+                                   'code' => $colis->numero_courrier,
+                                   'label' => $colis->numero_courrier . ' - ' . $colis->nom_beneficiaire,
+                                   'statut' => $colis->statut_livraison_label
+                               ];
+                           });
+
+        return response()->json($suggestions);
     }
 }

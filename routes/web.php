@@ -100,6 +100,9 @@ Route::prefix('livreurs')->name('livreurs.')->middleware('auth')->group(function
 Route::get('/livreur/dashboard', [LivreurController::class, 'dashboard'])->name('livreur.dashboard')->middleware('auth');
 Route::get('/livreur/mes-colis', [LivreurController::class, 'mesColis'])->name('livreur.mes-colis')->middleware(['auth', 'can:view_mes_colis']);
 
+// Détail d'un colis
+Route::get('/colis/{colis}/detail', [LivreurController::class, 'detailColis'])->name('colis.detail')->middleware('auth');
+
 // Scan QR Routes
 Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {
     Route::get('/', [ScanQRController::class, 'index'])->name('index')->middleware('can:scan_qr_colis');
@@ -110,6 +113,7 @@ Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {
     Route::post('/ramasser', [ScanQRController::class, 'ramasser'])->name('ramasser')->middleware('can:ramasser_colis');
     Route::post('/livrer', [ScanQRController::class, 'livrer'])->name('livrer')->middleware('can:livrer_colis');
     Route::post('/en-transit', [ScanQRController::class, 'enTransit'])->name('en-transit')->middleware('can:ramasser_colis');
+    Route::get('/suggestions', [ScanQRController::class, 'suggestions'])->name('suggestions')->middleware('can:scan_qr_colis');
 });
 
 // Admin Routes - Gestion des utilisateurs et rôles/permissions

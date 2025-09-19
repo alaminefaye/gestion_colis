@@ -243,4 +243,15 @@ class LivreurController extends Controller
 
         return view('livreur.mes-colis', compact('livreur', 'colis', 'stats'));
     }
+
+    /**
+     * Afficher les détails complets d'un colis
+     */
+    public function detailColis(Colis $colis)
+    {
+        // Charger les relations
+        $colis->load(['livreurRamassage', 'livreurLivraison']);
+        
+        return view('colis.detail', compact('colis'));
+    }
 }

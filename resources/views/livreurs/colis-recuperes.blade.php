@@ -167,6 +167,7 @@
                   <th>Récupéré/Ramassé par</th>
                   <th>Date</th>
                   <th>QR Code</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,6 +265,11 @@
                         <i class="ti ti-download"></i>
                       </button>
                     </div>
+                  </td>
+                  <td>
+                    <a href="{{ route('colis.detail', $col->id) }}" class="btn btn-info btn-sm">
+                      <i class="ti ti-eye me-1"></i>Détail
+                    </a>
                   </td>
                 </tr>
                 @endforeach

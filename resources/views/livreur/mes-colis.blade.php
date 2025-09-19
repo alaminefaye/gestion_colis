@@ -153,9 +153,9 @@
                   <th>Bénéficiaire</th>
                   <th>Destination</th>
                   <th>Statut</th>
-                  <th>Mon Action</th>
                   <th>Date Action</th>
                   <th>QR Code</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,21 +188,6 @@
                     </span>
                   </td>
                   <td>
-                    @if($col->ramasse_par == $livreur->id && $col->livre_par == $livreur->id)
-                      <span class="badge bg-purple">
-                        <i class="ti ti-star me-1"></i>Ramassé & Livré
-                      </span>
-                    @elseif($col->ramasse_par == $livreur->id)
-                      <span class="badge bg-warning">
-                        <i class="ti ti-package me-1"></i>Ramassé
-                      </span>
-                    @elseif($col->livre_par == $livreur->id)
-                      <span class="badge bg-success">
-                        <i class="ti ti-check me-1"></i>Livré
-                      </span>
-                    @endif
-                  </td>
-                  <td>
                     @if($col->livre_par == $livreur->id && $col->livre_le)
                       <div>
                         <small><strong>Livré le :</strong></small><br>
@@ -226,6 +211,11 @@
                       </div>
                       <code class="small">{{ $col->qr_code }}</code>
                     </div>
+                  </td>
+                  <td>
+                    <a href="{{ route('colis.detail', $col->id) }}" class="btn btn-info btn-sm">
+                      <i class="ti ti-eye me-1"></i>Détail
+                    </a>
                   </td>
                 </tr>
                 @endforeach
