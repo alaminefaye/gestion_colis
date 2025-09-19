@@ -50,27 +50,127 @@
         </div>
       </div>
       <div class="card-body">
-        <!-- Filters -->
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <select class="form-select" id="statusFilter">
-              <option value="">Tous les statuts</option>
-              <option value="preparation">Préparation</option>
-              <option value="transit">En Transit</option>
-              <option value="livre">Livré</option>
-              <option value="probleme">Problème</option>
-            </select>
+        <!-- Section de Recherche Avancée -->
+        <div class="card border shadow-sm mb-4" style="background: #ffffff;">
+          <div class="card-body p-4">
+            <div class="row align-items-center mb-3">
+              <div class="col">
+                <h6 class="text-dark mb-0">
+                  <i class="ti ti-search me-2"></i>Recherche Avancée
+                </h6>
+                <small class="text-muted">Filtrez vos colis selon vos critères</small>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" type="button" id="toggleAdvancedSearch">
+                  <i class="ti ti-adjustments me-1"></i>
+                  <span id="toggleText">Masquer filtres</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Recherche rapide -->
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="ti ti-search text-muted"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0 ps-0" id="quickSearch" 
+                         placeholder="Recherche rapide : N° courrier, expéditeur, bénéficiaire, téléphone...">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-outline-secondary w-100" type="button" id="clearFilters">
+                  <i class="ti ti-refresh me-1"></i>Réinitialiser
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtres avancés -->
+            <div id="advancedFilters">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Statut</label>
+                  <select class="form-select form-select-sm" id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="preparation">Préparation</option>
+                    <option value="transit">En Transit</option>
+                    <option value="livre">Livré</option>
+                    <option value="probleme">Problème</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Type de colis</label>
+                  <select class="form-select form-select-sm" id="typeFilter">
+                    <option value="">Tous les types</option>
+                    <option value="document">Document</option>
+                    <option value="colis_standard">Colis standard</option>
+                    <option value="colis_fragile">Colis fragile</option>
+                    <option value="colis_express">Colis express</option>
+                    <option value="colis_urgent">Colis urgent</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Destination</label>
+                  <select class="form-select form-select-sm" id="destinationFilter">
+                    <option value="">Toutes destinations</option>
+                    @foreach($destinations ?? [] as $destination)
+                      <option value="{{ $destination->nom }}">{{ $destination->libelle }}</option>
+                    @endforeach
+                  </select>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Agence de réception</label>
+                  <select class="form-select form-select-sm" id="agenceFilter">
+                    <option value="">Toutes agences</option>
+                    @foreach($agences ?? [] as $agence)
+                      <option value="{{ $agence->nom }}">{{ $agence->libelle }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Date de création</label>
+                  <input type="date" class="form-control form-control-sm" id="dateFromFilter">
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">À</label>
+                  <input type="date" class="form-control form-control-sm" id="dateToFilter">
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Montant minimum</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="montantMinFilter" placeholder="0">
+                    <span class="input-group-text">FCFA</span>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label text-dark small">Montant maximum</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="montantMaxFilter" placeholder="999999">
+                    <span class="input-group-text">FCFA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-md-3">
-            <input type="date" class="form-control" id="dateFilter" placeholder="Date">
-          </div>
-          <div class="col-md-4">
-            <input type="text" class="form-control" id="searchFilter" placeholder="Rechercher par numéro, destinataire...">
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-outline-secondary w-100" type="button">
-              <i class="ti ti-filter"></i> Filtrer
-            </button>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="row mb-4" id="searchStats" style="display: none;">
+          <div class="col-md-12">
+            <div class="alert alert-info border-0 d-flex align-items-center">
+              <i class="ti ti-info-circle me-2"></i>
+              <span id="searchStatsText">Aucun filtre appliqué</span>
+            </div>
           </div>
         </div>
 
@@ -90,6 +190,7 @@
                 <th>TYPE</th>
                 <th>MONTANT</th>
                 <th>VALEUR COLIS</th>
+                <th>QR CODE</th>
                 <th>DATE CRÉATION</th>
                 <th class="text-end">ACTIONS</th>
               </tr>
@@ -135,6 +236,17 @@
                 <td>
                   <h6 class="text-info mb-1">{{ number_format($item->valeur_colis, 0, ',', ' ') }} FCFA</h6>
                 </td>
+                <td class="text-center">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="qr-code-container mb-2" style="width: 80px; height: 80px;">
+                      {!! $item->generateQrCode(80) !!}
+                    </div>
+                    <small class="text-muted">{{ $item->qr_code }}</small>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-1" onclick="downloadQR('{{ $item->qr_code }}', '{{ $item->numero_courrier }}')">
+                      <i class="ti ti-download"></i>
+                    </button>
+                  </div>
+                </td>
                 <td>{{ $item->created_at->format('d/m/Y') }}<br><span class="text-muted">{{ $item->created_at->format('H:i') }}</span></td>
                 <td class="text-end">
                   <div class="btn-group" role="group">
@@ -152,7 +264,7 @@
               </tr>
               @empty
               <tr>
-                <td colspan="10" class="text-center py-4">
+                <td colspan="11" class="text-center py-4">
                   <div class="d-flex flex-column align-items-center">
                     <i class="ti ti-package f-48 text-muted mb-3"></i>
                     <h6 class="text-muted">Aucun colis trouvé</h6>
@@ -192,6 +304,131 @@
   object-fit: cover;
   border-radius: 4px;
 }
+
+/* Styles pour la section de recherche avancée */
+.search-section {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.search-section .form-control,
+.search-section .form-select {
+  border: 1px solid #ced4da;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.search-section .form-control:focus,
+.search-section .form-select:focus {
+  border-color: #86b7fe;
+  background: #ffffff;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.search-section .input-group-text {
+  background: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-right: none;
+}
+
+/* Animation pour le toggle des filtres */
+#advancedFilters {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Styles pour les QR codes */
+.qr-code-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: #fff;
+  padding: 5px;
+}
+
+.qr-code-container svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Amélioration des badges de statistiques */
+.alert-info {
+  background: linear-gradient(45deg, #e3f2fd, #f0f8ff);
+  border: 1px solid #1976d2;
+  color: #1565c0;
+}
+
+/* Amélioration de la table responsive */
+.table-responsive {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.table thead th {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Animation pour les lignes de la table */
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Styles pour les notifications de recherche */
+.search-notification {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Amélioration des boutons d'action */
+.btn-group .btn {
+  transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .search-section .card-body {
+    padding: 1rem !important;
+  }
+  
+  .search-section .row.g-3 > * {
+    margin-bottom: 0.75rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}
 </style>
 @endpush
 
@@ -220,18 +457,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Search functionality
-  if(document.getElementById('searchFilter')) {
-    document.getElementById('searchFilter').addEventListener('input', function() {
-      const searchTerm = this.value.toLowerCase();
-      const rows = document.querySelectorAll('#colisTable tbody tr');
-      
-      rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
-      });
-    });
-  }
+  // Fonctionnalité de recherche avancée
+  initAdvancedSearch();
 });
 
 // Fonction de suppression
@@ -240,6 +467,292 @@ function deleteColis(id) {
     const form = document.getElementById('deleteForm');
     form.action = '/application/colis/' + id;
     form.submit();
+  }
+}
+
+// Initialisation de la recherche avancée
+function initAdvancedSearch() {
+  const filters = {
+    quickSearch: document.getElementById('quickSearch'),
+    statusFilter: document.getElementById('statusFilter'),
+    typeFilter: document.getElementById('typeFilter'),
+    destinationFilter: document.getElementById('destinationFilter'),
+    agenceFilter: document.getElementById('agenceFilter'),
+    dateFromFilter: document.getElementById('dateFromFilter'),
+    dateToFilter: document.getElementById('dateToFilter'),
+    montantMinFilter: document.getElementById('montantMinFilter'),
+    montantMaxFilter: document.getElementById('montantMaxFilter')
+  };
+
+  // Toggle des filtres avancés
+  const toggleBtn = document.getElementById('toggleAdvancedSearch');
+  const advancedFilters = document.getElementById('advancedFilters');
+  const toggleText = document.getElementById('toggleText');
+  let filtersVisible = true;
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      filtersVisible = !filtersVisible;
+      advancedFilters.style.display = filtersVisible ? 'block' : 'none';
+      toggleText.textContent = filtersVisible ? 'Masquer filtres' : 'Afficher filtres';
+      toggleBtn.querySelector('i').className = filtersVisible ? 'ti ti-eye-off me-1' : 'ti ti-eye me-1';
+    });
+  }
+
+  // Bouton de réinitialisation
+  const clearBtn = document.getElementById('clearFilters');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+      // Réinitialiser tous les filtres
+      Object.values(filters).forEach(filter => {
+        if (filter) filter.value = '';
+      });
+      
+      // Réafficher toutes les lignes
+      const rows = document.querySelectorAll('#colisTable tbody tr');
+      rows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      // Masquer les statistiques
+      const searchStats = document.getElementById('searchStats');
+      if (searchStats) searchStats.style.display = 'none';
+      
+      // Notification
+      showSearchNotification('Tous les filtres ont été réinitialisés', 'success');
+    });
+  }
+
+  // Event listeners pour tous les filtres
+  Object.entries(filters).forEach(([key, element]) => {
+    if (element) {
+      const eventType = element.type === 'text' || element.type === 'number' ? 'input' : 'change';
+      element.addEventListener(eventType, debounce(() => applyFilters(filters), 300));
+    }
+  });
+}
+
+// Fonction principale de filtrage
+function applyFilters(filters) {
+  const rows = document.querySelectorAll('#colisTable tbody tr');
+  let visibleCount = 0;
+  let totalValue = 0;
+  const activeFilters = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length === 0) return; // Ignorer les lignes vides
+
+    let isVisible = true;
+
+    // Recherche rapide
+    if (filters.quickSearch && filters.quickSearch.value.trim()) {
+      const searchTerm = filters.quickSearch.value.toLowerCase().trim();
+      const rowText = row.textContent.toLowerCase();
+      if (!rowText.includes(searchTerm)) {
+        isVisible = false;
+      } else {
+        activeFilters.push(`Recherche: "${filters.quickSearch.value}"`);
+      }
+    }
+
+    // Filtre par type de colis
+    if (filters.typeFilter && filters.typeFilter.value && isVisible) {
+      const typeCell = cells[5]; // Colonne TYPE
+      const typeText = typeCell ? typeCell.textContent.toLowerCase() : '';
+      const filterValue = filters.typeFilter.value.replace('_', ' ').toLowerCase();
+      if (!typeText.includes(filterValue)) {
+        isVisible = false;
+      } else {
+        activeFilters.push(`Type: ${filters.typeFilter.options[filters.typeFilter.selectedIndex].text}`);
+      }
+    }
+
+    // Filtre par destination
+    if (filters.destinationFilter && filters.destinationFilter.value && isVisible) {
+      const destinationCell = cells[4]; // Colonne DESTINATION
+      const destinationText = destinationCell ? destinationCell.textContent.toLowerCase() : '';
+      if (!destinationText.includes(filters.destinationFilter.value.toLowerCase())) {
+        isVisible = false;
+      } else {
+        activeFilters.push(`Destination: ${filters.destinationFilter.options[filters.destinationFilter.selectedIndex].text}`);
+      }
+    }
+
+    // Filtre par agence
+    if (filters.agenceFilter && filters.agenceFilter.value && isVisible) {
+      const destinationCell = cells[4]; // Colonne DESTINATION (contient aussi l'agence)
+      const destinationText = destinationCell ? destinationCell.textContent.toLowerCase() : '';
+      if (!destinationText.includes(filters.agenceFilter.value.toLowerCase())) {
+        isVisible = false;
+      } else {
+        activeFilters.push(`Agence: ${filters.agenceFilter.options[filters.agenceFilter.selectedIndex].text}`);
+      }
+    }
+
+    // Filtre par montant
+    if (isVisible) {
+      const montantCell = cells[6]; // Colonne MONTANT
+      if (montantCell) {
+        const montantText = montantCell.textContent.replace(/[^\d]/g, '');
+        const montant = parseInt(montantText) || 0;
+        
+        if (filters.montantMinFilter && filters.montantMinFilter.value) {
+          const min = parseInt(filters.montantMinFilter.value);
+          if (montant < min) {
+            isVisible = false;
+          } else {
+            activeFilters.push(`Montant min: ${min.toLocaleString()} FCFA`);
+          }
+        }
+        
+        if (filters.montantMaxFilter && filters.montantMaxFilter.value && isVisible) {
+          const max = parseInt(filters.montantMaxFilter.value);
+          if (montant > max) {
+            isVisible = false;
+          } else {
+            activeFilters.push(`Montant max: ${max.toLocaleString()} FCFA`);
+          }
+        }
+        
+        if (isVisible) {
+          totalValue += montant;
+        }
+      }
+    }
+
+    // Filtre par date
+    if (isVisible) {
+      const dateCell = cells[8]; // Colonne DATE CRÉATION
+      if (dateCell && (filters.dateFromFilter?.value || filters.dateToFilter?.value)) {
+        const dateParts = dateCell.textContent.split('/');
+        if (dateParts.length >= 3) {
+          const itemDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+          
+          if (filters.dateFromFilter && filters.dateFromFilter.value) {
+            const fromDate = new Date(filters.dateFromFilter.value);
+            if (itemDate < fromDate) {
+              isVisible = false;
+            } else {
+              activeFilters.push(`Du: ${fromDate.toLocaleDateString()}`);
+            }
+          }
+          
+          if (filters.dateToFilter && filters.dateToFilter.value && isVisible) {
+            const toDate = new Date(filters.dateToFilter.value);
+            toDate.setHours(23, 59, 59); // Inclure toute la journée
+            if (itemDate > toDate) {
+              isVisible = false;
+            } else {
+              activeFilters.push(`Au: ${toDate.toLocaleDateString()}`);
+            }
+          }
+        }
+      }
+    }
+
+    // Appliquer la visibilité
+    row.style.display = isVisible ? '' : 'none';
+    if (isVisible) visibleCount++;
+  });
+
+  // Mettre à jour les statistiques
+  updateSearchStats(visibleCount, totalValue, [...new Set(activeFilters)]);
+}
+
+// Mise à jour des statistiques de recherche
+function updateSearchStats(visibleCount, totalValue, activeFilters) {
+  const searchStats = document.getElementById('searchStats');
+  const searchStatsText = document.getElementById('searchStatsText');
+  
+  if (searchStats && searchStatsText) {
+    if (activeFilters.length > 0) {
+      const filtersText = activeFilters.slice(0, 3).join(', ');
+      const moreText = activeFilters.length > 3 ? ` et ${activeFilters.length - 3} autre(s)` : '';
+      searchStatsText.innerHTML = `
+        <strong>${visibleCount}</strong> colis trouvé(s) • 
+        Valeur totale: <strong>${totalValue.toLocaleString()} FCFA</strong><br>
+        <small>Filtres actifs: ${filtersText}${moreText}</small>
+      `;
+      searchStats.style.display = 'block';
+    } else {
+      searchStats.style.display = 'none';
+    }
+  }
+}
+
+// Fonction de debounce pour optimiser les performances
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Notification pour les actions de recherche
+function showSearchNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+  notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+  notification.innerHTML = `
+    <i class="ti ti-${type === 'success' ? 'check' : type === 'error' ? 'x' : 'info-circle'} me-2"></i>${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 3000);
+}
+
+// Fonction pour télécharger le QR code
+function downloadQR(qrCode, numeroCourrier) {
+  // Créer un canvas pour convertir le SVG en image
+  const svg = document.querySelector(`[data-qr="${qrCode}"]`);
+  if (!svg) {
+    // Utiliser l'API pour générer et télécharger le QR code
+    const link = document.createElement('a');
+    link.href = `/colis/${qrCode}/qr-download`;
+    link.download = `QR_${numeroCourrier}.png`;
+    link.click();
+    return;
+  }
+  
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const data = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([data], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  
+  const img = new Image();
+  img.onload = function() {
+    canvas.width = 300;
+    canvas.height = 300;
+    ctx.drawImage(img, 0, 0, 300, 300);
+    
+    canvas.toBlob(function(blob) {
+      const link = document.createElement('a');
+      link.download = `QR_${numeroCourrier}.png`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  };
+  img.src = url;
+}
+
+function deleteColis(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce colis ?')) {
+    // Implémentation de suppression
+    console.log('Suppression du colis ID:', id);
   }
 }
 </script>

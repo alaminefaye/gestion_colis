@@ -22,6 +22,7 @@
           </a>
         </li>
 
+        @can('view_colis')
         <li class="pc-item pc-caption">
           <label>Gestion Des Colis</label>
           <i class="ti ti-package"></i>
@@ -33,11 +34,20 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
           </a>
           <ul class="pc-submenu">
+            @can('view_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-list') }}">Liste des Colis</a></li>
+            @endcan
+            @can('create_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-add') }}">Ajouter un Colis</a></li>
+            @endcan
+            @can('view_colis_recuperes')
+            <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.colis.recuperes') }}">Colis Récupérés</a></li>
+            @endcan
           </ul>
         </li>
+        @endcan
         
+        @canany(['view_agences', 'view_destinations'])
         <li class="pc-item pc-hasmenu">
           <a href="#!" class="pc-link">
             <span class="pc-micon"><i class="ti ti-settings"></i></span>
@@ -45,11 +55,17 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
           </a>
           <ul class="pc-submenu">
+            @can('view_destinations')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.gestion.destinations') }}">Destinations</a></li>
+            @endcan
+            @can('view_agences')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.gestion.agences') }}">Agences</a></li>
+            @endcan
           </ul>
         </li>
+        @endcanany
 
+        @can('view_clients')
         <li class="pc-item pc-caption">
           <label>Gestion Clients</label>
           <i class="ti ti-users"></i>
@@ -60,31 +76,78 @@
             <span class="pc-mtext">Liste des Clients</span>
           </a>
         </li>
+        @endcan
+
+        @canany(['view_livreurs', 'scan_qr_colis'])
+        <li class="pc-item pc-caption">
+          <label>Gestion Livraisons</label>
+          <i class="ti ti-truck"></i>
+        </li>
+        @can('view_livreurs')
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-users"></i></span>
+            <span class="pc-mtext">Livreurs</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.index') }}">Liste des Livreurs</a></li>
+            @can('create_livreurs')
+            <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.create') }}">Ajouter Livreur</a></li>
+            @endcan
+          </ul>
+        </li>
+        @endcan
+        @can('scan_qr_colis')
         <li class="pc-item">
-          <a href="{{ route('application.user-list') }}" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
-            <span class="pc-mtext">Utilisateurs</span>
+          <a href="{{ route('scan.index') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-qrcode"></i></span>
+            <span class="pc-mtext">Scan QR Code</span>
           </a>
         </li>
+        @endcan
+        @endcanany
+
+        @canany(['view_users', 'view_roles'])
+        <li class="pc-item pc-caption">
+          <label>Administration</label>
+          <i class="ti ti-settings"></i>
+        </li>
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-users-group"></i></span>
+            <span class="pc-mtext">Gestion des Utilisateurs</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            @can('view_users')
+            <li class="pc-item"><a class="pc-link" href="{{ route('admin.users.index') }}">Liste des Utilisateurs</a></li>
+            @endcan
+            @can('create_users')
+            <li class="pc-item"><a class="pc-link" href="{{ route('admin.users.create') }}">Créer Utilisateur</a></li>
+            @endcan
+            @can('view_roles')
+            <li class="pc-item"><a class="pc-link" href="{{ route('admin.roles.index') }}">Rôles & Permissions</a></li>
+            @endcan
+          </ul>
+        </li>
+        @endcanany
+
         <li class="pc-item">
           <a href="{{ route('application.user-profile') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-user"></i></span>
-            <span class="pc-mtext">Profil</span>
+            <span class="pc-mtext">Mon Profil</span>
           </a>
         </li>
 
-        
         <li class="pc-item">
-          <a href="{{ route('pages.login') }}" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-lock"></i></span>
-            <span class="pc-mtext">Login</span>
-          </a>
-        </li>
-        <li class="pc-item">
-          <a href="{{ route('pages.register') }}" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
-            <span class="pc-mtext">Register</span>
-          </a>
+          <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+            @csrf
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();" class="pc-link text-danger">
+              <span class="pc-micon"><i class="ti ti-logout"></i></span>
+              <span class="pc-mtext">Déconnexion</span>
+            </a>
+          </form>
         </li>
       
       <div class="card text-center">

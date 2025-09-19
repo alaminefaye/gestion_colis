@@ -10,20 +10,30 @@ use App\Http\Controllers\FormsController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LivreurController;
+use App\Http\Controllers\ScanQRController;
 
-// Redirection vers le dashboard
+// Authentication Routes
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Redirection vers le dashboard (avec protection)
 Route::get('/', function () {
     return redirect()->route('dashboard.index');
-});
+})->middleware('auth');
 
 // Dashboard Routes
-Route::prefix('dashboard')->name('dashboard.')->group(function () {
+Route::prefix('dashboard')->name('dashboard.')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
 });
 
 // Application Routes
-Route::prefix('application')->name('application.')->group(function () {
+Route::prefix('application')->name('application.')->middleware('auth')->group(function () {
     // Gestion des colis - CRUD complet
     Route::get('/colis', [ApplicationController::class, 'ecomProductList'])->name('ecom-product-list');
     Route::get('/colis/nouveau', [ApplicationController::class, 'ecomProductAdd'])->name('ecom-product-add');
@@ -67,6 +77,58 @@ Route::prefix('application')->name('application.')->group(function () {
     });
 });
 
+// Livreurs Routes
+Route::prefix('livreurs')->name('livreurs.')->middleware('auth')->group(function () {
+    Route::get('/', [LivreurController::class, 'index'])->name('index')->middleware('can:view_livreurs');
+    Route::get('/create', [LivreurController::class, 'create'])->name('create')->middleware('can:create_livreurs');
+    Route::post('/', [LivreurController::class, 'store'])->name('store')->middleware('can:create_livreurs');
+    Route::get('/{livreur}', [LivreurController::class, 'show'])->name('show')->middleware('can:view_livreurs');
+    Route::get('/{livreur}/edit', [LivreurController::class, 'edit'])->name('edit')->middleware('can:edit_livreurs');
+    Route::put('/{livreur}', [LivreurController::class, 'update'])->name('update')->middleware('can:edit_livreurs');
+    Route::delete('/{livreur}', [LivreurController::class, 'destroy'])->name('destroy')->middleware('can:delete_livreurs');
+    
+    // Page des colis récupérés
+    Route::get('/colis/recuperes', [LivreurController::class, 'colisRecuperes'])->name('colis.recuperes')->middleware('can:view_colis_recuperes');
+});
+
+// Scan QR Routes
+Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {
+    Route::get('/', [ScanQRController::class, 'index'])->name('index')->middleware('can:scan_qr_colis');
+    Route::post('/rechercher', [ScanQRController::class, 'rechercher'])->name('rechercher')->middleware('can:scan_qr_colis');
+    Route::post('/ramasser', [ScanQRController::class, 'ramasser'])->name('ramasser')->middleware('can:ramasser_colis');
+    Route::post('/livrer', [ScanQRController::class, 'livrer'])->name('livrer')->middleware('can:livrer_colis');
+    Route::post('/en-transit', [ScanQRController::class, 'enTransit'])->name('en-transit')->middleware('can:ramasser_colis');
+});
+
+// Admin Routes - Gestion des utilisateurs et rôles/permissions
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    // Gestion des utilisateurs
+    Route::middleware('can:view_users')->group(function () {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create')->middleware('can:create_users');
+        Route::post('/users', [UserManagementController::class, 'store'])->name('users.store')->middleware('can:create_users');
+        Route::get('/users/{user}', [UserManagementController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit')->middleware('can:edit_users');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update')->middleware('can:edit_users');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy')->middleware('can:delete_users');
+    });
+    
+    // Gestion des rôles et permissions
+    Route::middleware('can:view_roles')->group(function () {
+        Route::get('/roles', [RolePermissionController::class, 'index'])->name('roles.index');
+        Route::get('/roles/create', [RolePermissionController::class, 'create'])->name('roles.create')->middleware('can:create_roles');
+        Route::post('/roles', [RolePermissionController::class, 'store'])->name('roles.store')->middleware('can:create_roles');
+        Route::get('/roles/{role}', [RolePermissionController::class, 'show'])->name('roles.show');
+        Route::get('/roles/{role}/edit', [RolePermissionController::class, 'edit'])->name('roles.edit')->middleware('can:edit_roles');
+        Route::put('/roles/{role}', [RolePermissionController::class, 'update'])->name('roles.update')->middleware('can:edit_roles');
+        Route::delete('/roles/{role}', [RolePermissionController::class, 'destroy'])->name('roles.destroy')->middleware('can:delete_roles');
+        
+        // Gestion des permissions pour un utilisateur
+        Route::post('/users/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('users.assign-role')->middleware('can:assign_permissions');
+        Route::delete('/users/{user}/remove-role/{role}', [UserManagementController::class, 'removeRole'])->name('users.remove-role')->middleware('can:assign_permissions');
+    });
+});
+
 // Elements Routes
 Route::prefix('elements')->name('elements.')->group(function () {
     Route::get('/typography', [ElementsController::class, 'bcTypography'])->name('bc-typography');
@@ -97,10 +159,9 @@ Route::prefix('charts')->name('chart.')->group(function () {
     Route::get('/maps', [ChartController::class, 'mapVector'])->name('map-vector');
 });
 
-// Pages Routes
+// Pages Routes (autres pages statiques)
 Route::prefix('pages')->name('pages.')->group(function () {
-    Route::get('/login', [PagesController::class, 'login'])->name('login');
-    Route::get('/register', [PagesController::class, 'register'])->name('register');
+    // Autres pages peuvent être ajoutées ici
 });
 
 // Other Routes
