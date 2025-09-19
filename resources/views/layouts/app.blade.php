@@ -68,6 +68,8 @@
   <script src="{{ asset('assets/js/pcoded.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
 
+  <!-- [Additional compatibility scripts removed - files don't exist] -->
+  
   @stack('scripts')
 
   <script>layout_change('light');</script>

@@ -62,10 +62,12 @@
                 @enderror
                 <small class="text-muted">
                   <strong>Note:</strong> Pour utiliser la caméra, le site doit être en HTTPS. 
+                  <span class="text-warning"><strong>Votre site utilise HTTP - caméra désactivée.</strong></span>
+                  <br>
                   En attendant, vous pouvez saisir le code manuellement.
                   <br>
                   <a href="javascript:void(0)" onclick="showCameraHelp()" class="text-primary">
-                    <i class="ti ti-help-circle"></i> Problème avec la caméra ?
+                    <i class="ti ti-help-circle"></i> Comment résoudre le problème ?
                   </a>
                 </small>
               </div>
@@ -208,11 +210,11 @@
 
 @push('scripts')
 <!-- HTML5 QR Code Scanner -->
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Auto-focus sur le champ de saisie
-  const codeInput = document.querySelector('input[name="code"]');
+  const codeInput = document.getElementById('codeInput');
   if (codeInput) {
     codeInput.focus();
   }
@@ -227,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Validation côté client
   document.getElementById('scanForm').addEventListener('submit', function(e) {
-    const code = document.querySelector('input[name="code"]').value;
+    const code = codeInput.value;
     
     if (!code) {
       e.preventDefault();
@@ -247,6 +249,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const qrReaderDiv = document.getElementById('qr-reader');
     const scanButton = document.getElementById('scanButton');
     
+    if (!qrReaderDiv || !scanButton) {
+      console.error('Éléments DOM non trouvés');
+      return;
+    }
+    
     // Afficher la zone de scan
     qrReaderDiv.style.display = 'block';
     scanButton.innerHTML = '<i class="ti ti-camera me-2"></i>Scan en cours...';
@@ -260,7 +267,16 @@ document.addEventListener('DOMContentLoaded', function() {
     stopScanning();
   });
 
+
   function startScanning() {
+    // Vérifier si Html5Qrcode est disponible
+    if (typeof Html5Qrcode === 'undefined') {
+      console.error('Html5Qrcode non disponible');
+      showNotification('Erreur: Bibliothèque de scan non chargée. Rechargez la page.', 'error');
+      stopScanning();
+      return;
+    }
+    
     // Configuration du scanner
     const config = {
       fps: 10,
@@ -269,33 +285,50 @@ document.addEventListener('DOMContentLoaded', function() {
       rememberLastUsedCamera: true
     };
     
-    // Initialiser le scanner
-    html5QrcodeScanner = new Html5Qrcode("qr-reader-element");
-    
-    // Démarrer le scan
-    html5QrcodeScanner.start(
-      { facingMode: "environment" }, // Caméra arrière
-      config,
-      onScanSuccess,
-      onScanFailure
-    ).catch(err => {
-      console.error('Erreur lors du démarrage du scanner:', err);
+    try {
+      // Initialiser le scanner
+      html5QrcodeScanner = new Html5Qrcode("qr-reader-element");
+      
+      // Démarrer le scan
+      html5QrcodeScanner.start(
+        { facingMode: "environment" }, // Caméra arrière
+        config,
+        onScanSuccess,
+        onScanFailure
+      ).then(() => {
+        isScanning = true;
+      }).catch(err => {
+        console.error('Erreur lors du démarrage du scanner:', err);
+        stopScanning();
+        
+        // Message d'erreur plus explicite
+        let errorMessage = 'Impossible d\'accéder à la caméra.';
+        
+        if (err.name === 'NotAllowedError') {
+          errorMessage += ' Permission refusée. Autorisez l\'accès à la caméra.';
+        } else if (err.name === 'NotFoundError') {
+          errorMessage += ' Aucune caméra trouvée sur cet appareil.';
+        } else if (err.name === 'NotSupportedError') {
+          errorMessage += ' Fonctionnalité non supportée par ce navigateur.';
+        } else {
+          errorMessage += ' Utilisez HTTPS ou autorisez l\'accès à la caméra.';
+        }
+        
+        errorMessage += ' Utilisez la saisie manuelle en attendant.';
+        
+        showNotification(errorMessage, 'error');
+        
+        // Afficher automatiquement l'aide après 2 secondes
+        setTimeout(() => {
+          showCameraHelp();
+        }, 2000);
+      });
+    } catch (err) {
+      console.error('Erreur lors de l\'initialisation:', err);
+      showNotification('Erreur d\'initialisation du scanner. Rechargez la page.', 'error');
       stopScanning();
-      
-      // Message d'erreur plus explicite
-      showNotification(
-        'Impossible d\'accéder à la caméra. Le site doit être en HTTPS ou vous devez autoriser l\'accès. Utilisez la saisie manuelle en attendant.',
-        'error'
-      );
-      
-      // Afficher automatiquement l'aide après 2 secondes
-      setTimeout(() => {
-        showCameraHelp();
-      }, 2000);
-    });
-    
-    isScanning = true;
-  });
+    }
+  }
 
   // Fonction appelée lors d'un scan réussi
   function onScanSuccess(decodedText, decodedResult) {
@@ -331,12 +364,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Masquer la zone de scan
-    document.getElementById('qr-reader').style.display = 'none';
+    const qrReaderDiv = document.getElementById('qr-reader');
+    if (qrReaderDiv) {
+      qrReaderDiv.style.display = 'none';
+    }
     
     // Réactiver le bouton
     const scanButton = document.getElementById('scanButton');
-    scanButton.innerHTML = '<i class="ti ti-camera me-2"></i>Scanner';
-    scanButton.disabled = false;
+    if (scanButton) {
+      scanButton.innerHTML = '<i class="ti ti-camera me-2"></i>Scanner';
+      scanButton.disabled = false;
+    }
     
     isScanning = false;
   }
@@ -372,25 +410,40 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <h6>Pourquoi la caméra ne fonctionne pas ?</h6>
-            <p>Les navigateurs modernes exigent HTTPS pour accéder à la caméra. Votre site utilise HTTP.</p>
+            <div class="alert alert-warning">
+              <i class="ti ti-alert-triangle me-2"></i>
+              <strong>Problème identifié :</strong> Votre site utilise HTTP au lieu de HTTPS
+            </div>
             
-            <h6>Solutions :</h6>
+            <h6>Pourquoi la caméra ne fonctionne pas ?</h6>
+            <p>Les navigateurs modernes bloquent l'accès à la caméra sur les sites HTTP pour des raisons de sécurité. Seuls les sites HTTPS ou localhost peuvent utiliser la caméra.</p>
+            
+            <h6>Solutions par ordre de préférence :</h6>
             <ol>
-              <li><strong>Saisie manuelle :</strong> Tapez directement le numéro de courrier dans le champ</li>
-              <li><strong>Autoriser temporairement :</strong>
+              <li><strong>HTTPS (Recommandé) :</strong> 
                 <ul>
-                  <li>Cliquez sur l'icône 🔒 dans la barre d'adresse</li>
-                  <li>Sélectionnez "Paramètres du site"</li>
-                  <li>Changez "Appareil photo" à "Autoriser"</li>
+                  <li>Configurez un certificat SSL sur votre serveur</li>
+                  <li>Modifiez votre .env pour utiliser HTTPS</li>
+                  <li>Utilisez Laravel Valet ou Laragon avec SSL</li>
                 </ul>
               </li>
-              <li><strong>Pour l'administrateur :</strong> Configurer HTTPS sur le serveur</li>
+              <li><strong>Localhost pour tests :</strong>
+                <ul>
+                  <li>Utilisez <code>php artisan serve</code> sur localhost</li>
+                  <li>Ou configurez votre serveur local avec 127.0.0.1</li>
+                </ul>
+              </li>
+              <li><strong>Saisie manuelle (Solution temporaire) :</strong>
+                <ul>
+                  <li>Tapez directement le numéro de courrier</li>
+                  <li>Utilisez les suggestions automatiques</li>
+                </ul>
+              </li>
             </ol>
             
             <div class="alert alert-info">
               <i class="ti ti-info-circle me-2"></i>
-              En attendant, vous pouvez utiliser la saisie manuelle qui fonctionne parfaitement !
+              <strong>Test rapide :</strong> Ouvrez votre site avec <code>http://localhost:8000</code> et le scanner fonctionnera !
             </div>
           </div>
           <div class="modal-footer">
@@ -428,8 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showNotification('Code sélectionné ! Cliquez sur "Rechercher".', 'info');
   }
 
-  // Autocomplétion pour le champ de recherche
-  const codeInput = document.getElementById('codeInput');
+  // Autocomplétion pour le champ de recherche (réutilise la variable déjà déclarée)
   const suggestionsDropdown = document.getElementById('suggestions-dropdown');
   let debounceTimer = null;
 
@@ -495,11 +547,15 @@ document.addEventListener('DOMContentLoaded', function() {
     suggestionsDropdown.style.display = 'none';
   }
 
-  function selectSuggestion(code) {
-    codeInput.value = code;
-    hideSuggestions();
-    codeInput.focus();
-    showNotification('Code sélectionné ! Cliquez sur "Rechercher".', 'success');
+  window.selectSuggestion = function(code) {
+    if (codeInput) {
+      codeInput.value = code;
+      hideSuggestions();
+      codeInput.focus();
+      showNotification('Code sélectionné ! Cliquez sur "Rechercher".', 'success');
+    } else {
+      console.error('Element codeInput non trouvé');
+    }
   }
 
   function getStatusColor(statut) {
