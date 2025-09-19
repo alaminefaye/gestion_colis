@@ -38,7 +38,9 @@ class Colis extends Model
         'recupere_par_telephone',
         'recupere_par_cin',
         'notes_recuperation',
-        'recupere_par_user_id'
+        'recupere_par_user_id',
+        'photo_piece_recto',
+        'photo_piece_verso',
     ];
 
     protected $casts = [
@@ -152,5 +154,27 @@ class Colis extends Model
         return \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
             ->format('svg')
             ->generate($data);
+    }
+    
+    /**
+     * Accesseur pour l'URL de la photo recto
+     */
+    public function getPhotoRectoUrlAttribute()
+    {
+        if ($this->photo_piece_recto) {
+            return asset('storage/' . $this->photo_piece_recto);
+        }
+        return null;
+    }
+    
+    /**
+     * Accesseur pour l'URL de la photo verso
+     */
+    public function getPhotoVersoUrlAttribute()
+    {
+        if ($this->photo_piece_verso) {
+            return asset('storage/' . $this->photo_piece_verso);
+        }
+        return null;
     }
 }

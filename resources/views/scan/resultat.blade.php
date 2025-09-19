@@ -182,21 +182,9 @@
           @endif
           
           <!-- Livrer le colis -->
-          <form action="{{ route('scan.livrer') }}" method="POST">
-            @csrf
-            <input type="hidden" name="colis_id" value="{{ $colis->id }}">
-            <input type="hidden" name="livreur_id" value="{{ $livreur->id }}">
-            
-            <div class="mb-3">
-              <label class="form-label">Notes de livraison (optionnel)</label>
-              <textarea class="form-control" name="notes_livraison" rows="2" 
-                        placeholder="Ex: Livré au bénéficiaire en main propre, signature obtenue..."></textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-success btn-lg">
-              <i class="ti ti-check me-2"></i>Livrer ce Colis
-            </button>
-          </form>
+          <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalLivraison">
+            <i class="ti ti-check me-2"></i>Livrer ce Colis
+          </button>
           
         @else
           <!-- Colis déjà livré -->
@@ -218,7 +206,132 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Livraison -->
+<div class="modal fade" id="modalLivraison" tabindex="-1" aria-labelledby="modalLivraisonLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLivraisonLabel">
+          <i class="ti ti-check me-2"></i>Confirmer la Livraison
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form action="{{ route('scan.livrer') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="colis_id" value="{{ $colis->id }}">
+        <input type="hidden" name="livreur_id" value="{{ $livreur->id }}">
+        
+        <div class="modal-body">
+          <!-- Info du colis -->
+          <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+              <i class="ti ti-package f-24 me-3"></i>
+              <div>
+                <h6 class="mb-1">Colis N° {{ $colis->numero_courrier }}</h6>
+                <p class="mb-0">Bénéficiaire : <strong>{{ $colis->nom_beneficiaire }}</strong></p>
+                <small class="text-muted">Tél : {{ $colis->telephone_beneficiaire }}</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes de livraison -->
+          <div class="mb-4">
+            <label class="form-label">Notes de livraison (optionnel)</label>
+            <textarea class="form-control" name="notes_livraison" rows="3" 
+                      placeholder="Ex: Livré au bénéficiaire en main propre, signature obtenue, présence d'un témoin..."></textarea>
+          </div>
+
+          <!-- Upload photos pièces d'identité -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card border">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="ti ti-id me-2"></i>Photo Pièce - Recto (optionnel)
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <input type="file" class="form-control" name="photo_piece_recto" accept="image/*" id="photoRecto">
+                    <small class="text-muted">Formats acceptés : JPG, PNG, WEBP (max 15MB)</small>
+                  </div>
+                  <div id="previewRecto" class="text-center" style="display: none;">
+                    <img id="imgRecto" class="img-fluid rounded" style="max-height: 150px;" alt="Aperçu recto">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card border">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="ti ti-id me-2"></i>Photo Pièce - Verso (optionnel)
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <input type="file" class="form-control" name="photo_piece_verso" accept="image/*" id="photoVerso">
+                    <small class="text-muted">Formats acceptés : JPG, PNG, WEBP (max 15MB)</small>
+                  </div>
+                  <div id="previewVerso" class="text-center" style="display: none;">
+                    <img id="imgVerso" class="img-fluid rounded" style="max-height: 150px;" alt="Aperçu verso">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning mt-3">
+            <i class="ti ti-info-circle me-2"></i>
+            <strong>Note :</strong> Les photos des pièces d'identité sont optionnelles mais recommandées pour justifier la livraison.
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="ti ti-x me-2"></i>Annuler
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="ti ti-check me-2"></i>Confirmer la Livraison
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+// Prévisualisation des images
+document.getElementById('photoRecto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imgRecto').src = e.target.result;
+            document.getElementById('previewRecto').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('photoVerso').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imgVerso').src = e.target.result;
+            document.getElementById('previewVerso').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+@endpush
 
 @push('styles')
 <style>

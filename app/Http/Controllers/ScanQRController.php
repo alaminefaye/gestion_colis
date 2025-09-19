@@ -106,7 +106,9 @@ class ScanQRController extends Controller
         $request->validate([
             'colis_id' => 'required|exists:colis,id',
             'livreur_id' => 'required|exists:livreurs,id',
-            'notes_livraison' => 'nullable|string'
+            'notes_livraison' => 'nullable|string',
+            'photo_piece_recto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:15360',
+            'photo_piece_verso' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:15360'
         ]);
 
         $colis = Colis::find($request->colis_id);
@@ -116,12 +118,26 @@ class ScanQRController extends Controller
             return back()->withErrors(['error' => 'Ce colis ne peut pas être livré car il n\'a pas été ramassé.']);
         }
 
+        // Gérer l'upload des photos
+        $photoRecto = null;
+        $photoVerso = null;
+
+        if ($request->hasFile('photo_piece_recto')) {
+            $photoRecto = $request->file('photo_piece_recto')->store('livraisons/pieces', 'public');
+        }
+
+        if ($request->hasFile('photo_piece_verso')) {
+            $photoVerso = $request->file('photo_piece_verso')->store('livraisons/pieces', 'public');
+        }
+
         // Mettre à jour le statut du colis
         $colis->update([
             'statut_livraison' => 'livre',
             'livre_par' => $request->livreur_id,
             'livre_le' => now(),
-            'notes_livraison' => $request->notes_livraison
+            'notes_livraison' => $request->notes_livraison,
+            'photo_piece_recto' => $photoRecto,
+            'photo_piece_verso' => $photoVerso
         ]);
 
         $livreur = Livreur::find($request->livreur_id);
