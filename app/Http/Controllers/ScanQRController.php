@@ -39,15 +39,15 @@ class ScanQRController extends Controller
         
         // Pour les admins sans profil livreur, on crée un livreur temporaire pour l'affichage
         if (!$livreur) {
-            // Créer ou récupérer un livreur "administrateur" générique
+            // Créer ou récupérer un livreur "administrateur" générique avec email unique
             $livreur = Livreur::firstOrCreate(
                 ['email' => $user->email],
                 [
                     'nom' => 'ADMIN',
                     'prenom' => 'Système',
-                    'cin' => '0000000000000', // CIN générique pour admin
-                    'telephone' => '000000000',
-                    'adresse' => 'Système',
+                    'cin' => 'ADMIN_' . $user->id, // CIN unique basé sur l'ID utilisateur
+                    'telephone' => 'ADMIN_' . $user->id, // Téléphone unique basé sur l'ID utilisateur
+                    'adresse' => 'Système - ' . $user->email,
                     'statut' => 'actif',
                     'date_embauche' => now(),
                 ]
