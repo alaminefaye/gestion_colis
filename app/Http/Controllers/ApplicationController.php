@@ -1,0 +1,307 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Colis;
+use App\Models\Destination;
+use App\Models\Agence;
+use App\Models\Client;
+use Illuminate\Support\Facades\Storage;
+
+class ApplicationController extends Controller
+{
+    /**
+     * Liste des colis
+     */
+    public function ecomProductList()
+    {
+        $colis = Colis::orderBy('created_at', 'desc')->paginate(10);
+        return view('application.ecom-product-list', compact('colis'));
+    }
+
+    /**
+     * Ajouter un colis
+     */
+    public function ecomProductAdd()
+    {
+        $destinations = Destination::actif()->orderBy('libelle')->get();
+        $agences = Agence::actif()->orderBy('libelle')->get();
+        
+        return view('application.ecom-product-add', compact('destinations', 'agences'));
+    }
+
+    /**
+     * Enregistrer un nouveau colis
+     */
+    public function ecomProductStore(Request $request)
+    {
+        // Validation des données
+        $validated = $request->validate([
+            'numero_courrier' => 'required|string|unique:colis,numero_courrier|max:50',
+            'destination' => 'required|string',
+            'nom_expediteur' => 'required|string|max:255',
+            'telephone_expediteur' => 'required|string|max:20',
+            'nom_beneficiaire' => 'required|string|max:255',
+            'telephone_beneficiaire' => 'required|string|max:20',
+            'montant' => 'required|numeric|min:0',
+            'valeur_colis' => 'required|numeric|min:0',
+            'type_colis' => 'required|string',
+            'agence_reception' => 'required|string',
+            'description' => 'nullable|string',
+            'photo_courrier' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:15360'
+        ], [
+            'numero_courrier.required' => 'Le numéro de courrier est obligatoire.',
+            'numero_courrier.unique' => 'Ce numéro de courrier existe déjà. Veuillez en choisir un autre.',
+            'numero_courrier.max' => 'Le numéro de courrier ne peut pas dépasser 50 caractères.',
+            'destination.required' => 'La destination est obligatoire.',
+            'nom_expediteur.required' => 'Le nom de l\'expéditeur est obligatoire.',
+            'telephone_expediteur.required' => 'Le téléphone de l\'expéditeur est obligatoire.',
+            'nom_beneficiaire.required' => 'Le nom du bénéficiaire est obligatoire.',
+            'telephone_beneficiaire.required' => 'Le téléphone du bénéficiaire est obligatoire.',
+            'montant.required' => 'Le montant est obligatoire.',
+            'montant.min' => 'Le montant doit être positif.',
+            'valeur_colis.required' => 'La valeur du colis est obligatoire.',
+            'valeur_colis.min' => 'La valeur du colis doit être positive.',
+            'type_colis.required' => 'Le type de colis est obligatoire.',
+            'agence_reception.required' => 'L\'agence de réception est obligatoire.',
+            'photo_courrier.image' => 'Le fichier doit être une image.',
+            'photo_courrier.mimes' => 'L\'image doit être au format jpeg, png, jpg ou gif.',
+            'photo_courrier.max' => 'L\'image ne peut pas dépasser 15MB.'
+        ]);
+
+        // Créer automatiquement les clients expéditeur et bénéficiaire
+        Client::createOrUpdate(
+            $validated['nom_expediteur'], 
+            $validated['telephone_expediteur']
+        );
+        
+        Client::createOrUpdate(
+            $validated['nom_beneficiaire'], 
+            $validated['telephone_beneficiaire']
+        );
+
+        // Gestion de l'upload de photo
+        if ($request->hasFile('photo_courrier')) {
+            $photo = $request->file('photo_courrier');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/colis'), $photoName);
+            $validated['photo_courrier'] = $photoName;
+        }
+
+        // Créer le colis
+        $colis = Colis::create($validated);
+
+        return redirect()->route('application.ecom-product-list')
+                         ->with('success', 'Colis ajouté avec succès! Les clients ont été créés automatiquement.');
+    }
+
+    /**
+     * Afficher un colis
+     */
+    public function ecomProductShow($id)
+    {
+        $colis = Colis::findOrFail($id);
+        return view('application.ecom-product-show', compact('colis'));
+    }
+
+    /**
+     * Modifier un colis
+     */
+    public function ecomProductEdit($id)
+    {
+        $colis = Colis::findOrFail($id);
+        $destinations = Destination::actif()->orderBy('libelle')->get();
+        $agences = Agence::actif()->orderBy('libelle')->get();
+        
+        return view('application.ecom-product-edit', compact('colis', 'destinations', 'agences'));
+    }
+
+    /**
+     * Mettre à jour un colis
+     */
+    public function ecomProductUpdate(Request $request, $id)
+    {
+        $colis = Colis::findOrFail($id);
+
+        // Validation des données
+        $validated = $request->validate([
+            'numero_courrier' => 'required|string|unique:colis,numero_courrier,' . $id . '|max:50',
+            'destination' => 'required|string',
+            'nom_expediteur' => 'required|string|max:255',
+            'telephone_expediteur' => 'required|string|max:20',
+            'nom_beneficiaire' => 'required|string|max:255',
+            'telephone_beneficiaire' => 'required|string|max:20',
+            'montant' => 'required|numeric|min:0',
+            'valeur_colis' => 'required|numeric|min:0',
+            'type_colis' => 'required|string',
+            'agence_reception' => 'required|string',
+            'description' => 'nullable|string',
+            'photo_courrier' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:15360'
+        ], [
+            'numero_courrier.required' => 'Le numéro de courrier est obligatoire.',
+            'numero_courrier.unique' => 'Ce numéro de courrier existe déjà. Veuillez en choisir un autre.',
+            'numero_courrier.max' => 'Le numéro de courrier ne peut pas dépasser 50 caractères.',
+            'destination.required' => 'La destination est obligatoire.',
+            'nom_expediteur.required' => 'Le nom de l\'expéditeur est obligatoire.',
+            'telephone_expediteur.required' => 'Le téléphone de l\'expéditeur est obligatoire.',
+            'nom_beneficiaire.required' => 'Le nom du bénéficiaire est obligatoire.',
+            'telephone_beneficiaire.required' => 'Le téléphone du bénéficiaire est obligatoire.',
+            'montant.required' => 'Le montant est obligatoire.',
+            'montant.min' => 'Le montant doit être positif.',
+            'valeur_colis.required' => 'La valeur du colis est obligatoire.',
+            'valeur_colis.min' => 'La valeur du colis doit être positive.',
+            'type_colis.required' => 'Le type de colis est obligatoire.',
+            'agence_reception.required' => 'L\'agence de réception est obligatoire.',
+            'photo_courrier.image' => 'Le fichier doit être une image.',
+            'photo_courrier.mimes' => 'L\'image doit être au format jpeg, png, jpg ou gif.',
+            'photo_courrier.max' => 'L\'image ne peut pas dépasser 15MB.'
+        ]);
+
+        // Gestion de l'upload de photo
+        if ($request->hasFile('photo_courrier')) {
+            // Supprimer l'ancienne photo si elle existe
+            if ($colis->photo_courrier && file_exists(public_path('uploads/colis/' . $colis->photo_courrier))) {
+                unlink(public_path('uploads/colis/' . $colis->photo_courrier));
+            }
+
+            $photo = $request->file('photo_courrier');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/colis'), $photoName);
+            $validated['photo_courrier'] = $photoName;
+        }
+
+        $colis->update($validated);
+
+        return redirect()->route('application.ecom-product-list')
+                         ->with('success', 'Colis mis à jour avec succès!');
+    }
+
+    /**
+     * Supprimer un colis
+     */
+    public function ecomProductDestroy($id)
+    {
+        $colis = Colis::findOrFail($id);
+
+        // Supprimer la photo si elle existe
+        if ($colis->photo_courrier && file_exists(public_path('uploads/colis/' . $colis->photo_courrier))) {
+            unlink(public_path('uploads/colis/' . $colis->photo_courrier));
+        }
+
+        $colis->delete();
+
+        return redirect()->route('application.ecom-product-list')
+                         ->with('success', 'Colis supprimé avec succès!');
+    }
+
+    /**
+     * Liste des clients
+     */
+    public function custCustomerList()
+    {
+        // Données des clients (à remplacer par de vraies données)
+        $clients = [
+            [
+                'id' => 1,
+                'nom' => 'Jean Dupont',
+                'email' => 'jean.dupont@email.com',
+                'telephone' => '+33 1 23 45 67 89',
+                'ville' => 'Paris',
+                'colis_envoyes' => 127,
+                'depenses_totales' => 3456.78,
+                'statut' => 'vip',
+                'derniere_activite' => 'Il y a 2 heures'
+            ],
+            // ... autres clients
+        ];
+
+        return view('application.cust-customer-list', compact('clients'));
+    }
+
+    /**
+     * Chat support client
+     */
+    public function chat()
+    {
+        // Données des conversations (à remplacer par de vraies données)
+        $conversations = [
+            [
+                'id' => 1,
+                'client_nom' => 'Jean Dupont',
+                'client_avatar' => 'assets/images/user/avatar-1.jpg',
+                'dernier_message' => 'Bonjour, où en est mon colis COL-2024-001 ?',
+                'heure' => '10:30',
+                'non_lus' => 2,
+                'en_ligne' => true
+            ],
+            // ... autres conversations
+        ];
+
+        return view('application.chat', compact('conversations'));
+    }
+
+    /**
+     * Calendrier
+     */
+    public function calendar()
+    {
+        // Données des événements calendrier
+        $events = [
+            [
+                'title' => 'Livraison COL-2024-001',
+                'start' => '2024-01-20',
+                'backgroundColor' => '#4099ff'
+            ],
+            // ... autres événements
+        ];
+
+        return view('application.calendar', compact('events'));
+    }
+
+    /**
+     * Profil utilisateur
+     */
+    public function userProfile()
+    {
+        // Données du profil utilisateur
+        $user = [
+            'nom' => 'Administrateur',
+            'email' => 'admin@gestion-colis.com',
+            'telephone' => '+33 1 23 45 67 89',
+            'poste' => 'Gestionnaire Système',
+            'avatar' => 'assets/images/user/avatar-2.jpg'
+        ];
+
+        return view('application.user-profile', compact('user'));
+    }
+
+    /**
+     * Liste des utilisateurs
+     */
+    public function userList()
+    {
+        // Données des utilisateurs
+        $users = [
+            [
+                'id' => 1,
+                'nom' => 'Administrateur',
+                'email' => 'admin@gestion-colis.com',
+                'role' => 'Admin',
+                'statut' => 'actif',
+                'derniere_connexion' => 'En ligne'
+            ],
+            // ... autres utilisateurs
+        ];
+
+        return view('application.user-list', compact('users'));
+    }
+
+    /**
+     * Checkout/Traitement
+     */
+    public function ecomCheckout()
+    {
+        return view('application.ecom-checkout');
+    }
+}
