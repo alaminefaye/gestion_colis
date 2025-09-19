@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Livreur;
 use App\Models\Colis;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class LivreurController extends Controller
 {
@@ -38,16 +41,30 @@ class LivreurController extends Controller
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'telephone' => 'required|string|unique:livreurs',
-            'email' => 'nullable|email|unique:livreurs',
+            'email' => 'required|email|unique:livreurs|unique:users', // Email obligatoire et unique
             'cin' => 'required|string|unique:livreurs',
             'adresse' => 'nullable|string',
             'date_embauche' => 'required|date'
         ]);
 
-        Livreur::create($request->all());
+        DB::transaction(function () use ($request) {
+            // Créer le livreur
+            $livreur = Livreur::create($request->all());
+            
+            // Créer l'utilisateur associé automatiquement
+            $user = User::create([
+                'name' => $livreur->prenom . ' ' . $livreur->nom,
+                'email' => $livreur->email,
+                'password' => Hash::make('passer123'), // Mot de passe par défaut
+                'password_change_required' => true, // Forcer le changement de mot de passe
+            ]);
+            
+            // Attribuer le rôle livreur
+            $user->assignRole('livreur');
+        });
 
         return redirect()->route('livreurs.index')
-                        ->with('success', 'Livreur créé avec succès!');
+                        ->with('success', 'Livreur créé avec succès! Un compte utilisateur a été créé avec le mot de passe temporaire "passer123".');
     }
 
     /**
@@ -164,25 +181,27 @@ class LivreurController extends Controller
     {
         $user = Auth::user();
         
-        // Trouver le livreur correspondant à cet utilisateur (par email)
+        // Trouver le livreur correspondant à cet utilisateur (par email UNIQUEMENT)
         $livreur = Livreur::where('email', $user->email)->first();
         
         if (!$livreur) {
             return redirect()->route('dashboard.index')
-                           ->with('error', 'Aucun profil de livreur trouvé pour votre compte.');
+                           ->with('error', 'Aucun profil de livreur associé à votre email. Contactez l\'administrateur.');
         }
 
-        // Statistiques du livreur
+        // Statistiques du livreur (AUJOURD'HUI SEULEMENT)
+        $today = now()->toDateString();
         $stats = [
-            'total_ramasse' => $livreur->colisRamasses()->count(),
-            'total_livre' => $livreur->colisLivres()->count(),
-            'en_cours' => $livreur->colisRamasses()->where('statut_livraison', 'ramasse')->count(),
-            'en_transit' => $livreur->colisRamasses()->where('statut_livraison', 'en_transit')->count()
+            'total_ramasse' => $livreur->colisRamasses()->whereDate('ramasse_le', $today)->count(),
+            'total_livre' => $livreur->colisLivres()->whereDate('livre_le', $today)->count(),
+            'en_cours' => $livreur->colisRamasses()->where('statut_livraison', 'ramasse')->whereDate('ramasse_le', $today)->count(),
+            'en_transit' => $livreur->colisRamasses()->where('statut_livraison', 'en_transit')->whereDate('ramasse_le', $today)->count()
         ];
 
-        // Colis récents du livreur
+        // Colis récents du livreur (AUJOURD'HUI SEULEMENT)
         $colisRamasses = $livreur->colisRamasses()
                                ->where('statut_livraison', '!=', 'livre')
+                               ->whereDate('ramasse_le', $today)
                                ->orderBy('ramasse_le', 'desc')
                                ->take(10)
                                ->get();
@@ -202,12 +221,12 @@ class LivreurController extends Controller
     {
         $user = Auth::user();
         
-        // Trouver le livreur correspondant à cet utilisateur
+        // Trouver le livreur correspondant à cet utilisateur (par email UNIQUEMENT)
         $livreur = Livreur::where('email', $user->email)->first();
         
         if (!$livreur) {
             return redirect()->route('dashboard.index')
-                           ->with('error', 'Aucun profil de livreur trouvé pour votre compte.');
+                           ->with('error', 'Aucun profil de livreur associé à votre email. Contactez l\'administrateur.');
         }
 
         // Query de base pour les colis de ce livreur

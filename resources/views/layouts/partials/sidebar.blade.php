@@ -2,25 +2,51 @@
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
     <div class="m-header">
-      <a href="{{ route('dashboard.index') }}" class="b-brand text-primary">
+        <a href="{{ dashboard_route() }}" class="b-brand text-primary">
         <!-- ========   Change your logo from here   ============ -->
         <img src="{{ asset('assets/images/logo-dark.svg') }}" class="img-fluid logo-lg" alt="logo">
       </a>
     </div>
     <div class="navbar-content">
       <ul class="pc-navbar">
+        @if(Auth::user()->hasRole('super-admin'))
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
+            <span class="pc-mtext">Dashboard</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            @can('view_dashboard')
+            <li class="pc-item"><a class="pc-link" href="{{ route('dashboard.index') }}">Dashboard Admin</a></li>
+            @endcan
+            @can('scan_qr_colis')
+            <li class="pc-item"><a class="pc-link" href="{{ route('livreur.dashboard') }}">Dashboard Livreur</a></li>
+            @endcan
+          </ul>
+        </li>
+        @else
+        @can('view_dashboard')
+        @unless(Auth::user()->hasRole('livreur'))
         <li class="pc-item">
-          <a href="{{ route('dashboard.index') }}" class="pc-link">
+          <a href="{{ dashboard_route() }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
             <span class="pc-mtext">Dashboard</span>
           </a>
         </li>
+        @endunless
+        @endcan
+        @endif
+        @can('view_analytics')
+        @unless(Auth::user()->hasRole('livreur'))
         <li class="pc-item">
           <a href="{{ route('dashboard.analytics') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-chart-line"></i></span>
             <span class="pc-mtext">Analytics</span>
           </a>
         </li>
+        @endunless
+        @endcan
 
         @can('view_colis')
         <li class="pc-item pc-caption">

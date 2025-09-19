@@ -13,6 +13,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 
@@ -21,19 +22,23 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Password Change Routes (obligatoire pour nouveaux utilisateurs)
+Route::get('/change-password', [PasswordChangeController::class, 'showChangeForm'])->name('password.change')->middleware('auth');
+Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('password.update')->middleware('auth');
+
 // Redirection vers le dashboard (avec protection)
 Route::get('/', function () {
     return redirect()->route('dashboard.index');
 })->middleware('auth');
 
 // Dashboard Routes
-Route::prefix('dashboard')->name('dashboard.')->middleware('auth')->group(function () {
+Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'force.password.change'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
 });
 
 // Application Routes
-Route::prefix('application')->name('application.')->middleware('auth')->group(function () {
+Route::prefix('application')->name('application.')->middleware(['auth', 'force.password.change'])->group(function () {
     // Gestion des colis - CRUD complet
     Route::get('/colis', [ApplicationController::class, 'ecomProductList'])->name('ecom-product-list');
     Route::get('/colis/tous', [ApplicationController::class, 'ecomProductListAll'])->name('ecom-product-list-all');
@@ -63,6 +68,8 @@ Route::prefix('application')->name('application.')->middleware('auth')->group(fu
     // Utilisateurs
     Route::get('/utilisateurs', [ApplicationController::class, 'userList'])->name('user-list');
     Route::get('/profil', [ApplicationController::class, 'userProfile'])->name('user-profile');
+    Route::get('/profil/modifier', [ApplicationController::class, 'userProfileEdit'])->name('user-profile-edit');
+    Route::put('/profil/modifier', [ApplicationController::class, 'userProfileUpdate'])->name('user-profile-update');
     
     // Gestion - Destinations et Agences
     Route::prefix('gestion')->name('gestion.')->group(function () {
@@ -98,8 +105,8 @@ Route::prefix('livreurs')->name('livreurs.')->middleware('auth')->group(function
 });
 
 // Tableau de bord livreur
-Route::get('/livreur/dashboard', [LivreurController::class, 'dashboard'])->name('livreur.dashboard')->middleware('auth');
-Route::get('/livreur/mes-colis', [LivreurController::class, 'mesColis'])->name('livreur.mes-colis')->middleware(['auth', 'can:view_mes_colis']);
+Route::get('/livreur/dashboard', [LivreurController::class, 'dashboard'])->name('livreur.dashboard')->middleware(['auth', 'force.password.change']);
+Route::get('/livreur/mes-colis', [LivreurController::class, 'mesColis'])->name('livreur.mes-colis')->middleware(['auth', 'force.password.change', 'can:view_mes_colis']);
 
 // Détail d'un colis
 Route::get('/colis/{colis}/detail', [LivreurController::class, 'detailColis'])->name('colis.detail')->middleware(['auth', 'can:view_colis_detail']);

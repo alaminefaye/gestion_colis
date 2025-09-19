@@ -2,241 +2,222 @@
 
 @section('title', 'Tableau de Bord Livreur')
 
+@push('styles')
+<style>
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.stat-card {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+.action-btn {
+  border-radius: 12px;
+  padding: 15px 20px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+</style>
+@endpush
+
 @section('content')
-<!-- [ breadcrumb ] start -->
-<div class="page-header">
-  <div class="page-block">
-    <div class="row align-items-center">
-      <div class="col-md-12">
-        <div class="page-header-title">
-          <h5 class="m-b-10">Tableau de Bord Livreur</h5>
+  
+<!-- Statistiques Modernes -->
+<div class="row mb-4">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card stat-card border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="stat-icon mx-auto mb-3" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+          <i class="ti ti-package"></i>
         </div>
-        <ul class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Accueil</a></li>
-          <li class="breadcrumb-item" aria-current="page">Mon Tableau de Bord</li>
-        </ul>
+        <h3 class="mb-1 fw-bold text-dark">{{ $stats['total_ramasse'] }}</h3>
+        <p class="text-muted mb-0 fw-500">Colis Ramassés</p>
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-danger" style="width: 85%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card stat-card border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="stat-icon mx-auto mb-3" style="background: linear-gradient(135deg, #51cf66, #69db7c);">
+          <i class="ti ti-check-circle"></i>
+        </div>
+        <h3 class="mb-1 fw-bold text-dark">{{ $stats['total_livre'] }}</h3>
+        <p class="text-muted mb-0 fw-500">Colis Livrés</p>
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-success" style="width: 92%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card stat-card border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="stat-icon mx-auto mb-3" style="background: linear-gradient(135deg, #74c0fc, #91d7ff);">
+          <i class="ti ti-clock"></i>
+        </div>
+        <h3 class="mb-1 fw-bold text-dark">{{ $stats['en_cours'] }}</h3>
+        <p class="text-muted mb-0 fw-500">En Cours</p>
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-info" style="width: 70%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card stat-card border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="stat-icon mx-auto mb-3" style="background: linear-gradient(135deg, #845ec2, #9775fa);">
+          <i class="ti ti-truck"></i>
+        </div>
+        <h3 class="mb-1 fw-bold text-dark">{{ $stats['en_transit'] }}</h3>
+        <p class="text-muted mb-0 fw-500">En Transit</p>
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-primary" style="width: 60%;"></div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<!-- [ breadcrumb ] end -->
 
-<!-- [ Main Content ] start -->
-<div class="row">
-  <!-- Profil Livreur -->
-  <div class="col-md-12 mb-4">
-    <div class="card bg-gradient-primary text-white">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="avtar avtar-xl bg-white bg-opacity-20 me-4">
-            <span class="f-36 text-white">{{ strtoupper(substr($livreur->prenom, 0, 1)) }}{{ strtoupper(substr($livreur->nom, 0, 1)) }}</span>
-          </div>
-          <div>
-            <h4 class="text-white mb-1">{{ $livreur->nom_complet }}</h4>
-            <p class="text-white-50 mb-1">{{ $livreur->telephone }} | {{ $livreur->email }}</p>
-            <p class="text-white-50 mb-0">
-              <i class="ti ti-calendar me-1"></i>Embauché depuis {{ $livreur->date_embauche->diffForHumans() }}
-            </p>
-          </div>
-          <div class="ms-auto text-end">
-            <span class="badge bg-success fs-6">{{ $livreur->statut }}</span>
-          </div>
-        </div>
+<!-- Actions Rapides Modernes -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card stat-card border-0">
+      <div class="card-header bg-transparent border-0 pb-0">
+        <h5 class="mb-0 fw-bold">
+          <i class="ti ti-bolt me-2 text-primary"></i>Actions Rapides
+        </h5>
       </div>
-    </div>
-  </div>
-  
-  <!-- Statistiques -->
-  <div class="col-md-3 mb-4">
-    <div class="card bg-warning text-white">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="avtar avtar-s bg-white bg-opacity-20 me-3">
-            <i class="ti ti-package text-warning"></i>
-          </div>
-          <div>
-            <h6 class="text-white mb-0">Colis Ramassés</h6>
-            <h4 class="text-white mb-0">{{ $stats['total_ramasse'] }}</h4>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-3 mb-4">
-    <div class="card bg-success text-white">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="avtar avtar-s bg-white bg-opacity-20 me-3">
-            <i class="ti ti-check text-success"></i>
-          </div>
-          <div>
-            <h6 class="text-white mb-0">Colis Livrés</h6>
-            <h4 class="text-white mb-0">{{ $stats['total_livre'] }}</h4>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-3 mb-4">
-    <div class="card bg-info text-white">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="avtar avtar-s bg-white bg-opacity-20 me-3">
-            <i class="ti ti-clock text-info"></i>
-          </div>
-          <div>
-            <h6 class="text-white mb-0">En Cours</h6>
-            <h4 class="text-white mb-0">{{ $stats['en_cours'] }}</h4>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-3 mb-4">
-    <div class="card bg-primary text-white">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="avtar avtar-s bg-white bg-opacity-20 me-3">
-            <i class="ti ti-truck text-primary"></i>
-          </div>
-          <div>
-            <h6 class="text-white mb-0">En Transit</h6>
-            <h4 class="text-white mb-0">{{ $stats['en_transit'] }}</h4>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Actions rapides -->
-  <div class="col-md-12 mb-4">
-    <div class="card">
-      <div class="card-header">
-        <h5>Actions Rapides</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <a href="{{ route('scan.index') }}" class="btn btn-primary w-100 btn-lg">
-              <i class="ti ti-qrcode me-2"></i>Scanner QR Code
+      <div class="card-body pt-3">
+        <div class="row g-3">
+          <div class="col-lg-4 col-md-6">
+            <a href="{{ route('scan.index') }}" class="btn action-btn w-100 text-start" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+              <div class="d-flex align-items-center">
+                <div class="stat-icon me-3" style="width: 50px; height: 50px; font-size: 20px; background: rgba(255,255,255,0.2);">
+                  <i class="ti ti-qrcode"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 text-white">Scanner QR</h6>
+                  <small class="text-white-50">Scannez un colis</small>
+                </div>
+              </div>
             </a>
           </div>
+          
           @can('view_mes_colis')
-          <div class="col-md-4 mb-3">
-            <a href="{{ route('livreur.mes-colis') }}" class="btn btn-info w-100 btn-lg">
-              <i class="ti ti-user me-2"></i>Mes Colis
+          <div class="col-lg-4 col-md-6">
+            <a href="{{ route('livreur.mes-colis') }}" class="btn action-btn w-100 text-start" style="background: linear-gradient(135deg, #74c0fc 0%, #91d7ff 100%); color: white;">
+              <div class="d-flex align-items-center">
+                <div class="stat-icon me-3" style="width: 50px; height: 50px; font-size: 20px; background: rgba(255,255,255,0.2);">
+                  <i class="ti ti-package"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 text-white">Mes Colis</h6>
+                  <small class="text-white-50">{{ $stats['en_cours'] }} en cours</small>
+                </div>
+              </div>
             </a>
           </div>
           @endcan
-          <div class="col-md-4 mb-3">
-            <a href="{{ route('livreurs.colis.recuperes') }}" class="btn btn-outline-secondary w-100 btn-lg">
-              <i class="ti ti-list me-2"></i>Voir Tous les Colis
+          
+          <div class="col-lg-4 col-md-6">
+            <a href="{{ route('application.user-profile') }}" class="btn action-btn w-100 text-start" style="background: linear-gradient(135deg, #51cf66 0%, #69db7c 100%); color: white;">
+              <div class="d-flex align-items-center">
+                <div class="stat-icon me-3" style="width: 50px; height: 50px; font-size: 20px; background: rgba(255,255,255,0.2);">
+                  <i class="ti ti-user"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 text-white">Mon Profil</h6>
+                  <small class="text-white-50">Voir mes infos</small>
+                </div>
+              </div>
             </a>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Mes Colis En Cours -->
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h5>Mes Colis En Cours ({{ $colisRamasses->count() }})</h5>
+<!-- Section Colis Récents -->
+<div class="row">
+  <div class="col-12">
+    <div class="card stat-card border-0">
+      <div class="card-header bg-transparent border-0 pb-0">
+        <h5 class="mb-0 fw-bold">
+          <i class="ti ti-clock me-2 text-success"></i>Mes Colis En Cours 
+          <span class="badge bg-light-success text-success ms-2">{{ $colisRamasses->count() }}</span>
+        </h5>
       </div>
       <div class="card-body">
         @if($colisRamasses->count() > 0)
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>N° Courrier</th>
-                  <th>Bénéficiaire</th>
-                  <th>Statut</th>
-                  <th>Ramassé le</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($colisRamasses as $colis)
-                <tr>
-                  <td><strong>{{ $colis->numero_courrier }}</strong></td>
-                  <td>
+          <div class="row">
+            @foreach($colisRamasses as $colis)
+            <div class="col-lg-6 mb-3">
+              <div class="card border-0 bg-light">
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="mb-0 fw-bold text-primary"># {{ $colis->numero_courrier }}</h6>
+                    <span class="badge bg-{{ $colis->statut_color }}">{{ $colis->statut_livraison_label }}</span>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="ti ti-user me-2 text-muted"></i>
                     <div>
-                      <small class="d-block">{{ $colis->nom_beneficiaire }}</small>
+                      <small class="fw-500">{{ $colis->nom_beneficiaire }}</small><br>
                       <small class="text-muted">{{ $colis->telephone_beneficiaire }}</small>
                     </div>
-                  </td>
-                  <td>
-                    <span class="badge bg-light-{{ $colis->statut_color }}">{{ $colis->statut_livraison_label }}</span>
-                  </td>
-                  <td>
-                    <small>{{ $colis->ramasse_le?->format('d/m/Y') }}</small><br>
-                    <small class="text-muted">{{ $colis->ramasse_le?->format('H:i') }}</small>
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
+                  </div>
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="ti ti-calendar me-2"></i>
+                    <small>Ramassé le {{ $colis->ramasse_le?->format('d/m/Y à H:i') }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            @endforeach
           </div>
         @else
-          <div class="text-center py-4">
-            <i class="ti ti-package f-48 text-muted mb-3"></i>
-            <h6 class="text-muted">Aucun colis en cours</h6>
-            <p class="text-muted">Scannez des colis pour commencer vos livraisons</p>
-          </div>
-        @endif
-      </div>
-    </div>
-  </div>
-
-  <!-- Mes Dernières Livraisons -->
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h5>Mes Dernières Livraisons ({{ $colisLivres->count() }})</h5>
-      </div>
-      <div class="card-body">
-        @if($colisLivres->count() > 0)
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>N° Courrier</th>
-                  <th>Bénéficiaire</th>
-                  <th>Livré le</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($colisLivres as $colis)
-                <tr>
-                  <td><strong>{{ $colis->numero_courrier }}</strong></td>
-                  <td>
-                    <div>
-                      <small class="d-block">{{ $colis->nom_beneficiaire }}</small>
-                      <small class="text-muted">{{ $colis->telephone_beneficiaire }}</small>
-                    </div>
-                  </td>
-                  <td>
-                    <small>{{ $colis->livre_le?->format('d/m/Y') }}</small><br>
-                    <small class="text-muted">{{ $colis->livre_le?->format('H:i') }}</small>
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
-          </div>
-        @else
-          <div class="text-center py-4">
-            <i class="ti ti-check-circle f-48 text-muted mb-3"></i>
-            <h6 class="text-muted">Aucune livraison récente</h6>
-            <p class="text-muted">Vos livraisons terminées apparaîtront ici</p>
+          <div class="text-center py-5">
+            <div class="mb-4">
+              <i class="ti ti-package" style="font-size: 4rem; color: #e9ecef;"></i>
+            </div>
+            <h6 class="text-muted mb-2">Aucun colis en cours</h6>
+            <p class="text-muted mb-4">Commencez par scanner des colis pour vos livraisons</p>
+            <a href="{{ route('scan.index') }}" class="btn btn-primary">
+              <i class="ti ti-qrcode me-2"></i>Scanner maintenant
+            </a>
           </div>
         @endif
       </div>
     </div>
   </div>
 </div>
+
 @endsection

@@ -8,6 +8,7 @@ use App\Models\Destination;
 use App\Models\Agence;
 use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class ApplicationController extends Controller
 {
@@ -308,16 +309,53 @@ class ApplicationController extends Controller
      */
     public function userProfile()
     {
-        // Données du profil utilisateur
-        $user = [
-            'nom' => 'Administrateur',
-            'email' => 'admin@gestion-colis.com',
-            'telephone' => '+33 1 23 45 67 89',
-            'poste' => 'Gestionnaire Système',
-            'avatar' => 'assets/images/user/avatar-2.jpg'
-        ];
-
+        // Récupérer l'utilisateur authentifié
+        $user = auth()->user();
         return view('application.user-profile', compact('user'));
+    }
+
+    /**
+     * Modifier profil utilisateur
+     */
+    public function userProfileEdit()
+    {
+        // Récupérer l'utilisateur authentifié
+        $user = auth()->user();
+        return view('application.user-profile-edit', compact('user'));
+    }
+
+    /**
+     * Mettre à jour profil utilisateur
+     */
+    public function userProfileUpdate(Request $request)
+    {
+        $user = auth()->user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'current_password' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        // Vérifier le mot de passe actuel si un nouveau mot de passe est fourni
+        if ($request->filled('password')) {
+            if (!$request->filled('current_password') || !Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+            }
+        }
+
+        // Mettre à jour les informations
+        $user->name = $request->name;
+        $user->email = $request->email;
+        
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        
+        $user->save();
+
+        return redirect()->route('application.user-profile')->with('success', 'Profil mis à jour avec succès !');
     }
 
     /**

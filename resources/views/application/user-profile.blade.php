@@ -23,6 +23,13 @@
 <!-- [ breadcrumb ] end -->
 
 <!-- [ Main Content ] start -->
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <i class="ti ti-check-circle me-2"></i>{{ session('success') }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <div class="row">
   <!-- Profile Info -->
   <div class="col-md-4">
@@ -36,20 +43,38 @@
             </button>
           </div>
         </div>
-        <h5 class="mb-1">Administrateur Système</h5>
-        <p class="text-muted mb-3">admin@gestion-colis.com</p>
+        <h5 class="mb-1">{{ $user->name }}</h5>
+        <p class="text-muted mb-3">{{ $user->email }}</p>
         <div class="row text-center">
           <div class="col-4">
-            <h5 class="mb-0">87</h5>
-            <small class="text-muted">Colis Traités</small>
+            <h5 class="mb-0">{{ $user->created_at->diffInDays() }}</h5>
+            <small class="text-muted">Jours actif</small>
           </div>
           <div class="col-4">
-            <h5 class="mb-0">1.2k</h5>
-            <small class="text-muted">Clients</small>
+            <h5 class="mb-0">
+              @if($user->hasRole('super-admin'))
+                Tous
+              @elseif($user->hasRole('admin'))
+                Élevés  
+              @elseif($user->hasRole('livreur'))
+                Limités
+              @else
+                Standards
+              @endif
+            </h5>
+            <small class="text-muted">Droits</small>
           </div>
           <div class="col-4">
-            <h5 class="mb-0">95%</h5>
-            <small class="text-muted">Performance</small>
+            <h5 class="mb-0">
+              @if($user->hasRole(['super-admin', 'admin']))
+                <span class="badge bg-success">Actif</span>
+              @elseif($user->hasRole(['gestionnaire', 'employe']))
+                <span class="badge bg-info">Actif</span>
+              @else
+                <span class="badge bg-warning">Actif</span>
+              @endif
+            </h5>
+            <small class="text-muted">Statut</small>
           </div>
         </div>
       </div>
@@ -126,16 +151,10 @@
           <div class="tab-pane fade show active" id="profile-1" role="tabpanel" aria-labelledby="profile-tab-1">
             <form>
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="mb-3">
-                    <label class="form-label">Prénom</label>
-                    <input type="text" class="form-control" value="Admin" placeholder="Prénom">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Nom</label>
-                    <input type="text" class="form-control" value="Système" placeholder="Nom">
+                    <label class="form-label">Nom complet</label>
+                    <input type="text" class="form-control" value="{{ $user->name }}" readonly>
                   </div>
                 </div>
               </div>
@@ -143,42 +162,41 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" value="admin@gestion-colis.com" placeholder="Email">
+                    <input type="email" class="form-control" value="{{ $user->email }}" readonly>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label">Téléphone</label>
-                    <input type="tel" class="form-control" value="+33 1 23 45 67 89" placeholder="Téléphone">
+                    <label class="form-label">Rôle</label>
+                    <input type="text" class="form-control" value="{{ 
+                      $user->hasRole('super-admin') ? 'Super Administrateur' : (
+                      $user->hasRole('admin') ? 'Administrateur' : (
+                      $user->hasRole('gestionnaire') ? 'Gestionnaire' : (
+                      $user->hasRole('employe') ? 'Employé' : (
+                      $user->hasRole('livreur') ? 'Livreur' : (
+                      $user->hasRole('client') ? 'Client' : 'Utilisateur'))))) 
+                    }}" readonly>
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label">Poste</label>
-                    <input type="text" class="form-control" value="Gestionnaire Système" placeholder="Poste">
+                    <label class="form-label">Date d'inscription</label>
+                    <input type="text" class="form-control" value="{{ $user->created_at->format('d/m/Y à H:i') }}" readonly>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label">Département</label>
-                    <select class="form-select">
-                      <option>Administration</option>
-                      <option>Logistique</option>
-                      <option>Service Client</option>
-                      <option>IT</option>
-                    </select>
+                    <label class="form-label">Dernière connexion</label>
+                    <input type="text" class="form-control" value="{{ $user->updated_at->format('d/m/Y à H:i') }}" readonly>
                   </div>
                 </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Adresse</label>
-                <textarea class="form-control" rows="3" placeholder="Adresse complète">123 Rue de la Logistique, 75001 Paris, France</textarea>
-              </div>
               <div class="text-end">
-                <button type="button" class="btn btn-outline-secondary me-2">Annuler</button>
-                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                <a href="{{ route('application.user-profile-edit') }}" class="btn btn-primary">
+                  <i class="ti ti-edit me-2"></i>Modifier mon profil
+                </a>
               </div>
             </form>
           </div>

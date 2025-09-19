@@ -152,7 +152,7 @@
         <li class="dropdown pc-h-item header-user-profile">
           <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
             <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
-            <span>Administrateur</span>
+            <span>{{ Auth::user()->name }}</span>
           </a>
           <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
             <div class="dropdown-header">
@@ -161,10 +161,27 @@
                   <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar wid-35">
                 </div>
                 <div class="flex-grow-1 ms-3">
-                  <h6 class="mb-1">Administrateur</h6>
-                  <span>Gestionnaire Système</span>
+                  <h6 class="mb-1">{{ Auth::user()->name }}</h6>
+                  <p class="text-muted mb-1" style="font-size: 0.8rem;">{{ Auth::user()->email }}</p>
+                  <span class="badge bg-light-primary border border-primary text-primary">
+                    @if(Auth::user()->hasRole('super-admin'))
+                      Super Administrateur
+                    @elseif(Auth::user()->hasRole('admin'))
+                      Administrateur
+                    @elseif(Auth::user()->hasRole('gestionnaire'))
+                      Gestionnaire
+                    @elseif(Auth::user()->hasRole('employe'))
+                      Employé
+                    @elseif(Auth::user()->hasRole('livreur'))
+                      Livreur
+                    @elseif(Auth::user()->hasRole('client'))
+                      Client
+                    @else
+                      Utilisateur
+                    @endif
+                  </span>
                 </div>
-                <a href="#!" class="pc-head-link bg-transparent"><i class="ti ti-power text-danger"></i></a>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logoutFormHeader').submit();" class="pc-head-link bg-transparent" title="Déconnexion"><i class="ti ti-power text-danger"></i></a>
               </div>
             </div>
             <ul class="nav drp-tabs nav-fill nav-tabs" id="mydrpTab" role="tablist">
@@ -181,7 +198,7 @@
             </ul>
             <div class="tab-content" id="mysrpTabContent">
               <div class="tab-pane fade show active" id="drp-tab-1" role="tabpanel" aria-labelledby="drp-t1" tabindex="0">
-                <a href="{{ route('application.user-profile') }}" class="dropdown-item">
+                <a href="{{ route('application.user-profile-edit') }}" class="dropdown-item">
                   <i class="ti ti-edit-circle"></i>
                   <span>Modifier Profil</span>
                 </a>
@@ -189,11 +206,10 @@
                   <i class="ti ti-user"></i>
                   <span>Voir Profil</span>
                 </a>
-                <a href="#!" class="dropdown-item">
-                  <i class="ti ti-clipboard-list"></i>
-                  <span>Historique</span>
-                </a>
-                <a href="#!" class="dropdown-item">
+                <form id="logoutFormHeader" action="{{ route('logout') }}" method="POST" style="display: none;">
+                  @csrf
+                </form>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logoutFormHeader').submit();" class="dropdown-item text-danger">
                   <i class="ti ti-power"></i>
                   <span>Déconnexion</span>
                 </a>
