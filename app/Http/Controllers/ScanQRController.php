@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Colis;
 use App\Models\Livreur;
+use Illuminate\Support\Facades\Auth;
 
 class ScanQRController extends Controller
 {
@@ -23,20 +24,45 @@ class ScanQRController extends Controller
     public function rechercher(Request $request)
     {
         $request->validate([
-            'code' => 'required|string',
-            'livreur_id' => 'required|exists:livreurs,id'
+            'code' => 'required|string'
         ]);
+
+        // Chercher le livreur correspondant à l'utilisateur connecté
+        $user = Auth::user();
+        $livreur = Livreur::where('email', $user->email)->first();
+        
+        // Si pas de livreur et que l'utilisateur n'est pas admin, erreur
+        if (!$livreur && !$user->hasRole(['super-admin', 'admin'])) {
+            return redirect()->back()
+                           ->with('error', 'Aucun profil de livreur trouvé pour votre compte.');
+        }
+        
+        // Pour les admins sans profil livreur, on crée un livreur temporaire pour l'affichage
+        if (!$livreur) {
+            // Créer ou récupérer un livreur "administrateur" générique
+            $livreur = Livreur::firstOrCreate(
+                ['email' => $user->email],
+                [
+                    'nom' => 'ADMIN',
+                    'prenom' => 'Système',
+                    'cin' => '0000000000000', // CIN générique pour admin
+                    'telephone' => '000000000',
+                    'adresse' => 'Système',
+                    'statut' => 'actif',
+                    'date_embauche' => now(),
+                ]
+            );
+        }
 
         // Chercher le colis par QR code ou numéro courrier
         $colis = Colis::where('qr_code', $request->code)
                      ->orWhere('numero_courrier', $request->code)
                      ->first();
 
+
         if (!$colis) {
             return back()->withErrors(['code' => 'Aucun colis trouvé avec ce code.']);
         }
-
-        $livreur = Livreur::find($request->livreur_id);
 
         return view('scan.resultat', compact('colis', 'livreur'));
     }

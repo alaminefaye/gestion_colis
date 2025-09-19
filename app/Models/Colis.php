@@ -31,7 +31,14 @@ class Colis extends Model
         'livre_le',
         'qr_code',
         'notes_ramassage',
-        'notes_livraison'
+        'notes_livraison',
+        'recupere_gare',
+        'recupere_le',
+        'recupere_par_nom',
+        'recupere_par_telephone',
+        'recupere_par_cin',
+        'notes_recuperation',
+        'recupere_par_user_id'
     ];
 
     protected $casts = [
@@ -39,6 +46,8 @@ class Colis extends Model
         'valeur_colis' => 'integer',
         'ramasse_le' => 'datetime',
         'livre_le' => 'datetime',
+        'recupere_gare' => 'boolean',
+        'recupere_le' => 'datetime',
     ];
 
     /**
@@ -55,6 +64,14 @@ class Colis extends Model
     }
 
     /**
+     * Utilisateur qui a enregistré la récupération
+     */
+    public function recupereParUser()
+    {
+        return $this->belongsTo(User::class, 'recupere_par_user_id');
+    }
+
+    /**
      * Générer un QR code unique
      */
     public static function boot()
@@ -63,7 +80,7 @@ class Colis extends Model
         
         static::creating(function ($colis) {
             if (empty($colis->qr_code)) {
-                $colis->qr_code = 'COL-' . strtoupper(uniqid());
+                $colis->qr_code = $colis->numero_courrier;
             }
         });
     }
@@ -119,11 +136,11 @@ class Colis extends Model
     /**
      * Générer le QR Code SVG
      */
-    public function generateQrCode($size = 150)
+    public function generateQrCode($size = 100)
     {
         return \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
             ->format('svg')
-            ->generate($this->qr_code);
+            ->generate($this->numero_courrier);
     }
 
     /**

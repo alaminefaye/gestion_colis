@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Livreur;
 use App\Models\Colis;
+use Illuminate\Support\Facades\Auth;
 
 class LivreurController extends Controller
 {
@@ -115,13 +116,131 @@ class LivreurController extends Controller
     /**
      * Page des colis récupérés/livrés
      */
-    public function colisRecuperes()
+    public function colisRecuperes(Request $request)
     {
-        $colis = Colis::with(['livreurRamassage', 'livreurLivraison'])
-                     ->whereIn('statut_livraison', ['ramasse', 'en_transit', 'livre'])
-                     ->orderBy('ramasse_le', 'desc')
-                     ->paginate(15);
+        $query = Colis::with(['livreurRamassage', 'livreurLivraison'])
+                     ->where(function($q) {
+                         // Colis récupérés à la gare
+                         $q->where('recupere_gare', true)
+                           // OU colis traités par les livreurs
+                           ->orWhereIn('statut_livraison', ['ramasse', 'en_transit', 'livre']);
+                     });
+
+        // Filtrage par statut
+        if ($request->statut) {
+            if ($request->statut === 'recupere_gare') {
+                $query->where('recupere_gare', true);
+            } else {
+                $query->where('statut_livraison', $request->statut);
+            }
+        }
+
+        // Filtrage par livreur
+        if ($request->livreur) {
+            $query->where(function($q) use ($request) {
+                $q->where('ramasse_par', $request->livreur)
+                  ->orWhere('livre_par', $request->livreur);
+            });
+        }
+
+        // Filtrage par date
+        if ($request->date_du) {
+            $query->whereDate('created_at', '>=', $request->date_du);
+        }
+        if ($request->date_au) {
+            $query->whereDate('created_at', '<=', $request->date_au);
+        }
+
+        $colis = $query->orderByRaw('COALESCE(recupere_le, ramasse_le, created_at) DESC')
+                      ->paginate(15);
 
         return view('livreurs.colis-recuperes', compact('colis'));
+    }
+
+    /**
+     * Tableau de bord pour les livreurs connectés
+     */
+    public function dashboard()
+    {
+        $user = Auth::user();
+        
+        // Trouver le livreur correspondant à cet utilisateur (par email)
+        $livreur = Livreur::where('email', $user->email)->first();
+        
+        if (!$livreur) {
+            return redirect()->route('dashboard.index')
+                           ->with('error', 'Aucun profil de livreur trouvé pour votre compte.');
+        }
+
+        // Statistiques du livreur
+        $stats = [
+            'total_ramasse' => $livreur->colisRamasses()->count(),
+            'total_livre' => $livreur->colisLivres()->count(),
+            'en_cours' => $livreur->colisRamasses()->where('statut_livraison', 'ramasse')->count(),
+            'en_transit' => $livreur->colisRamasses()->where('statut_livraison', 'en_transit')->count()
+        ];
+
+        // Colis récents du livreur
+        $colisRamasses = $livreur->colisRamasses()
+                               ->where('statut_livraison', '!=', 'livre')
+                               ->orderBy('ramasse_le', 'desc')
+                               ->take(10)
+                               ->get();
+
+        $colisLivres = $livreur->colisLivres()
+                              ->orderBy('livre_le', 'desc')
+                              ->take(10)
+                              ->get();
+
+        return view('livreur.dashboard', compact('livreur', 'stats', 'colisRamasses', 'colisLivres'));
+    }
+
+    /**
+     * Page "Mes Colis" pour un livreur spécifique
+     */
+    public function mesColis(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Trouver le livreur correspondant à cet utilisateur
+        $livreur = Livreur::where('email', $user->email)->first();
+        
+        if (!$livreur) {
+            return redirect()->route('dashboard.index')
+                           ->with('error', 'Aucun profil de livreur trouvé pour votre compte.');
+        }
+
+        // Query de base pour les colis de ce livreur
+        $query = Colis::with(['livreurRamassage', 'livreurLivraison'])
+                     ->where(function($q) use ($livreur) {
+                         $q->where('ramasse_par', $livreur->id)
+                           ->orWhere('livre_par', $livreur->id);
+                     });
+
+        // Filtrage par statut
+        if ($request->statut) {
+            $query->where('statut_livraison', $request->statut);
+        }
+
+        // Filtrage par date
+        if ($request->date_du) {
+            $query->whereDate('created_at', '>=', $request->date_du);
+        }
+        if ($request->date_au) {
+            $query->whereDate('created_at', '<=', $request->date_au);
+        }
+
+        $colis = $query->orderByRaw('COALESCE(livre_le, ramasse_le, created_at) DESC')
+                      ->paginate(15);
+
+        // Statistiques du livreur
+        $stats = [
+            'total_ramasse' => $livreur->colisRamasses()->count(),
+            'total_livre' => $livreur->colisLivres()->count(),
+            'en_cours' => $livreur->colisRamasses()->where('statut_livraison', 'ramasse')->count(),
+            'en_transit' => $livreur->colisRamasses()->where('statut_livraison', 'en_transit')->count()
+        ];
+
+        return view('livreur.mes-colis', compact('livreur', 'colis', 'stats'));
     }
 }

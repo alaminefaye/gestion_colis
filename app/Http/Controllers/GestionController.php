@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Destination;
 use App\Models\Agence;
+use App\Models\Colis;
+use Illuminate\Support\Facades\Auth;
 
 class GestionController extends Controller
 {
@@ -127,5 +129,41 @@ class GestionController extends Controller
 
         return redirect()->route('application.gestion.agences')
                          ->with('success', 'Agence supprimée avec succès!');
+    }
+
+    /**
+     * Marquer un colis comme récupéré à la gare
+     */
+    public function marquerRecupere(Request $request)
+    {
+        $request->validate([
+            'colis_id' => 'required|exists:colis,id',
+            'recupere_par_nom' => 'required|string|max:255',
+            'recupere_par_telephone' => 'required|string|max:20',
+            'recupere_par_cin' => 'nullable|string|max:50',
+            'notes_recuperation' => 'nullable|string|max:1000',
+        ]);
+
+        $colis = Colis::findOrFail($request->colis_id);
+
+        // Vérifier que le colis n'est pas déjà récupéré
+        if ($colis->recupere_gare) {
+            return redirect()->back()
+                           ->with('error', 'Ce colis a déjà été marqué comme récupéré.');
+        }
+
+        // Marquer comme récupéré
+        $colis->update([
+            'recupere_gare' => true,
+            'recupere_le' => now(),
+            'recupere_par_nom' => $request->recupere_par_nom,
+            'recupere_par_telephone' => $request->recupere_par_telephone,
+            'recupere_par_cin' => $request->recupere_par_cin,
+            'notes_recuperation' => $request->notes_recuperation,
+            'recupere_par_user_id' => Auth::id(),
+        ]);
+
+        return redirect()->back()
+                       ->with('success', 'Colis marqué comme récupéré avec succès!');
     }
 }

@@ -16,8 +16,21 @@ class ApplicationController extends Controller
      */
     public function ecomProductList()
     {
-        $colis = Colis::orderBy('created_at', 'desc')->paginate(10);
+        // Exclure les colis récupérés à la gare ou livrés
+        $colis = Colis::where('recupere_gare', false)
+                      ->where('statut_livraison', '!=', 'livre')
+                      ->orderBy('created_at', 'desc')
+                      ->paginate(10);
         return view('application.ecom-product-list', compact('colis'));
+    }
+
+    /**
+     * Liste complète des colis (y compris récupérés et livrés)
+     */
+    public function ecomProductListAll()
+    {
+        $colis = Colis::orderBy('created_at', 'desc')->paginate(10);
+        return view('application.ecom-product-list-all', compact('colis'));
     }
 
     /**
@@ -111,6 +124,13 @@ class ApplicationController extends Controller
     public function ecomProductEdit($id)
     {
         $colis = Colis::findOrFail($id);
+
+        // Vérifier si le colis a déjà été récupéré
+        if ($colis->recupere_gare) {
+            return redirect()->route('application.ecom-product-show', $id)
+                           ->with('error', 'Impossible de modifier ce colis car il a déjà été récupéré le ' . $colis->recupere_le?->format('d/m/Y à H:i') . '.');
+        }
+
         $destinations = Destination::actif()->orderBy('libelle')->get();
         $agences = Agence::actif()->orderBy('libelle')->get();
         
@@ -123,6 +143,12 @@ class ApplicationController extends Controller
     public function ecomProductUpdate(Request $request, $id)
     {
         $colis = Colis::findOrFail($id);
+
+        // Vérifier si le colis a déjà été récupéré
+        if ($colis->recupere_gare) {
+            return redirect()->back()
+                           ->with('error', 'Impossible de modifier ce colis car il a déjà été récupéré le ' . $colis->recupere_le?->format('d/m/Y à H:i') . '.');
+        }
 
         // Validation des données
         $validated = $request->validate([
@@ -183,6 +209,12 @@ class ApplicationController extends Controller
     public function ecomProductDestroy($id)
     {
         $colis = Colis::findOrFail($id);
+
+        // Vérifier si le colis a déjà été récupéré
+        if ($colis->recupere_gare) {
+            return redirect()->back()
+                           ->with('error', 'Impossible de supprimer ce colis car il a déjà été récupéré le ' . $colis->recupere_le?->format('d/m/Y à H:i') . '.');
+        }
 
         // Supprimer la photo si elle existe
         if ($colis->photo_courrier && file_exists(public_path('uploads/colis/' . $colis->photo_courrier))) {

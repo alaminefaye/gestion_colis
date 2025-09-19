@@ -26,7 +26,22 @@
   <div class="col-12">
     <!-- Stats Cards -->
     <div class="row mb-4">
-      <div class="col-md-3">
+      <div class="col-md-2">
+        <div class="card bg-light-info">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="avtar avtar-s bg-info me-3">
+                <i class="ti ti-building f-18"></i>
+              </div>
+              <div>
+                <h6 class="mb-0">Récupérés Gare</h6>
+                <p class="mb-0">{{ $colis->where('recupere_gare', true)->count() }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
         <div class="card bg-light-warning">
           <div class="card-body">
             <div class="d-flex align-items-center">
@@ -41,11 +56,11 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card bg-light-info">
+      <div class="col-md-2">
+        <div class="card bg-light-orange">
           <div class="card-body">
             <div class="d-flex align-items-center">
-              <div class="avtar avtar-s bg-info me-3">
+              <div class="avtar avtar-s bg-orange me-3">
                 <i class="ti ti-truck f-18"></i>
               </div>
               <div>
@@ -56,7 +71,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="card bg-light-success">
           <div class="card-body">
             <div class="d-flex align-items-center">
@@ -71,7 +86,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="card bg-light-primary">
           <div class="card-body">
             <div class="d-flex align-items-center">
@@ -93,11 +108,12 @@
       <div class="card-body">
         <form method="GET" id="filterForm">
           <div class="row align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label">Statut</label>
               <select class="form-select" name="statut" onchange="document.getElementById('filterForm').submit()">
                 <option value="">Tous les statuts</option>
-                <option value="ramasse" {{ request('statut') == 'ramasse' ? 'selected' : '' }}>Ramassé</option>
+                <option value="recupere_gare" {{ request('statut') == 'recupere_gare' ? 'selected' : '' }}>Récupéré à la gare</option>
+                <option value="ramasse" {{ request('statut') == 'ramasse' ? 'selected' : '' }}>Ramassé par livreur</option>
                 <option value="en_transit" {{ request('statut') == 'en_transit' ? 'selected' : '' }}>En Transit</option>
                 <option value="livre" {{ request('statut') == 'livre' ? 'selected' : '' }}>Livré</option>
               </select>
@@ -147,10 +163,9 @@
                   <th>Bénéficiaire</th>
                   <th>Destination</th>
                   <th>Statut</th>
-                  <th>Livreur Ramassage</th>
-                  <th>Date Ramassage</th>
-                  <th>Livreur Livraison</th>
-                  <th>Date Livraison</th>
+                  <th>Type Récupération</th>
+                  <th>Récupéré/Ramassé par</th>
+                  <th>Date</th>
                   <th>QR Code</th>
                 </tr>
               </thead>
@@ -179,32 +194,38 @@
                   </td>
                   <td>{{ $col->destination }}</td>
                   <td>
-                    <span class="badge bg-light-{{ $col->statut_color }}">
-                      {{ $col->statut_livraison_label }}
-                    </span>
+                    @if($col->recupere_gare)
+                      <span class="badge bg-light-info">Récupéré à la gare</span>
+                    @else
+                      <span class="badge bg-light-{{ $col->statut_color }}">
+                        {{ $col->statut_livraison_label }}
+                      </span>
+                    @endif
                   </td>
                   <td>
-                    @if($col->livreurRamassage)
+                    @if($col->recupere_gare)
+                      <span class="badge bg-info">
+                        <i class="ti ti-building me-1"></i>Gare
+                      </span>
+                    @else
+                      <span class="badge bg-warning">
+                        <i class="ti ti-truck me-1"></i>Livreur
+                      </span>
+                    @endif
+                  </td>
+                  <td>
+                    @if($col->recupere_gare)
+                      <div>
+                        <h6 class="mb-0">{{ $col->recupere_par_nom }}</h6>
+                        <small class="text-muted">{{ $col->recupere_par_telephone }}</small>
+                        <br><small class="text-info">CIN: {{ $col->recupere_par_cin }}</small>
+                      </div>
+                    @elseif($col->livreurRamassage)
                       <div>
                         <h6 class="mb-0">{{ $col->livreurRamassage->nom_complet }}</h6>
                         <small class="text-muted">{{ $col->livreurRamassage->telephone }}</small>
                       </div>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
-                  <td>
-                    @if($col->ramasse_le)
-                      <div>
-                        <small>{{ $col->ramasse_le->format('d/m/Y') }}</small><br>
-                        <small class="text-muted">{{ $col->ramasse_le->format('H:i') }}</small>
-                      </div>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
-                  <td>
-                    @if($col->livreurLivraison)
+                    @elseif($col->livreurLivraison)
                       <div>
                         <h6 class="mb-0">{{ $col->livreurLivraison->nom_complet }}</h6>
                         <small class="text-muted">{{ $col->livreurLivraison->telephone }}</small>
@@ -214,10 +235,20 @@
                     @endif
                   </td>
                   <td>
-                    @if($col->livre_le)
+                    @if($col->recupere_gare && $col->recupere_le)
+                      <div>
+                        <small>{{ $col->recupere_le->format('d/m/Y') }}</small><br>
+                        <small class="text-muted">{{ $col->recupere_le->format('H:i') }}</small>
+                      </div>
+                    @elseif($col->livre_le)
                       <div>
                         <small>{{ $col->livre_le->format('d/m/Y') }}</small><br>
                         <small class="text-muted">{{ $col->livre_le->format('H:i') }}</small>
+                      </div>
+                    @elseif($col->ramasse_le)
+                      <div>
+                        <small>{{ $col->ramasse_le->format('d/m/Y') }}</small><br>
+                        <small class="text-muted">{{ $col->ramasse_le->format('H:i') }}</small>
                       </div>
                     @else
                       <span class="text-muted">-</span>

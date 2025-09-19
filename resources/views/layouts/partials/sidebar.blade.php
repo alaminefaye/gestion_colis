@@ -100,9 +100,23 @@
         @endcan
         @can('scan_qr_colis')
         <li class="pc-item">
+          <a href="{{ route('livreur.dashboard') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
+            <span class="pc-mtext">Mon Tableau de Bord</span>
+          </a>
+        </li>
+        <li class="pc-item">
           <a href="{{ route('scan.index') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-qrcode"></i></span>
             <span class="pc-mtext">Scan QR Code</span>
+          </a>
+        </li>
+        @endcan
+        @can('view_mes_colis')
+        <li class="pc-item">
+          <a href="{{ route('livreur.mes-colis') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-user"></i></span>
+            <span class="pc-mtext">Mes Colis</span>
           </a>
         </li>
         @endcan

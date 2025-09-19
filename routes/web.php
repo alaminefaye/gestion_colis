@@ -36,6 +36,7 @@ Route::prefix('dashboard')->name('dashboard.')->middleware('auth')->group(functi
 Route::prefix('application')->name('application.')->middleware('auth')->group(function () {
     // Gestion des colis - CRUD complet
     Route::get('/colis', [ApplicationController::class, 'ecomProductList'])->name('ecom-product-list');
+    Route::get('/colis/tous', [ApplicationController::class, 'ecomProductListAll'])->name('ecom-product-list-all');
     Route::get('/colis/nouveau', [ApplicationController::class, 'ecomProductAdd'])->name('ecom-product-add');
     Route::post('/colis', [ApplicationController::class, 'ecomProductStore'])->name('ecom-product-store');
     Route::get('/colis/{id}', [ApplicationController::class, 'ecomProductShow'])->name('ecom-product-show');
@@ -50,6 +51,9 @@ Route::prefix('application')->name('application.')->middleware('auth')->group(fu
     Route::put('/clients/{id}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{id}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/api/telephone/{telephone}', [ClientController::class, 'getByTelephone'])->name('clients.api.telephone');
+    
+    // Récupération des colis à la gare
+    Route::post('/colis/marquer-recupere', [GestionController::class, 'marquerRecupere'])->name('colis.marquer-recupere');
     
     // Communication
     Route::get('/chat', [ApplicationController::class, 'chat'])->name('chat');
@@ -74,6 +78,7 @@ Route::prefix('application')->name('application.')->middleware('auth')->group(fu
         Route::post('/agences', [GestionController::class, 'agencesStore'])->name('agences.store');
         Route::put('/agences/{id}', [GestionController::class, 'agencesUpdate'])->name('agences.update');
         Route::delete('/agences/{id}', [GestionController::class, 'agencesDestroy'])->name('agences.destroy');
+        
     });
 });
 
@@ -91,9 +96,16 @@ Route::prefix('livreurs')->name('livreurs.')->middleware('auth')->group(function
     Route::get('/colis/recuperes', [LivreurController::class, 'colisRecuperes'])->name('colis.recuperes')->middleware('can:view_colis_recuperes');
 });
 
+// Tableau de bord livreur
+Route::get('/livreur/dashboard', [LivreurController::class, 'dashboard'])->name('livreur.dashboard')->middleware('auth');
+Route::get('/livreur/mes-colis', [LivreurController::class, 'mesColis'])->name('livreur.mes-colis')->middleware(['auth', 'can:view_mes_colis']);
+
 // Scan QR Routes
 Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {
     Route::get('/', [ScanQRController::class, 'index'])->name('index')->middleware('can:scan_qr_colis');
+    Route::get('/rechercher', function() {
+        return redirect()->route('scan.index')->with('info', 'Utilisez le formulaire pour rechercher un colis.');
+    });
     Route::post('/rechercher', [ScanQRController::class, 'rechercher'])->name('rechercher')->middleware('can:scan_qr_colis');
     Route::post('/ramasser', [ScanQRController::class, 'ramasser'])->name('ramasser')->middleware('can:ramasser_colis');
     Route::post('/livrer', [ScanQRController::class, 'livrer'])->name('livrer')->middleware('can:livrer_colis');

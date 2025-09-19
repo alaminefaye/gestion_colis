@@ -30,12 +30,21 @@
         <div class="d-flex align-items-center justify-content-between">
           <h5>Informations du Colis</h5>
           <div>
+            @if($colis->recupere_gare)
+            <button type="button" class="btn btn-secondary btn-sm" disabled title="Modification impossible - Colis récupéré">
+              <i class="ti ti-edit"></i> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" disabled title="Suppression impossible - Colis récupéré">
+              <i class="ti ti-trash"></i> Supprimer
+            </button>
+            @else
             <a href="{{ route('application.ecom-product-edit', $colis->id) }}" class="btn btn-primary btn-sm">
               <i class="ti ti-edit"></i> Modifier
             </a>
             <button type="button" class="btn btn-danger btn-sm" onclick="deleteColis({{ $colis->id }})">
               <i class="ti ti-trash"></i> Supprimer
             </button>
+            @endif
           </div>
         </div>
       </div>
@@ -242,9 +251,35 @@
       </div>
       <div class="card-body">
         <div class="d-grid gap-2">
+          @if($colis->recupere_gare)
+          <div class="alert alert-warning mb-3">
+            <i class="ti ti-info-circle me-2"></i>
+            <strong>Colis récupéré</strong><br>
+            <small>La modification et la suppression ne sont plus possibles car ce colis a été récupéré le {{ $colis->recupere_le?->format('d/m/Y à H:i') }}.</small>
+          </div>
+          <button type="button" class="btn btn-secondary" disabled>
+            <i class="ti ti-edit me-2"></i>Modification impossible
+          </button>
+          @else
           <a href="{{ route('application.ecom-product-edit', $colis->id) }}" class="btn btn-primary">
             <i class="ti ti-edit me-2"></i>Modifier ce colis
           </a>
+          @endif
+          
+          @can('marquer_recupere_colis')
+          @if(!$colis->recupere_gare)
+          <button type="button" class="btn btn-success" onclick="marquerRecupereShow({{ $colis->id }}, '{{ $colis->nom_beneficiaire }}', '{{ $colis->telephone_beneficiaire }}')">
+            <i class="ti ti-check me-2"></i>Marquer comme Récupéré
+          </button>
+          @else
+          <div class="alert alert-success mb-3">
+            <i class="ti ti-check-circle me-2"></i>
+            <strong>Colis récupéré</strong><br>
+            <small>Par {{ $colis->recupere_par_nom }} le {{ $colis->recupere_le?->format('d/m/Y à H:i') }}</small>
+          </div>
+          @endif
+          @endcan
+          
           <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
             <i class="ti ti-printer me-2"></i>Imprimer les détails
           </button>
@@ -262,6 +297,72 @@
   @csrf
   @method('DELETE')
 </form>
+
+<!-- Modal de récupération -->
+<div class="modal fade" id="recuperationModal" tabindex="-1" aria-labelledby="recuperationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ route('application.colis.marquer-recupere') }}" method="POST">
+        @csrf
+        <input type="hidden" id="modalColisId" name="colis_id" value="{{ $colis->id }}">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="recuperationModalLabel">
+            <i class="ti ti-check-circle me-2"></i>Marquer comme Récupéré
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="ti ti-info-circle me-2"></i>
+            <strong>Récupération à la gare</strong><br>
+            Cette action marquera le colis <strong>{{ $colis->numero_courrier }}</strong> comme récupéré directement à la gare.
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="recupereParNom">Nom de la personne <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="recupereParNom" name="recupere_par_nom" required 
+                       placeholder="Nom de qui récupère" value="{{ $colis->nom_beneficiaire }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="recupereParTelephone">Téléphone <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="recupereParTelephone" name="recupere_par_telephone" required 
+                       placeholder="Téléphone" value="{{ $colis->telephone_beneficiaire }}">
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label" for="recupereParCin">CIN (optionnel)</label>
+            <input type="text" class="form-control" id="recupereParCin" name="recupere_par_cin" 
+                   placeholder="Numéro de carte d'identité">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label" for="notesRecuperation">Notes (optionnel)</label>
+            <textarea class="form-control" id="notesRecuperation" name="notes_recuperation" rows="3" 
+                      placeholder="Notes sur la récupération..."></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="ti ti-x me-2"></i>Annuler
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="ti ti-check me-2"></i>Confirmer la Récupération
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -343,6 +444,12 @@ function printQR() {
     </html>
   `);
   printWindow.document.close();
+}
+
+// Fonction pour marquer un colis comme récupéré depuis la page show
+function marquerRecupereShow(colisId, nomBeneficiaire, telephoneBeneficiaire) {
+  const modal = new bootstrap.Modal(document.getElementById('recuperationModal'));
+  modal.show();
 }
 </script>
 @endpush
