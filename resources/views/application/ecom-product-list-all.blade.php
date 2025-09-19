@@ -255,9 +255,6 @@
                       {!! $item->generateQrCode(80) !!}
                     </div>
                     <small class="text-muted">{{ $item->qr_code }}</small>
-                    <button type="button" class="btn btn-outline-primary btn-sm mt-1" onclick="downloadQR('{{ $item->qr_code }}', '{{ $item->numero_courrier }}')">
-                      <i class="ti ti-download"></i>
-                    </button>
                   </div>
                 </td>
                 <td>{{ $item->created_at->format('d/m/Y') }}<br><span class="text-muted">{{ $item->created_at->format('H:i') }}</span></td>
@@ -814,41 +811,6 @@ function showSearchNotification(message, type = 'info') {
   }, 3000);
 }
 
-// Fonction pour télécharger le QR code
-function downloadQR(qrCode, numeroCourrier) {
-  // Créer un canvas pour convertir le SVG en image
-  const svg = document.querySelector(`[data-qr="${qrCode}"]`);
-  if (!svg) {
-    // Utiliser l'API pour générer et télécharger le QR code
-    const link = document.createElement('a');
-    link.href = `/colis/${qrCode}/qr-download`;
-    link.download = `QR_${numeroCourrier}.png`;
-    link.click();
-    return;
-  }
-  
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const data = new XMLSerializer().serializeToString(svg);
-  const blob = new Blob([data], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  
-  const img = new Image();
-  img.onload = function() {
-    canvas.width = 300;
-    canvas.height = 300;
-    ctx.drawImage(img, 0, 0, 300, 300);
-    
-    canvas.toBlob(function(blob) {
-      const link = document.createElement('a');
-      link.download = `QR_${numeroCourrier}.png`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(url);
-    });
-  };
-  img.src = url;
-}
 
 function deleteColis(id) {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce colis ?')) {

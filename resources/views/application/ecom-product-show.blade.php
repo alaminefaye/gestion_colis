@@ -215,15 +215,6 @@
         <h6 class="mb-2">{{ $colis->qr_code }}</h6>
         <p class="text-muted mb-3">Scannez ce code pour les actions de livraison</p>
         
-        <div class="d-grid gap-2">
-          <button type="button" class="btn btn-primary" onclick="downloadQR('{{ $colis->qr_code }}', '{{ $colis->numero_courrier }}')">
-            <i class="ti ti-download me-2"></i>Télécharger QR Code
-          </button>
-          <button type="button" class="btn btn-outline-secondary" onclick="printQR()">
-            <i class="ti ti-printer me-2"></i>Imprimer QR Code
-          </button>
-        </div>
-        
         <!-- Informations compactes -->
         <div class="mt-3 p-3 bg-light rounded">
           <small class="text-muted d-block mb-1"><strong>Statut:</strong></small>
@@ -280,9 +271,6 @@
           @endif
           @endcan
           
-          <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
-            <i class="ti ti-printer me-2"></i>Imprimer les détails
-          </button>
           <a href="{{ route('application.ecom-product-list') }}" class="btn btn-outline-secondary">
             <i class="ti ti-arrow-left me-2"></i>Retour à la liste
           </a>
@@ -373,78 +361,6 @@ function deleteColis(id) {
   }
 }
 
-// Fonction pour télécharger le QR code
-function downloadQR(qrCode, numeroCourrier) {
-  const qrContainer = document.querySelector('.qr-code-large svg');
-  if (!qrContainer) return;
-  
-  const svgData = new XMLSerializer().serializeToString(qrContainer);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-  
-  canvas.width = 400;
-  canvas.height = 400;
-  
-  img.onload = function() {
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, 400, 400);
-    ctx.drawImage(img, 50, 50, 300, 300);
-    
-    // Ajouter le texte du code
-    ctx.fillStyle = 'black';
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(qrCode, 200, 380);
-    
-    canvas.toBlob(function(blob) {
-      const link = document.createElement('a');
-      link.download = `QR_${numeroCourrier}.png`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-    });
-  };
-  
-  const blob = new Blob([svgData], {type: 'image/svg+xml'});
-  const url = URL.createObjectURL(blob);
-  img.src = url;
-}
-
-// Fonction pour imprimer seulement le QR code
-function printQR() {
-  const qrContent = document.querySelector('.qr-code-large').parentElement;
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>QR Code - {{ $colis->numero_courrier }}</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-          .qr-container { margin: 20px auto; }
-          .info { margin-top: 20px; font-size: 14px; }
-          @media print { 
-            body { margin: 0; }
-            .no-print { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <h2>QR Code - Colis {{ $colis->numero_courrier }}</h2>
-        <div class="qr-container">
-          ${document.querySelector('.qr-code-large').outerHTML}
-        </div>
-        <div class="info">
-          <p><strong>Code:</strong> {{ $colis->qr_code }}</p>
-          <p><strong>Destination:</strong> {{ $colis->destination }}</p>
-          <p><strong>Bénéficiaire:</strong> {{ $colis->nom_beneficiaire }}</p>
-          <p><strong>Téléphone:</strong> {{ $colis->telephone_beneficiaire }}</p>
-        </div>
-        <button onclick="window.print()" class="no-print" style="margin-top: 20px; padding: 10px 20px;">Imprimer</button>
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
-}
 
 // Fonction pour marquer un colis comme récupéré depuis la page show
 function marquerRecupereShow(colisId, nomBeneficiaire, telephoneBeneficiaire) {
