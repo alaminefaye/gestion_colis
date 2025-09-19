@@ -193,19 +193,13 @@ class RolesAndPermissionsSeeder extends Seeder
             }
         }
 
-        // Supprimer l'ancien admin s'il existe
-        $oldAdmin = User::where('email', 'admin@gestioncolis.com')->first();
-        if ($oldAdmin) {
-            $oldAdmin->delete();
-        }
-
-        // Créer le nouvel utilisateur super admin
+        // Créer un utilisateur super admin par défaut
         $superAdmin = User::firstOrCreate(
-            ['email' => 'admin@admin.com'],
+            ['email' => 'admin@gestioncolis.com'],
             [
-                'name' => 'Super Administrateur',
-                'email' => 'admin@admin.com',
-                'password' => Hash::make('passer123'),
+                'name' => 'Super Admin',
+                'email' => 'admin@gestioncolis.com',
+                'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
             ]
         );
@@ -213,15 +207,39 @@ class RolesAndPermissionsSeeder extends Seeder
             $superAdmin->assignRole('super-admin');
         }
 
-        // Supprimer les anciens comptes admin s'ils existent
-        User::whereIn('email', [
-            'administrateur@gestioncolis.com',
-            'gestionnaire@gestioncolis.com'
-        ])->delete();
+        // Créer un utilisateur admin par défaut
+        $admin = User::firstOrCreate(
+            ['email' => 'administrateur@gestioncolis.com'],
+            [
+                'name' => 'Administrateur',
+                'email' => 'administrateur@gestioncolis.com',
+                'password' => Hash::make('password123'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$admin->hasRole('admin')) {
+            $admin->assignRole('admin');
+        }
+
+        // Créer un utilisateur gestionnaire par défaut
+        $gestionnaire = User::firstOrCreate(
+            ['email' => 'gestionnaire@gestioncolis.com'],
+            [
+                'name' => 'Gestionnaire',
+                'email' => 'gestionnaire@gestioncolis.com',
+                'password' => Hash::make('password123'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$gestionnaire->hasRole('gestionnaire')) {
+            $gestionnaire->assignRole('gestionnaire');
+        }
 
         $this->command->info('Rôles et permissions créés avec succès!');
-        $this->command->info('=== COMPTE ADMINISTRATEUR ===');
-        $this->command->info('🔐 Super Admin: admin@admin.com / passer123');
+        $this->command->info('Utilisateurs par défaut:');
+        $this->command->info('Super Admin: admin@gestioncolis.com / password123');
+        $this->command->info('Admin: administrateur@gestioncolis.com / password123');
+        $this->command->info('Gestionnaire: gestionnaire@gestioncolis.com / password123');
         $this->command->info('');
         $this->command->info('Comptes livreurs:');
         $this->command->info('Moussa DIOP: moussa.diop@gestioncolis.com / livreur123');

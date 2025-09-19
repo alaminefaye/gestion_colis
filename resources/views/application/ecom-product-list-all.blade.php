@@ -51,9 +51,9 @@
             <a href="{{ route('application.ecom-product-list') }}" class="btn btn-outline-secondary me-2">
               <i class="ti ti-arrow-left me-2"></i>En Cours Seulement
             </a>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nouveauColisModal">
+            <a href="{{ route('application.ecom-product-add') }}" class="btn btn-primary">
               <i class="ti ti-plus me-2"></i>Nouveau Colis
-            </button>
+            </a>
           </div>
         </div>
       </div>
