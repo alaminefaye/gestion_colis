@@ -283,6 +283,10 @@
                     </button>
                     @endif
                     @endcan
+                    <!-- Bouton WhatsApp -->
+                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Envoyer lien de suivi WhatsApp" onclick="openWhatsAppModal({{ $item->id }}, '{{ $item->telephone_beneficiaire }}', '{{ $item->nom_beneficiaire }}', '{{ $item->numero_courrier }}')">
+                      <i class="ti ti-brand-whatsapp"></i>
+                    </button>
                     @if($item->recupere_gare)
                     <button type="button" class="btn btn-outline-secondary btn-sm" disabled data-bs-toggle="tooltip" title="Suppression impossible - Colis déjà récupéré">
                       <i class="ti ti-trash"></i>
@@ -829,5 +833,182 @@ function marquerRecupere(colisId, nomBeneficiaire, telephoneBeneficiaire) {
   const modal = new bootstrap.Modal(document.getElementById('recuperationModal'));
   modal.show();
 }
+
+// Fonction pour ouvrir le modal WhatsApp
+function openWhatsAppModal(colisId, telephoneBeneficiaire, nomBeneficiaire, numeroCourrier) {
+  document.getElementById('whatsappColisId').value = colisId;
+  document.getElementById('whatsappNumero').value = telephoneBeneficiaire;
+  document.getElementById('whatsappNomClient').textContent = nomBeneficiaire;
+  document.getElementById('whatsappNumeroColis').textContent = numeroCourrier;
+  document.getElementById('previewNumeroColis').textContent = numeroCourrier;
+  
+  // Générer le lien de suivi
+  const baseUrl = window.location.origin;
+  const trackingUrl = `${baseUrl}/suivi/${colisId}`;
+  document.getElementById('trackingUrl').value = trackingUrl;
+  
+  const modal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+  modal.show();
+  
+  // Ajouter le formatage automatique du numéro
+  const phoneInput = document.getElementById('whatsappNumero');
+  phoneInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, ''); // Enlever tout ce qui n'est pas un chiffre
+    
+    // Formater selon la longueur (format ivoirien)
+    if (value.length >= 8) {
+      if (value.length <= 8) {
+        // Format 8 chiffres: XX XX XX XX
+        value = value.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4');
+      } else if (value.length <= 10) {
+        // Format 10 chiffres: XX XX XX XX XX
+        value = value.replace(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5');
+      }
+    }
+    
+    e.target.value = value;
+  });
+}
+
+// Fonction pour envoyer le message WhatsApp
+function sendWhatsAppMessage() {
+  const numero = document.getElementById('whatsappNumero').value;
+  const trackingUrl = document.getElementById('trackingUrl').value;
+  const numeroColis = document.getElementById('whatsappNumeroColis').textContent;
+  
+  if (!numero) {
+    alert('Veuillez saisir un numéro de téléphone');
+    return;
+  }
+  
+  // Nettoyer le numéro (enlever les espaces, tirets, etc.)
+  const cleanNumber = numero.replace(/\D/g, '');
+  
+  // Valider le format ivoirien (8 ou 10 chiffres)
+  if (cleanNumber.length < 8 || cleanNumber.length > 10) {
+    alert('Le numéro doit contenir entre 8 et 10 chiffres pour la Côte d\'Ivoire');
+    return;
+  }
+  
+  // Message personnalisé
+  const message = `🚚 *Bonjour !*
+  
+📦 Votre colis N° *${numeroColis}* a été enregistré dans notre système.
+
+🔗 Suivez l'état de votre livraison en temps réel :
+${trackingUrl}
+
+📱 Ce lien vous permettra de :
+✅ Voir le statut actuel de votre colis
+✅ Connaître sa position
+✅ Recevoir les mises à jour de livraison
+
+Merci de votre confiance ! 🙏
+
+_Service Client - Gestion des Colis_`;
+
+  // Encoder le message pour WhatsApp
+  const encodedMessage = encodeURIComponent(message);
+  
+  // Créer l'URL WhatsApp
+  const whatsappUrl = `https://wa.me/225${cleanNumber}?text=${encodedMessage}`;
+  
+  // Ouvrir WhatsApp
+  window.open(whatsappUrl, '_blank');
+  
+  // Fermer le modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappModal'));
+  modal.hide();
+  
+  // Afficher un message de succès
+  showSearchNotification('Message WhatsApp préparé ! La fenêtre WhatsApp s\'est ouverte.', 'success');
+}
 </script>
+
+<!-- Modal WhatsApp -->
+<div class="modal fade" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="whatsappModalLabel">
+          <i class="ti ti-brand-whatsapp me-2"></i>Envoyer lien de suivi WhatsApp
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="whatsappColisId">
+        
+        <!-- Info du colis -->
+        <div class="alert alert-info">
+          <h6 class="mb-2">
+            <i class="ti ti-package me-1"></i>Colis : <span id="whatsappNumeroColis"></span>
+          </h6>
+          <p class="mb-0">
+            <i class="ti ti-user me-1"></i>Client : <span id="whatsappNomClient"></span>
+          </p>
+        </div>
+        
+        <!-- Numéro de téléphone -->
+        <div class="mb-3">
+          <label for="whatsappNumero" class="form-label">
+            <i class="ti ti-phone me-1"></i>Numéro de téléphone
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">+225</span>
+            <input type="tel" class="form-control" id="whatsappNumero" placeholder="XX XX XX XX XX" maxlength="15" required>
+          </div>
+          <div class="form-text">
+            Le numéro du bénéficiaire est pré-rempli, mais vous pouvez le modifier si nécessaire.
+          </div>
+        </div>
+        
+        <!-- Lien de suivi -->
+        <div class="mb-3">
+          <label for="trackingUrl" class="form-label">
+            <i class="ti ti-link me-1"></i>Lien de suivi qui sera envoyé
+          </label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="trackingUrl" readonly>
+            <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('trackingUrl').value); showSearchNotification('Lien copié !', 'success')">
+              <i class="ti ti-copy"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Aperçu du message -->
+        <div class="mb-3">
+          <label class="form-label">
+            <i class="ti ti-message-circle me-1"></i>Aperçu du message WhatsApp
+          </label>
+          <div class="card bg-light">
+            <div class="card-body p-3" style="font-size: 0.9rem;">
+              <div class="d-flex align-items-center mb-2">
+                <i class="ti ti-brand-whatsapp text-success me-2"></i>
+                <strong>Message automatique</strong>
+              </div>
+              <div class="border-start border-success ps-3">
+                🚚 <strong>Bonjour !</strong><br><br>
+                📦 Votre colis N° <strong><span id="previewNumeroColis">-</span></strong> a été enregistré dans notre système.<br><br>
+                🔗 Suivez l'état de votre livraison en temps réel :<br>
+                <span class="text-primary">lien-de-suivi</span><br><br>
+                📱 Ce lien vous permettra de :<br>
+                ✅ Voir le statut actuel de votre colis<br>
+                ✅ Connaître sa position<br>
+                ✅ Recevoir les mises à jour de livraison<br><br>
+                Merci de votre confiance ! 🙏<br><br>
+                <em>Service Client - Gestion des Colis</em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" onclick="sendWhatsAppMessage()">
+          <i class="ti ti-brand-whatsapp me-2"></i>Envoyer sur WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 @endpush

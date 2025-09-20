@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 
@@ -25,6 +26,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 // Password Change Routes (obligatoire pour nouveaux utilisateurs)
 Route::get('/change-password', [PasswordChangeController::class, 'showChangeForm'])->name('password.change')->middleware('auth');
 Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('password.update')->middleware('auth');
+
+// Routes publiques de suivi (sans authentification)
+Route::get('/suivi/{id}', [TrackingController::class, 'track'])->name('tracking.show');
 
 // Redirection intelligente vers le dashboard (avec protection)
 Route::get('/', function () {
