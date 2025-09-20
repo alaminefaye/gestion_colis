@@ -6,8 +6,8 @@ if (!function_exists('dashboard_route')) {
      */
     function dashboard_route()
     {
-        // Si l'utilisateur peut scanner les QR codes et voir ses colis, c'est probablement un livreur
-        if (auth()->check() && auth()->user()->can('scan_qr_colis') && auth()->user()->can('view_mes_colis')) {
+        // Redirection selon le rôle de l'utilisateur
+        if (auth()->check() && auth()->user()->hasRole('livreur')) {
             return route('livreur.dashboard');
         }
         return route('dashboard.index');

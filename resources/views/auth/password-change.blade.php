@@ -1,8 +1,18 @@
-@extends('layouts.guest')
+<!DOCTYPE html>
+<html lang="fr">
 
-@section('title', 'Changement de Mot de Passe Obligatoire')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changement de Mot de Passe Obligatoire - Gestion des Colis</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+</head>
 
-@section('content')
+<body class="login-page">
 <div class="auth-main v1">
   <div class="auth-wrapper">
     <div class="auth-form">
@@ -173,4 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
   border-color: #86b7fe;
 }
 </style>
-@endsection
+
+<!-- JS -->
+<script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
+
+</body>
+</html>

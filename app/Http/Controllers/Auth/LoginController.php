@@ -41,10 +41,17 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            // Rediriger vers la page d'origine ou le dashboard
-            $intended = $request->session()->pull('url.intended', route('dashboard.index'));
+            // Redirection intelligente selon le rôle de l'utilisateur
+            $user = Auth::user();
             
-            return redirect()->intended($intended)->with('success', 'Connexion réussie ! Bienvenue ' . Auth::user()->name);
+            // Page d'origine ou redirection par défaut selon le rôle
+            $defaultRoute = $user->hasRole('livreur') 
+                ? route('livreur.dashboard') 
+                : route('dashboard.index');
+            
+            $intended = $request->session()->pull('url.intended', $defaultRoute);
+            
+            return redirect()->intended($intended)->with('success', 'Connexion réussie ! Bienvenue ' . $user->name);
         }
 
         throw ValidationException::withMessages([

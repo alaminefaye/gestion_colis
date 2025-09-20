@@ -40,7 +40,13 @@ class PasswordChangeController extends Controller
             'password_change_required' => false, // Plus besoin de changer le mot de passe
         ]);
 
-        return redirect()->route('dashboard.index')
-                        ->with('success', 'Mot de passe changé avec succès !');
+        // Rediriger selon le rôle de l'utilisateur
+        if ($user->hasRole('livreur')) {
+            return redirect()->route('livreur.dashboard')
+                            ->with('success', 'Mot de passe changé avec succès !');
+        } else {
+            return redirect()->route('dashboard.index')
+                            ->with('success', 'Mot de passe changé avec succès !');
+        }
     }
 }

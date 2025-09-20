@@ -26,9 +26,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 Route::get('/change-password', [PasswordChangeController::class, 'showChangeForm'])->name('password.change')->middleware('auth');
 Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('password.update')->middleware('auth');
 
-// Redirection vers le dashboard (avec protection)
+// Redirection intelligente vers le dashboard (avec protection)
 Route::get('/', function () {
-    return redirect()->route('dashboard.index');
+    return redirect(dashboard_route());
 })->middleware('auth');
 
 // Dashboard Routes
