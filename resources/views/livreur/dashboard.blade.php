@@ -38,10 +38,54 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
+.welcome-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+}
+.daily-summary {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 15px;
+  border: 1px solid #e9ecef;
+}
 </style>
 @endpush
 
 @section('content')
+
+<!-- Message d'accueil rapide -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card welcome-card border-0">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h4 class="text-white mb-2">
+              <i class="ti ti-sun me-2"></i>
+              @if(date('H') < 12)
+                Bonjour {{ $livreur->prenom }} ! 🌅
+              @elseif(date('H') < 18)
+                Bon après-midi {{ $livreur->prenom }} ! ☀️
+              @else
+                Bonsoir {{ $livreur->prenom }} ! 🌙
+              @endif
+            </h4>
+            <p class="text-white-75 mb-0">
+              Votre résumé de la journée • {{ now()->format('d F Y') }}
+            </p>
+          </div>
+          <div class="text-end">
+            <div class="d-flex align-items-center text-white-50">
+              <i class="ti ti-clock me-1"></i>
+              <span id="currentTime"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   
 <!-- Statistiques Modernes -->
 <div class="row mb-4">
@@ -221,3 +265,37 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+// Horloge en temps réel
+function updateTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+// Mettre à jour l'heure toutes les secondes
+updateTime();
+setInterval(updateTime, 1000);
+
+// Animation d'entrée pour les cartes
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.stat-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
+});
+</script>
+@endpush
