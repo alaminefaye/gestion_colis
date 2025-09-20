@@ -60,6 +60,104 @@
         </div>
       </div>
       <div class="card-body">
+        <!-- Section de Recherche -->
+        <div class="card border shadow-sm mb-4" style="background: #ffffff;">
+          <div class="card-body p-4">
+            <div class="row align-items-center mb-3">
+              <div class="col">
+                <h6 class="text-dark mb-0 fw-bold">🔍 Recherche Avancée</h6>
+                <p class="text-muted mb-0 small">Filtrez vos colis ramassés</p>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-outline-primary btn-sm" type="button" id="toggleFilters">
+                  <i class="ti ti-filter me-1"></i>
+                  <span id="filterToggleText">Masquer filtres</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Recherche rapide -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0">
+                    <i class="ti ti-search text-muted"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0 ps-0" id="searchInput" 
+                         placeholder="Rechercher par numéro, expéditeur, bénéficiaire, téléphone...">
+                </div>
+              </div>
+            </div>
+
+            <!-- Filtres avancés -->
+            <div id="advancedFilters" class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label text-muted small mb-1">Statut</label>
+                <select class="form-select form-select-sm" id="filterStatut">
+                  <option value="">Tous les statuts</option>
+                  <option value="ramasse">Ramassé</option>
+                  <option value="en_transit">En Transit</option>
+                  <option value="livre">Livré</option>
+                  <option value="probleme">Problème</option>
+                </select>
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label text-muted small mb-1">Livreur</label>
+                <select class="form-select form-select-sm" id="filterLivreur">
+                  <option value="">Tous les livreurs</option>
+                  @foreach($colis->unique('livreurRamassage.nom')->filter(fn($c) => $c->livreurRamassage) as $item)
+                    <option value="{{ $item->livreurRamassage->id }}">
+                      {{ $item->livreurRamassage->prenom }} {{ $item->livreurRamassage->nom }}
+                    </option>
+                  @endforeach
+                </select>
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label text-muted small mb-1">Destination</label>
+                <select class="form-select form-select-sm" id="filterDestination">
+                  <option value="">Toutes destinations</option>
+                  @foreach($colis->unique('destination')->pluck('destination')->sort() as $destination)
+                    <option value="{{ $destination }}">{{ $destination }}</option>
+                  @endforeach
+                </select>
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label text-muted small mb-1">Type</label>
+                <select class="form-select form-select-sm" id="filterType">
+                  <option value="">Tous les types</option>
+                  <option value="document">Document</option>
+                  <option value="standard">Standard</option>
+                  <option value="fragile">Fragile</option>
+                  <option value="express">Express</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label text-muted small mb-1">Date de ramassage (du)</label>
+                <input type="date" class="form-control form-control-sm" id="filterDateDu">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label text-muted small mb-1">Date de ramassage (au)</label>
+                <input type="date" class="form-control form-control-sm" id="filterDateAu">
+              </div>
+              
+              <div class="col-md-4">
+                <div class="d-flex justify-content-end align-items-end h-100">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFilters">
+                    <i class="ti ti-refresh me-1"></i>Réinitialiser
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         @if($colis->count() > 0)
         <div class="table-responsive">
           <table class="table table-striped table-hover">
@@ -252,6 +350,155 @@ document.addEventListener('DOMContentLoaded', function() {
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
+});
+
+// ================== FONCTIONNALITÉS DE RECHERCHE ==================
+
+// Toggle des filtres avancés
+document.getElementById('toggleFilters').addEventListener('click', function() {
+  const filters = document.getElementById('advancedFilters');
+  const toggleText = document.getElementById('filterToggleText');
+  
+  if (filters.style.display === 'none') {
+    filters.style.display = 'flex';
+    toggleText.textContent = 'Masquer filtres';
+  } else {
+    filters.style.display = 'none';
+    toggleText.textContent = 'Afficher filtres';
+  }
+});
+
+// Variables globales pour la recherche
+let searchTimeout;
+const tableRows = Array.from(document.querySelectorAll('tbody tr'));
+const originalRowsData = tableRows.map(row => ({
+  element: row,
+  text: row.textContent.toLowerCase().trim(),
+  statut: row.querySelector('td:nth-child(2)') ? row.querySelector('td:nth-child(2)').textContent.toLowerCase() : '',
+  montant: parseFloat(row.querySelector('td:nth-child(5)') ? row.querySelector('td:nth-child(5)').textContent.replace(/[^\d]/g, '') : 0),
+  destination: row.querySelector('td:nth-child(4)') ? row.querySelector('td:nth-child(4)').textContent.trim() : '',
+  livreur: row.querySelector('td:nth-child(6)') ? row.querySelector('td:nth-child(6)').textContent.trim() : '',
+  ramasse_le: row.querySelector('td:nth-child(7)') ? row.querySelector('td:nth-child(7)').textContent.trim() : ''
+}));
+
+// Fonction de filtrage avec debounce
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = function() {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Fonction principale de filtrage
+function filterTable() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const statutFilter = document.getElementById('filterStatut').value.toLowerCase();
+  const livreurFilter = document.getElementById('filterLivreur').value;
+  const destinationFilter = document.getElementById('filterDestination').value;
+  const typeFilter = document.getElementById('filterType').value;
+  const dateDu = document.getElementById('filterDateDu').value;
+  const dateAu = document.getElementById('filterDateAu').value;
+  
+  let visibleRows = [];
+  let totalValue = 0;
+  
+  originalRowsData.forEach(rowData => {
+    let showRow = true;
+    
+    // Filtre de recherche globale
+    if (searchTerm && !rowData.text.includes(searchTerm)) {
+      showRow = false;
+    }
+    
+    // Filtre par statut
+    if (statutFilter && !rowData.statut.includes(statutFilter)) {
+      showRow = false;
+    }
+    
+    // Filtre par destination
+    if (destinationFilter && !rowData.destination.includes(destinationFilter)) {
+      showRow = false;
+    }
+    
+    // Filtre par livreur
+    if (livreurFilter && !rowData.livreur.includes(livreurFilter)) {
+      showRow = false;
+    }
+    
+    // Filtre par date (si les champs de date sont remplis)
+    if (dateDu || dateAu) {
+      const rowDate = rowData.ramasse_le.split(' ')[0]; // Extraire la date
+      if (dateDu && rowDate < dateDu) showRow = false;
+      if (dateAu && rowDate > dateAu) showRow = false;
+    }
+    
+    if (showRow) {
+      visibleRows.push(rowData);
+      totalValue += rowData.montant;
+    }
+    
+    // Afficher/masquer la ligne
+    rowData.element.style.display = showRow ? '' : 'none';
+  });
+  
+  // Les statistiques sont supprimées
+  // Pas de mise à jour nécessaire
+}
+
+// Fonctions de statistiques supprimées
+
+// Event listeners pour la recherche
+const debouncedFilter = debounce(filterTable, 300);
+
+document.getElementById('searchInput').addEventListener('input', debouncedFilter);
+document.getElementById('filterStatut').addEventListener('change', filterTable);
+document.getElementById('filterLivreur').addEventListener('change', filterTable);
+document.getElementById('filterDestination').addEventListener('change', filterTable);
+document.getElementById('filterType').addEventListener('change', filterTable);
+document.getElementById('filterDateDu').addEventListener('change', filterTable);
+document.getElementById('filterDateAu').addEventListener('change', filterTable);
+
+// Reset des filtres
+document.getElementById('resetFilters').addEventListener('click', function() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterStatut').value = '';
+  document.getElementById('filterLivreur').value = '';
+  document.getElementById('filterDestination').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterDateDu').value = '';
+  document.getElementById('filterDateAu').value = '';
+  
+  // Réafficher toutes les lignes
+  originalRowsData.forEach(rowData => {
+    rowData.element.style.display = '';
+  });
+  
+  // Animation de reset
+  const searchCard = document.querySelector('.card[style*="background: #ffffff"]');
+  searchCard.style.transform = 'scale(0.98)';
+  setTimeout(() => {
+    searchCard.style.transform = 'scale(1)';
+  }, 150);
+});
+
+// Animation d'entrée au chargement
+document.addEventListener('DOMContentLoaded', function() {
+  const searchCard = document.querySelector('.card[style*="background: #ffffff"]');
+  if (searchCard) {
+    searchCard.style.opacity = '0';
+    searchCard.style.transform = 'translateY(-20px)';
+    searchCard.style.transition = 'all 0.6s ease';
+    
+    setTimeout(() => {
+      searchCard.style.opacity = '1';
+      searchCard.style.transform = 'translateY(0)';
+    }, 100);
+  }
 });
 </script>
 @endpush

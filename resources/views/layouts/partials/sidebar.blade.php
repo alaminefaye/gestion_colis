@@ -151,6 +151,9 @@
           </ul>
         </li>
         @endcan
+        
+        <!-- Pages spécifiques aux livreurs SEULEMENT -->
+        @hasrole('livreur')
         @can('scan_qr_colis')
         <li class="pc-item">
           <a href="{{ route('livreur.dashboard') }}" class="pc-link">
@@ -173,6 +176,7 @@
           </a>
         </li>
         @endcan
+        @endhasrole
         @endcanany
 
         @canany(['view_users', 'view_roles'])
