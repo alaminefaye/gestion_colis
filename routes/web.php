@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
+use App\Http\Controllers\BagageController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -61,6 +62,15 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::put('/clients/{id}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{id}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/api/telephone/{telephone}', [ClientController::class, 'getByTelephone'])->name('clients.api.telephone');
+    
+    // Gestion des bagages - CRUD complet
+    Route::get('/bagages', [BagageController::class, 'index'])->name('bagages.index')->middleware('can:view_bagages');
+    Route::get('/bagages/nouveau', [BagageController::class, 'create'])->name('bagages.create')->middleware('can:create_bagages');
+    Route::post('/bagages', [BagageController::class, 'store'])->name('bagages.store')->middleware('can:create_bagages');
+    Route::get('/bagages/{bagage}', [BagageController::class, 'show'])->name('bagages.show')->middleware('can:view_bagages');
+    Route::get('/bagages/{bagage}/modifier', [BagageController::class, 'edit'])->name('bagages.edit')->middleware('can:edit_bagages');
+    Route::put('/bagages/{bagage}', [BagageController::class, 'update'])->name('bagages.update')->middleware('can:edit_bagages');
+    Route::delete('/bagages/{bagage}', [BagageController::class, 'destroy'])->name('bagages.destroy')->middleware('can:delete_bagages');
     
     // Récupération des colis à la gare
     Route::post('/colis/marquer-recupere', [GestionController::class, 'marquerRecupere'])->name('colis.marquer-recupere');

@@ -75,7 +75,6 @@
           </ul>
         </li>
         @endcan
-        
         @canany(['view_agences', 'view_destinations'])
         <li class="pc-item pc-hasmenu">
           <a href="#!" class="pc-link">
@@ -93,6 +92,31 @@
           </ul>
         </li>
         @endcanany
+
+        @can('view_bagages')
+        <!-- Gestion des Bagages -->
+        <li class="pc-item pc-caption">
+          <label>Gestion Des Bagages</label>
+          <i class="ti ti-luggage"></i>
+        </li>
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-luggage"></i></span>
+            <span class="pc-mtext">Gestion des Bagages</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            @can('view_bagages')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.bagages.index') }}">Liste des Bagages</a></li>
+            @endcan
+            @can('create_bagages')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.bagages.create') }}">Ajouter un Bagage</a></li>
+            @endcan
+          </ul>
+        </li>
+        @endcan
+        
+       
 
         @can('view_clients')
         <li class="pc-item pc-caption">

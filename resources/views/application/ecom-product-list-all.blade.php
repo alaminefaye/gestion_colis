@@ -48,10 +48,10 @@
             <small class="text-muted">Y compris les colis récupérés et livrés</small>
           </div>
           <div>
-            <a href="{{ route('application.ecom-product-list') }}" class="btn btn-outline-secondary me-2">
+            <a href="{{ route('application.colis.list') }}" class="btn btn-outline-secondary me-2">
               <i class="ti ti-arrow-left me-2"></i>En Cours Seulement
             </a>
-            <a href="{{ route('application.ecom-product-add') }}" class="btn btn-primary">
+            <a href="{{ route('application.colis.add') }}" class="btn btn-primary">
               <i class="ti ti-plus me-2"></i>Nouveau Colis
             </a>
           </div>
@@ -260,7 +260,7 @@
                 <td>{{ $item->created_at->format('d/m/Y') }}<br><span class="text-muted">{{ $item->created_at->format('H:i') }}</span></td>
                 <td class="text-end">
                   <div class="btn-group" role="group">
-                    <a href="{{ route('application.ecom-product-show', $item->id) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Voir détails">
+                    <a href="{{ route('application.colis.show', $item->id) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Voir détails">
                       <i class="ti ti-eye"></i>
                     </a>
                     @if($item->recupere_gare)
@@ -268,7 +268,7 @@
                       <i class="ti ti-edit"></i>
                     </button>
                     @else
-                    <a href="{{ route('application.ecom-product-edit', $item->id) }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Modifier">
+                    <a href="{{ route('application.colis.edit', $item->id) }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Modifier">
                       <i class="ti ti-edit"></i>
                     </a>
                     @endif
