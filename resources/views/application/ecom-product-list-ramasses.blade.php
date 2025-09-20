@@ -13,7 +13,7 @@
         </div>
         <ul class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Accueil</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('application.colis.list') }}">Gestion des Colis</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('application.ecom-product-list') }}">Gestion des Colis</a></li>
           <li class="breadcrumb-item" aria-current="page">Colis Ramassés</li>
         </ul>
       </div>
@@ -47,13 +47,13 @@
             <small class="text-muted">Colis qui ont été ramassés par les livreurs</small>
           </div>
           <div>
-            <a href="{{ route('application.colis.list') }}" class="btn btn-outline-secondary me-2">
+            <a href="{{ route('application.ecom-product-list') }}" class="btn btn-outline-secondary me-2">
               <i class="ti ti-arrow-left me-2"></i>Colis En Cours
             </a>
-            <a href="{{ route('application.colis.list-all') }}" class="btn btn-outline-secondary me-2">
+            <a href="{{ route('application.ecom-product-list-all') }}" class="btn btn-outline-secondary me-2">
               <i class="ti ti-eye me-2"></i>Voir Tous
             </a>
-            <a href="{{ route('application.colis.add') }}" class="btn btn-primary">
+            <a href="{{ route('application.ecom-product-add') }}" class="btn btn-primary">
               <i class="ti ti-plus me-2"></i>Nouveau Colis
             </a>
           </div>
@@ -169,7 +169,7 @@
           <h4 class="mt-3">Aucun colis ramassé</h4>
           <p class="text-muted">Il n'y a actuellement aucun colis qui a été ramassé par les livreurs.</p>
           <div class="mt-4">
-            <a href="{{ route('application.colis.list') }}" class="btn btn-primary">
+            <a href="{{ route('application.ecom-product-list') }}" class="btn btn-primary">
               <i class="ti ti-arrow-left me-2"></i>Voir les Colis En Cours
             </a>
           </div>

@@ -150,7 +150,7 @@
             <i class="ti ti-user me-2"></i>Voir mon profil
           </a>
           @can('view_colis')
-          <a href="{{ route('application.colis.list') }}" class="btn btn-outline-secondary">
+          <a href="{{ route('application.ecom-product-list') }}" class="btn btn-outline-secondary">
             <i class="ti ti-package me-2"></i>Mes colis
           </a>
           @endcan
