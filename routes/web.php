@@ -40,6 +40,7 @@ Route::get('/', function () {
 Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'force.password.change'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
+    Route::get('/statistiques/{periode}', [DashboardController::class, 'getStatistiques'])->name('statistiques');
 });
 
 // Application Routes

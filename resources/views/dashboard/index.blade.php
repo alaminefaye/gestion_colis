@@ -24,13 +24,22 @@
 
 <!-- [ Main Content ] start -->
 <div class="row">
-  <!-- [ sample-page ] start -->
+  <!-- Première ligne : 4 cartes principales -->
   <div class="col-md-6 col-xl-3">
     <div class="card">
       <div class="card-body">
         <h6 class="mb-2 f-w-400 text-muted">Total Colis</h6>
-        <h4 class="mb-3">1,236 <span class="badge bg-light-primary border border-primary"><i class="ti ti-trending-up"></i> 15.3%</span></h4>
-        <p class="mb-0 text-muted text-sm">Augmentation de <span class="text-primary">180</span> ce mois</p>
+        <h4 class="mb-3">{{ number_format($stats['total_colis']) }} <span class="badge bg-light-primary border border-primary"><i class="ti ti-trending-up"></i> {{ $stats['total_colis_croissance'] }}%</span></h4>
+        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-primary">{{ $stats['total_colis_jour'] }}</span> nouveaux</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="mb-2 f-w-400 text-muted">Total Bagages</h6>
+        <h4 class="mb-3">{{ number_format($stats['total_bagages']) }} <span class="badge bg-light-info border border-info"><i class="ti ti-trending-up"></i> {{ $stats['total_bagages_croissance'] }}%</span></h4>
+        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-info">{{ $stats['total_bagages_jour'] }}</span> nouveaux</p>
       </div>
     </div>
   </div>
@@ -38,8 +47,8 @@
     <div class="card">
       <div class="card-body">
         <h6 class="mb-2 f-w-400 text-muted">Livraisons Réussies</h6>
-        <h4 class="mb-3">1,156 <span class="badge bg-light-success border border-success"><i class="ti ti-trending-up"></i> 93.5%</span></h4>
-        <p class="mb-0 text-muted text-sm">Amélioration de <span class="text-success">2.1%</span> ce mois</p>
+        <h4 class="mb-3">{{ number_format($stats['livraisons_reussies']) }} <span class="badge bg-light-success border border-success"><i class="ti ti-trending-up"></i> {{ $stats['taux_reussite'] }}%</span></h4>
+        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-success">{{ $stats['livraisons_reussies_jour'] }}</span> livrées</p>
       </div>
     </div>
   </div>
@@ -47,41 +56,82 @@
     <div class="card">
       <div class="card-body">
         <h6 class="mb-2 f-w-400 text-muted">En Transit</h6>
-        <h4 class="mb-3">68 <span class="badge bg-light-warning border border-warning"><i class="ti ti-truck"></i> En cours</span></h4>
-        <p class="mb-0 text-muted text-sm">Colis actuellement <span class="text-warning">en livraison</span></p>
+        <h4 class="mb-3">{{ $stats['en_transit'] }} <span class="badge bg-light-warning border border-warning"><i class="ti ti-truck"></i> En cours</span></h4>
+        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-warning">{{ $stats['en_transit_jour'] }}</span> en transit</p>
       </div>
     </div>
   </div>
-  <div class="col-md-6 col-xl-3">
+</div>
+
+<!-- Deuxième ligne : Revenus -->
+<div class="row mb-4">
+  <div class="col-md-12 col-xl-12">
     <div class="card">
-      <div class="card-body">
+      <div class="card-body text-center">
         <h6 class="mb-2 f-w-400 text-muted">Revenus Total</h6>
-        <h4 class="mb-3">26 874 000 FCFA <span class="badge bg-light-success border border-success"><i class="ti ti-trending-up"></i> 12.4%</span></h4>
-        <p class="mb-0 text-muted text-sm">Progression de <span class="text-success">3 173 000 FCFA</span> ce mois</p>
+        <h3 class="mb-3 text-success">{{ number_format($stats['revenus_total']) }} FCFA <span class="badge bg-light-success border border-success"><i class="ti ti-trending-up"></i> {{ $stats['revenus_croissance'] }}%</span></h3>
+        <div class="row">
+          <div class="col-4">
+            <p class="mb-0 text-muted">Total Global</p>
+            <h5 class="text-success">{{ number_format($stats['revenus_total']) }} FCFA</h5>
+          </div>
+          <div class="col-4">
+            <p class="mb-0 text-muted">Total Colis</p>
+            <h5 class="text-primary">{{ number_format($stats['revenus_colis']) }} FCFA</h5>
+          </div>
+          <div class="col-4">
+            <p class="mb-0 text-muted">Total Bagages</p>
+            <h5 class="text-info">{{ number_format($stats['revenus_bagages']) }} FCFA</h5>
+          </div>
+        </div>
+        <hr class="my-3">
+        <div class="row">
+          <div class="col-4">
+            <p class="mb-0 text-muted text-sm">Aujourd'hui</p>
+            <h6 class="text-success mb-0">{{ number_format($stats['revenus_jour']) }} FCFA</h6>
+          </div>
+          <div class="col-4">
+            <p class="mb-0 text-muted text-sm">Colis Aujourd'hui</p>
+            <h6 class="text-primary mb-0">{{ number_format($stats['revenus_colis_jour']) }} FCFA</h6>
+          </div>
+          <div class="col-4">
+            <p class="mb-0 text-muted text-sm">Bagages Aujourd'hui</p>
+            <h6 class="text-info mb-0">{{ number_format($stats['revenus_bagages_jour']) }} FCFA</h6>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="row">
 
   <div class="col-md-12 col-xl-8">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h5 class="mb-0">Statistiques des Livraisons</h5>
       <ul class="nav nav-pills justify-content-end mb-0" id="chart-tab-tab" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="chart-tab-home-tab" data-bs-toggle="pill" data-bs-target="#chart-tab-home" type="button" role="tab" aria-controls="chart-tab-home" aria-selected="true">Mois</button>
+          <button class="nav-link active" id="chart-tab-jour-tab" data-bs-toggle="pill" data-bs-target="#chart-tab-jour" type="button" role="tab" aria-controls="chart-tab-jour" aria-selected="true">Jour</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="chart-tab-profile-tab" data-bs-toggle="pill" data-bs-target="#chart-tab-profile" type="button" role="tab" aria-controls="chart-tab-profile" aria-selected="false">Semaine</button>
+          <button class="nav-link" id="chart-tab-profile-tab" data-bs-toggle="pill" data-bs-target="#chart-tab-profile" type="button" role="tab" aria-controls="chart-tab-profile" aria-selected="false">Semaine</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="chart-tab-home-tab" data-bs-toggle="pill" data-bs-target="#chart-tab-home" type="button" role="tab" aria-controls="chart-tab-home" aria-selected="false">Mois</button>
         </li>
       </ul>
     </div>
     <div class="card">
       <div class="card-body">
         <div class="tab-content" id="chart-tab-tabContent">
+          <div class="tab-pane show active" id="chart-tab-jour" role="tabpanel" aria-labelledby="chart-tab-jour-tab" tabindex="0">
+            <div id="visitor-chart-jour"></div>
+          </div>
+          <div class="tab-pane" id="chart-tab-profile" role="tabpanel" aria-labelledby="chart-tab-profile-tab" tabindex="0">
+            <div id="visitor-chart"></div>
+          </div>
           <div class="tab-pane" id="chart-tab-home" role="tabpanel" aria-labelledby="chart-tab-home-tab" tabindex="0">
             <div id="visitor-chart-1"></div>
-          </div>
-          <div class="tab-pane show active" id="chart-tab-profile" role="tabpanel" aria-labelledby="chart-tab-profile-tab" tabindex="0">
-            <div id="visitor-chart"></div>
           </div>
         </div>
       </div>
@@ -92,7 +142,7 @@
     <div class="card">
       <div class="card-body">
         <h6 class="mb-2 f-w-400 text-muted">Statistiques Cette Semaine</h6>
-        <h3 class="mb-3">4 502 500 FCFA</h3>
+        <h3 class="mb-3">{{ number_format($stats['revenus_semaine']) }} FCFA</h3>
         <div id="income-overview-chart"></div>
       </div>
     </div>
@@ -114,48 +164,24 @@
               </tr>
             </thead>
             <tbody>
+              @forelse($colisRecents as $colis)
               <tr>
-                <td><a href="#" class="text-muted">COL-2024-001</a></td>
-                <td>Dupont Jean</td>
-                <td>Paris, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-success f-10 m-r-5"></i>Livré</span></td>
-                <td class="text-end">26 750 FCFA</td>
+                <td><a href="{{ route('application.ecom-product-show', $colis->id) }}" class="text-muted">{{ $colis->numero_courrier }}</a></td>
+                <td>{{ $colis->nom_beneficiaire }}</td>
+                <td>{{ $colis->destination }}</td>
+                <td>
+                  <span class="d-flex align-items-center gap-2">
+                    <i class="fas fa-circle text-{{ $colis->statut_color }} f-10 m-r-5"></i>
+                    {{ $colis->statut_livraison_label }}
+                  </span>
+                </td>
+                <td class="text-end">{{ number_format($colis->montant) }} FCFA</td>
               </tr>
+              @empty
               <tr>
-                <td><a href="#" class="text-muted">COL-2024-002</a></td>
-                <td>Martin Sophie</td>
-                <td>Lyon, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-warning f-10 m-r-5"></i>En Transit</span></td>
-                <td class="text-end">19 225 FCFA</td>
+                <td colspan="5" class="text-center text-muted">Aucun colis récent</td>
               </tr>
-              <tr>
-                <td><a href="#" class="text-muted">COL-2024-003</a></td>
-                <td>Bernard Pierre</td>
-                <td>Marseille, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-primary f-10 m-r-5"></i>Préparation</span></td>
-                <td class="text-end">39 480 FCFA</td>
-              </tr>
-              <tr>
-                <td><a href="#" class="text-muted">COL-2024-004</a></td>
-                <td>Moreau Claire</td>
-                <td>Toulouse, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-danger f-10 m-r-5"></i>Problème</span></td>
-                <td class="text-end">16 990 FCFA</td>
-              </tr>
-              <tr>
-                <td><a href="#" class="text-muted">COL-2024-005</a></td>
-                <td>Lambert Paul</td>
-                <td>Nice, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-warning f-10 m-r-5"></i>En Transit</span></td>
-                <td class="text-end">32 100 FCFA</td>
-              </tr>
-              <tr>
-                <td><a href="#" class="text-muted">COL-2024-006</a></td>
-                <td>Rousseau Marie</td>
-                <td>Bordeaux, France</td>
-                <td><span class="d-flex align-items-center gap-2"><i class="fas fa-circle text-success f-10 m-r-5"></i>Livré</span></td>
-                <td class="text-end">24 265 FCFA</td>
-              </tr>
+              @endforelse
             </tbody>
           </table>
         </div>
@@ -167,13 +193,13 @@
     <div class="card">
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          Taux de Livraison<span class="h5 mb-0">94.2%</span>
+          Taux de Livraison<span class="h5 mb-0">{{ $rapportActivite['taux_livraison'] }}%</span>
         </a>
         <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          Satisfaction Client<span class="h5 mb-0">96.8%</span>
+          Satisfaction Client<span class="h5 mb-0">{{ $rapportActivite['satisfaction_client'] }}%</span>
         </a>
         <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-          Colis Problématiques<span class="h5 mb-0">2.1%</span>
+          Colis Problématiques<span class="h5 mb-0">{{ $rapportActivite['colis_problematiques'] }}%</span>
         </a>
       </div>
       <div class="card-body px-2">
@@ -183,11 +209,69 @@
   </div>
 
   <div class="col-md-12 col-xl-8">
+    <h5 class="mb-3">Bagages Récents</h5>
+    <div class="card tbl-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-borderless mb-0">
+            <thead>
+              <tr>
+                <th>N° BAGAGE</th>
+                <th>NOM FAMILLE</th>
+                <th>DESTINATION</th>
+                <th>TICKET</th>
+                <th class="text-end">MONTANT</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($bagagesRecents as $bagage)
+              <tr>
+                <td><a href="{{ route('application.bagages.show', $bagage->id) }}" class="text-muted">{{ $bagage->numero }}</a></td>
+                <td>{{ $bagage->nom_famille }} {{ $bagage->prenom }}</td>
+                <td>{{ $bagage->destination }}</td>
+                <td>
+                  @if($bagage->possede_ticket)
+                    <span class="badge bg-success">{{ $bagage->numero_ticket }}</span>
+                  @else
+                    <span class="badge bg-secondary">Sans ticket</span>
+                  @endif
+                </td>
+                <td class="text-end">{{ number_format($bagage->montant) }} FCFA</td>
+              </tr>
+              @empty
+              <tr>
+                <td colspan="5" class="text-center text-muted">Aucun bagage récent</td>
+              </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-xl-4">
+    <h5 class="mb-3">Détails Revenus</h5>
+    <div class="card">
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+          Revenus Colis<span class="h5 mb-0">{{ number_format($stats['revenus_colis']) }} FCFA</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+          Revenus Bagages<span class="h5 mb-0">{{ number_format($stats['revenus_bagages']) }} FCFA</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+          Total Revenus<span class="h5 mb-0 text-success">{{ number_format($stats['revenus_total']) }} FCFA</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 col-xl-8">
     <h5 class="mb-3">Rapport des Ventes</h5>
     <div class="card">
       <div class="card-body">
         <h6 class="mb-2 f-w-400 text-muted">Statistiques Cette Semaine</h6>
-        <h3 class="mb-0">4 502 500 FCFA</h3>
+        <h3 class="mb-0">{{ number_format($stats['revenus_semaine']) }} FCFA</h3>
         <div id="sales-report-chart"></div>
       </div>
     </div>
@@ -196,57 +280,35 @@
     <h5 class="mb-3">Transactions Récentes</h5>
     <div class="card">
       <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action">
+        @forelse($transactionsRecentes as $transaction)
+        <a href="{{ route('application.ecom-product-show', $transaction->id) }}" class="list-group-item list-group-item-action">
           <div class="d-flex">
             <div class="flex-shrink-0">
-              <div class="avtar avtar-s rounded-circle text-success bg-light-success">
-                <i class="ti ti-package f-18"></i>
+              <div class="avtar avtar-s rounded-circle text-{{ $transaction->statut_color }} bg-light-{{ $transaction->statut_color }}">
+                @if($transaction->statut_livraison == 'livre')
+                  <i class="ti ti-package f-18"></i>
+                @elseif($transaction->statut_livraison == 'en_transit')
+                  <i class="ti ti-truck f-18"></i>
+                @else
+                  <i class="ti ti-clock f-18"></i>
+                @endif
               </div>
             </div>
             <div class="flex-grow-1 ms-3">
-              <h6 class="mb-1">Colis #COL-2024-007</h6>
-              <p class="mb-0 text-muted">Aujourd'hui, 14:30</p>
+              <h6 class="mb-1">Colis #{{ $transaction->numero_courrier }}</h6>
+              <p class="mb-0 text-muted">{{ $transaction->created_at->format('d/m/Y, H:i') }}</p>
             </div>
             <div class="flex-shrink-0 text-end">
-              <h6 class="mb-1">+ 39 675 FCFA</h6>
-              <p class="mb-0 text-muted">Livré</p>
+              <h6 class="mb-1">+ {{ number_format($transaction->montant) }} FCFA</h6>
+              <p class="mb-0 text-muted">{{ $transaction->statut_livraison_label }}</p>
             </div>
           </div>
         </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex">
-            <div class="flex-shrink-0">
-              <div class="avtar avtar-s rounded-circle text-primary bg-light-primary">
-                <i class="ti ti-truck f-18"></i>
-              </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-              <h6 class="mb-1">Colis #COL-2024-008</h6>
-              <p class="mb-0 text-muted">Aujourd'hui, 12:15</p>
-            </div>
-            <div class="flex-shrink-0 text-end">
-              <h6 class="mb-1">+ 25 170 FCFA</h6>
-              <p class="mb-0 text-muted">Transit</p>
-            </div>
-          </div>
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex">
-            <div class="flex-shrink-0">
-              <div class="avtar avtar-s rounded-circle text-warning bg-light-warning">
-                <i class="ti ti-clock f-18"></i>
-              </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-              <h6 class="mb-1">Colis #COL-2024-009</h6>
-              <p class="mb-0 text-muted">Hier, 16:45</p>
-            </div>
-            <div class="flex-shrink-0 text-end">
-              <h6 class="mb-1">+ 32 445 FCFA</h6>
-              <p class="mb-0 text-muted">Attente</p>
-            </div>
-          </div>
-        </a>
+        @empty
+        <div class="list-group-item text-center text-muted">
+          Aucune transaction récente
+        </div>
+        @endforelse
       </div>
     </div>
   </div>
@@ -256,6 +318,11 @@
 @push('scripts')
 <!-- [Page Specific JS] start -->
 <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
+<script>
+// Données dynamiques passées du contrôleur
+const statistiquesLivraisons = @json($statistiquesLivraisons);
+const apercuRevenus = @json($apercuRevenus);
+</script>
 <script src="{{ asset('assets/js/pages/dashboard-default.js') }}"></script>
 <!-- [Page Specific JS] end -->
 @endpush

@@ -6,6 +6,54 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function floatchart() {
+  // Graphique de statistiques par jour (nouveau - par défaut)
+  (function () {
+    // Préparer les données pour le graphique jour
+    const heures = statistiquesLivraisons.map(item => item.heure);
+    const livraisons = statistiquesLivraisons.map(item => item.livraisons);
+    const ramassages = statistiquesLivraisons.map(item => item.ramassages);
+    
+    var options = {
+      chart: {
+        height: 450,
+        type: 'area',
+        toolbar: {
+          show: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      colors: ['#1890ff', '#13c2c2'],
+      series: [{
+        name: 'Livraisons',
+        data: livraisons
+      }, {
+        name: 'Ramassages',
+        data: ramassages
+      }],
+      stroke: {
+        curve: 'smooth',
+        width: 2
+      },
+      xaxis: {
+        categories: heures,
+      },
+      yaxis: {
+        title: {
+          text: 'Nombre de colis'
+        }
+      },
+      tooltip: {
+        shared: true,
+        intersect: false,
+      }
+    };
+    var chartJour = new ApexCharts(document.querySelector('#visitor-chart-jour'), options);
+    chartJour.render();
+  })();
+
+  // Graphique de statistiques par semaine (existant)
   (function () {
     var options = {
       chart: {
@@ -20,10 +68,10 @@ function floatchart() {
       },
       colors: ['#1890ff', '#13c2c2'],
       series: [{
-        name: 'Page Views',
+        name: 'Livraisons',
         data: [31, 40, 28, 51, 42, 109, 100]
       }, {
-        name: 'Sessions',
+        name: 'Ramassages',
         data: [11, 32, 45, 32, 34, 52, 41]
       }],
       stroke: {
@@ -31,11 +79,20 @@ function floatchart() {
         width: 2
       },
       xaxis: {
-        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        categories: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+      },
+      yaxis: {
+        title: {
+          text: 'Nombre de colis'
+        }
       }
     };
     var chart = new ApexCharts(document.querySelector('#visitor-chart'), options);
     chart.render();
+  })();
+
+  // Graphique de statistiques par mois (existant)
+  (function () {
     var options1 = {
       chart: {
         height: 450,
@@ -49,10 +106,10 @@ function floatchart() {
       },
       colors: ['#1890ff', '#13c2c2'],
       series: [{
-        name: 'Page Views',
+        name: 'Livraisons',
         data: [76, 85, 101, 98, 87, 105, 91, 114, 94, 86, 115, 35]
       }, {
-        name: 'Sessions',
+        name: 'Ramassages',
         data: [110, 60, 150, 35, 60, 36, 26, 45, 65, 52, 53, 41]
       }],
       stroke: {
@@ -60,14 +117,24 @@ function floatchart() {
         width: 2
       },
       xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+      },
+      yaxis: {
+        title: {
+          text: 'Nombre de colis'
+        }
       }
     };
     var chart = new ApexCharts(document.querySelector('#visitor-chart-1'), options1);
     chart.render();
   })();
 
+  // Graphique Aperçu des Revenus (avec données dynamiques)
   (function () {
+    // Préparer les données pour le graphique des revenus
+    const jours = apercuRevenus.map(item => item.jour);
+    const revenus = apercuRevenus.map(item => Math.round((item.revenus || 0) / 1000)); // Diviser par 1000 et arrondir
+    
     var options = {
       chart: {
         type: 'bar',
@@ -87,14 +154,15 @@ function floatchart() {
         enabled: false
       },
       series: [{
-        data: [80, 95, 70, 42, 65, 55, 78]
+        name: 'Revenus (k FCFA)',
+        data: revenus
       }],
       stroke: {
         curve: 'smooth',
         width: 2
       },
       xaxis: {
-        categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+        categories: jours,
         axisBorder: {
           show: false
         },
@@ -107,6 +175,13 @@ function floatchart() {
       },
       grid: {
         show: false
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return val.toLocaleString('fr-FR') + "k FCFA"
+          }
+        }
       }
     };
     var chart = new ApexCharts(document.querySelector('#income-overview-chart'), options);
@@ -169,7 +244,13 @@ function floatchart() {
     var chart = new ApexCharts(document.querySelector('#analytics-report-chart'), options);
     chart.render();
   })();
+  // Rapport des Ventes (avec données dynamiques de la semaine)
   (function () {
+    // Utiliser les données des revenus de la semaine
+    const jours = apercuRevenus.map(item => item.jour);
+    const revenus = apercuRevenus.map(item => Math.round((item.revenus || 0) / 1000)); // En milliers, arrondi
+    const profits = apercuRevenus.map(item => Math.round(((item.revenus || 0) * 0.7) / 1000)); // Simuler profit à 70%, arrondi
+    
     var options = {
       chart: {
         type: 'bar',
@@ -216,15 +297,22 @@ function floatchart() {
       },
       colors: ['#faad14', '#1890ff'],
       series: [{
-        name: 'Net Profit',
-        data: [180, 90, 135, 114, 120, 145]
+        name: 'Profit Net (k FCFA)',
+        data: profits
       }, {
-        name: 'Revenue',
-        data: [120, 45, 78, 150, 168, 99]
+        name: 'Revenus (k FCFA)',
+        data: revenus
       }],
       xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        categories: jours
       },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return val.toLocaleString('fr-FR') + "k FCFA"
+          }
+        }
+      }
     }
     var chart = new ApexCharts(document.querySelector('#sales-report-chart'), options);
     chart.render();
