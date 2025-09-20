@@ -137,7 +137,7 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group" role="group">
-                    <a href="{{ route('application.colis.show', $item->id) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Voir détails">
+                    <a href="{{ route('application.ecom-product-show', $item->id) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Voir détails">
                       <i class="ti ti-eye"></i>
                     </a>
                     @if($item->recupere_gare)
@@ -145,7 +145,7 @@
                       <i class="ti ti-edit"></i>
                     </button>
                     @else
-                    <a href="{{ route('application.colis.edit', $item->id) }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Modifier">
+                    <a href="{{ route('application.ecom-product-edit', $item->id) }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Modifier">
                       <i class="ti ti-edit"></i>
                     </a>
                     @endif
