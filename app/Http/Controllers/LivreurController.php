@@ -169,7 +169,7 @@ class LivreurController extends Controller
         }
 
         $colis = $query->orderByRaw('COALESCE(recupere_le, ramasse_le, created_at) DESC')
-                      ->paginate(15);
+                      ->paginate(7);
 
         return view('livreurs.colis-recuperes', compact('colis'));
     }
@@ -250,7 +250,7 @@ class LivreurController extends Controller
         }
 
         $colis = $query->orderByRaw('COALESCE(livre_le, ramasse_le, created_at) DESC')
-                      ->paginate(15);
+                      ->paginate(9);
 
         // Statistiques du livreur
         $stats = [

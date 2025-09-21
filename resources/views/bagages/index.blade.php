@@ -2,6 +2,83 @@
 
 @section('title', 'Gestion des Bagages')
 
+@push('styles')
+<style>
+/* Pagination moderne pour bagages */
+.pagination-wrapper .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.pagination-wrapper .page-item {
+  margin: 0;
+}
+
+.pagination-wrapper .page-link {
+  border: none;
+  background: #f8f9fa;
+  color: #6c757d;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-wrapper .page-link:hover {
+  background: linear-gradient(135deg, #fd7e14, #ff922b);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+}
+
+.pagination-wrapper .page-item.active .page-link {
+  background: linear-gradient(135deg, #fd7e14, #ff922b);
+  color: white;
+  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+  background: #e9ecef;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.pagination-wrapper .page-item.disabled .page-link:hover {
+  background: #e9ecef;
+  color: #adb5bd;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Flèches de navigation */
+.pagination-wrapper .page-link[aria-label="Previous"],
+.pagination-wrapper .page-link[aria-label="Next"] {
+  font-size: 16px;
+  padding: 12px 14px;
+}
+
+/* Style pour mobile */
+@media (max-width: 576px) {
+  .pagination-wrapper .page-link {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-width: 38px;
+    height: 38px;
+  }
+}
+</style>
+@endpush
+
 @section('content')
 <!-- [ breadcrumb ] start -->
 <div class="page-header">
@@ -159,9 +236,11 @@
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-3">
-          {{ $bagages->links() }}
+        <!-- Pagination moderne -->
+        <div class="d-flex justify-content-center mt-4">
+          <div class="pagination-wrapper">
+            {{ $bagages->links('pagination::bootstrap-4') }}
+          </div>
         </div>
       </div>
     </div>
