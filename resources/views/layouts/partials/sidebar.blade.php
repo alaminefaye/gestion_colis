@@ -9,44 +9,26 @@
     </div>
     <div class="navbar-content">
       <ul class="pc-navbar">
-        @if(Auth::user()->hasRole('super-admin'))
-        <li class="pc-item pc-hasmenu">
-          <a href="#!" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
-            <span class="pc-mtext">Dashboard</span>
-            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-          </a>
-          <ul class="pc-submenu">
-            @can('view_dashboard')
-            <li class="pc-item"><a class="pc-link" href="{{ route('dashboard.index') }}">Dashboard Admin</a></li>
-            @endcan
-            @can('scan_qr_colis')
-            <li class="pc-item"><a class="pc-link" href="{{ route('livreur.dashboard') }}">Dashboard Livreur</a></li>
-            @endcan
-          </ul>
-        </li>
-        @else
+        @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('super-admin'))
         @can('view_dashboard')
-        @unless(Auth::user()->hasRole('livreur'))
         <li class="pc-item">
-          <a href="{{ dashboard_route() }}" class="pc-link">
+          <a href="{{ route('dashboard.index') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
             <span class="pc-mtext">Dashboard</span>
           </a>
         </li>
-        @endunless
         @endcan
         @endif
+        @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('super-admin'))
         @can('view_analytics')
-        @unless(Auth::user()->hasRole('livreur'))
         <li class="pc-item">
           <a href="{{ route('dashboard.analytics') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-chart-line"></i></span>
             <span class="pc-mtext">Analytics</span>
           </a>
         </li>
-        @endunless
         @endcan
+        @endif
 
         @can('view_colis')
         <li class="pc-item pc-caption">
@@ -60,6 +42,9 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
           </a>
           <ul class="pc-submenu">
+          @can('view_colis')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.gestionnaire.dashboard') }}">Mon Tableau de Bord</a></li>
+            @endcan
             @can('view_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-list') }}">Liste des Colis</a></li>
             @endcan
@@ -72,6 +57,7 @@
             @can('view_colis_recuperes')
             <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.colis.recuperes') }}">Colis Récupérés</a></li>
             @endcan
+            
           </ul>
         </li>
         @endcan

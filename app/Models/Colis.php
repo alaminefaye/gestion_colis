@@ -41,6 +41,7 @@ class Colis extends Model
         'recupere_par_user_id',
         'photo_piece_recto',
         'photo_piece_verso',
+        'created_by',
     ];
 
     protected $casts = [
@@ -176,5 +177,13 @@ class Colis extends Model
             return asset('storage/' . $this->photo_piece_verso);
         }
         return null;
+    }
+
+    /**
+     * Relation avec l'utilisateur qui a créé le colis
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 }

@@ -115,6 +115,9 @@ class ApplicationController extends Controller
             $validated['photo_courrier'] = $photoName;
         }
 
+        // Ajouter l'utilisateur qui crée le colis
+        $validated['created_by'] = auth()->id();
+
         // Créer le colis
         $colis = Colis::create($validated);
 
@@ -385,5 +388,141 @@ class ApplicationController extends Controller
     public function ecomCheckout()
     {
         return view('application.ecom-checkout');
+    }
+
+    /**
+     * Tableau de bord personnalisé pour le gestionnaire connecté
+     */
+    public function gestionnaireDashboard(Request $request)
+    {
+        $user = auth()->user();
+        $periode = $request->get('periode', 'tout'); // par défaut : tout
+        
+        // Base query pour filtrer par utilisateur
+        $baseQuery = Colis::where('created_by', $user->id);
+        
+        // Appliquer le filtre de période
+        switch($periode) {
+            case 'aujourd_hui':
+                $baseQuery = $baseQuery->whereDate('created_at', now()->toDateString());
+                break;
+            case 'cette_semaine':
+                $baseQuery = $baseQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                break;
+            case 'ce_mois':
+                $baseQuery = $baseQuery->whereMonth('created_at', now()->month)
+                                      ->whereYear('created_at', now()->year);
+                break;
+            case 'tout':
+            default:
+                // Pas de filtre supplémentaire
+                break;
+        }
+        
+        // Statistiques des colis créés par l'utilisateur connecté avec filtre de période
+        $stats = [
+            'total_crees' => (clone $baseQuery)->count(),
+            'en_attente' => (clone $baseQuery)->where('statut_livraison', 'en_attente')
+                                              ->where('recupere_gare', false)
+                                              ->count(),
+            'ramasses' => (clone $baseQuery)->where('statut_livraison', 'ramasse')
+                                            ->count(),
+            'en_transit' => (clone $baseQuery)->where('statut_livraison', 'en_transit')
+                                             ->count(),
+            'livres' => (clone $baseQuery)->where('statut_livraison', 'livre')
+                                         ->count(),
+            'recuperes_gare' => (clone $baseQuery)->where('recupere_gare', true)
+                                                 ->count(),
+        ];
+
+        // Colis récents créés par l'utilisateur (filtrés par période)
+        $colisRecents = (clone $baseQuery)->with(['livreurRamassage', 'livreurLivraison'])
+                                          ->orderBy('created_at', 'desc')
+                                          ->take(10)
+                                          ->get();
+
+        // Revenus générés par les colis de l'utilisateur (filtrés par période)
+        $revenus = [
+            'periode_actuelle' => (clone $baseQuery)->sum('montant'),
+        ];
+        
+        // Revenus globaux (non filtrés pour comparaison)
+        $revenusGlobaux = [
+            'total' => Colis::where('created_by', $user->id)->sum('montant'),
+            'ce_mois' => Colis::where('created_by', $user->id)
+                             ->whereMonth('created_at', now()->month)
+                             ->whereYear('created_at', now()->year)
+                             ->sum('montant'),
+            'cette_semaine' => Colis::where('created_by', $user->id)
+                                   ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+                                   ->sum('montant'),
+        ];
+
+        // Progression selon la période sélectionnée
+        $progresPercentage = 0;
+        switch($periode) {
+            case 'aujourd_hui':
+                $aujourdHui = (clone $baseQuery)->count();
+                $hier = Colis::where('created_by', $user->id)
+                            ->whereDate('created_at', now()->subDay()->toDateString())
+                            ->count();
+                $progresPercentage = $hier > 0 
+                    ? round((($aujourdHui - $hier) / $hier) * 100, 1)
+                    : ($aujourdHui > 0 ? 100 : 0);
+                break;
+            case 'cette_semaine':
+                $cetteSemaine = (clone $baseQuery)->count();
+                $semaineDerniere = Colis::where('created_by', $user->id)
+                                       ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+                                       ->count();
+                $progresPercentage = $semaineDerniere > 0 
+                    ? round((($cetteSemaine - $semaineDerniere) / $semaineDerniere) * 100, 1)
+                    : ($cetteSemaine > 0 ? 100 : 0);
+                break;
+            case 'ce_mois':
+                $ceMois = (clone $baseQuery)->count();
+                $moisDernier = Colis::where('created_by', $user->id)
+                                   ->whereMonth('created_at', now()->subMonth()->month)
+                                   ->whereYear('created_at', now()->subMonth()->year)
+                                   ->count();
+                $progresPercentage = $moisDernier > 0 
+                    ? round((($ceMois - $moisDernier) / $moisDernier) * 100, 1)
+                    : ($ceMois > 0 ? 100 : 0);
+                break;
+            default:
+                $colisProgresMois = Colis::where('created_by', $user->id)
+                                         ->whereMonth('created_at', now()->month)
+                                         ->whereYear('created_at', now()->year)
+                                         ->count();
+                
+                $colisMoisDernier = Colis::where('created_by', $user->id)
+                                         ->whereMonth('created_at', now()->subMonth()->month)
+                                         ->whereYear('created_at', now()->subMonth()->year)
+                                         ->count();
+                
+                $progresPercentage = $colisMoisDernier > 0 
+                    ? round((($colisProgresMois - $colisMoisDernier) / $colisMoisDernier) * 100, 1)
+                    : ($colisProgresMois > 0 ? 100 : 0);
+                break;
+        }
+
+        // Destinations les plus utilisées par l'utilisateur (filtrées par période)
+        $destinationsTop = (clone $baseQuery)->select('destination')
+                                             ->selectRaw('COUNT(*) as total')
+                                             ->groupBy('destination')
+                                             ->orderBy('total', 'desc')
+                                             ->take(5)
+                                             ->get();
+
+        return view('application.gestionnaire-dashboard', compact(
+            'stats', 
+            'colisRecents', 
+            'revenus',
+            'revenusGlobaux', 
+            'progresPercentage',
+            'destinationsTop',
+            'user',
+            'periode'
+        ));
     }
 }

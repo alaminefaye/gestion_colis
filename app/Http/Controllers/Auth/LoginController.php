@@ -44,10 +44,8 @@ class LoginController extends Controller
             // Redirection intelligente selon le rôle de l'utilisateur
             $user = Auth::user();
             
-            // Page d'origine ou redirection par défaut selon le rôle
-            $defaultRoute = $user->hasRole('livreur') 
-                ? route('livreur.dashboard') 
-                : route('dashboard.index');
+            // Utiliser la fonction helper pour déterminer la route appropriée
+            $defaultRoute = dashboard_route();
             
             $intended = $request->session()->pull('url.intended', $defaultRoute);
             

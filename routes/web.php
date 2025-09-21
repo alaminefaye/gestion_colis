@@ -45,6 +45,9 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'force.passw
 
 // Application Routes
 Route::prefix('application')->name('application.')->middleware(['auth', 'force.password.change'])->group(function () {
+    
+    // Tableau de bord gestionnaire
+    Route::get('/mon-tableau-de-bord', [ApplicationController::class, 'gestionnaireDashboard'])->name('gestionnaire.dashboard')->middleware('can:view_colis');
     // Gestion des colis - CRUD complet
     Route::get('/colis', [ApplicationController::class, 'ecomProductList'])->name('ecom-product-list');
     Route::get('/colis/tous', [ApplicationController::class, 'ecomProductListAll'])->name('ecom-product-list-all');
