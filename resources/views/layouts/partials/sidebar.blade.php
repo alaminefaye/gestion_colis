@@ -29,10 +29,10 @@
         </li>
         @endcan -->
         @can('view_livreurs')
-        <li class="pc-item pc-caption">
+        <!-- <li class="pc-item pc-caption">
           <label>Données & Analytics</label>
           <i class="ti ti-chart-bar"></i>
-        </li>
+        </li> -->
         <li class="pc-item">
           <a href="{{ route('admin.performances-livreurs.index') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-chart-pie"></i></span>
@@ -204,13 +204,13 @@
           </ul>
         </li>
         @endcanany
-
+<!-- 
         <li class="pc-item">
           <a href="{{ route('application.user-profile') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-user"></i></span>
             <span class="pc-mtext">Mon Profil</span>
           </a>
-        </li>
+        </li> -->
 
         <li class="pc-item">
           <form method="POST" action="{{ route('logout') }}" id="logoutForm">
