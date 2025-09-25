@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bagages', function (Blueprint $table) {
+        Schema::table('colis', function (Blueprint $table) {
             // Vérifier si la colonne n'existe pas déjà
-            if (!Schema::hasColumn('bagages', 'created_by')) {
+            if (!Schema::hasColumn('colis', 'created_by')) {
                 $table->unsignedBigInteger('created_by')->nullable();
                 $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
                 $table->index('created_by');
@@ -26,9 +26,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bagages', function (Blueprint $table) {
+        Schema::table('colis', function (Blueprint $table) {
             // Vérifier si la colonne existe avant de la supprimer
-            if (Schema::hasColumn('bagages', 'created_by')) {
+            if (Schema::hasColumn('colis', 'created_by')) {
                 $table->dropForeign(['created_by']);
                 $table->dropIndex(['created_by']);
                 $table->dropColumn('created_by');
