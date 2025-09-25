@@ -312,15 +312,21 @@
 
         <!-- Pagination -->
         @if($colis->hasPages())
-        <div class="d-flex align-items-center justify-content-between mt-3">
-          <div>
-            <p class="text-muted mb-0">
-              Affichage de {{ $colis->firstItem() }} à {{ $colis->lastItem() }} sur {{ $colis->total() }} entrées
-            </p>
+        <div class="card border-0 shadow-sm mt-4" style="border-radius: 15px;">
+          <div class="card-body text-center">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <p class="text-muted mb-0">
+                Affichage de {{ $colis->firstItem() ?? 0 }} à {{ $colis->lastItem() ?? 0 }} 
+                sur {{ $colis->total() }} entrées
+              </p>
+              <small class="text-muted">10 éléments par page</small>
+            </div>
+            <nav>
+              <div class="pagination-wrapper">
+                {{ $colis->appends(request()->query())->links('pagination::bootstrap-4') }}
+              </div>
+            </nav>
           </div>
-          <nav>
-            {{ $colis->links() }}
-          </nav>
         </div>
         @endif
       </div>
@@ -525,6 +531,79 @@
   
   .table-responsive {
     font-size: 0.875rem;
+  }
+}
+
+/* Pagination moderne pour colis */
+.pagination-wrapper .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.pagination-wrapper .page-item {
+  margin: 0;
+}
+
+.pagination-wrapper .page-link {
+  border: none;
+  background: #f8f9fa;
+  color: #6c757d;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-wrapper .page-link:hover {
+  background: linear-gradient(135deg, #007bff, #74c0fc);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.pagination-wrapper .page-item.active .page-link {
+  background: linear-gradient(135deg, #007bff, #74c0fc);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+  background: #e9ecef;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.pagination-wrapper .page-item.disabled .page-link:hover {
+  background: #e9ecef;
+  color: #adb5bd;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Flèches de navigation */
+.pagination-wrapper .page-link[aria-label="Previous"],
+.pagination-wrapper .page-link[aria-label="Next"] {
+  font-size: 16px;
+  padding: 12px 14px;
+}
+
+/* Style pour mobile */
+@media (max-width: 576px) {
+  .pagination-wrapper .page-link {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-width: 38px;
+    height: 38px;
   }
 }
 </style>

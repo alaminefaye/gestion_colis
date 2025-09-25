@@ -333,11 +333,24 @@
         </div>
 
         <!-- Pagination moderne -->
-        <div class="d-flex justify-content-center mt-4">
-          <div class="pagination-wrapper">
-            {{ $colis->links('pagination::bootstrap-4') }}
+        @if($colis->hasPages())
+        <div class="card border-0 shadow-sm mt-4" style="border-radius: 15px;">
+          <div class="card-body text-center">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <p class="text-muted mb-0">
+                Affichage de {{ $colis->firstItem() ?? 0 }} à {{ $colis->lastItem() ?? 0 }} 
+                sur {{ $colis->total() }} colis ramassés
+              </p>
+              <small class="text-muted">9 éléments par page</small>
+            </div>
+            <nav>
+              <div class="pagination-wrapper">
+                {{ $colis->appends(request()->query())->links('pagination::bootstrap-4') }}
+              </div>
+            </nav>
           </div>
         </div>
+        @endif
         @else
         <div class="empty-state py-5 text-center">
           <div class="empty-state-icon">

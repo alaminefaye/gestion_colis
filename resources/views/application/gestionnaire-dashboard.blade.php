@@ -42,7 +42,6 @@
   font-weight: 600;
   font-size: 0.8rem;
 }
-
 .destination-item {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   border-radius: 10px;
@@ -72,6 +71,69 @@
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 15px;
   padding: 20px;
+}
+
+/* Pagination moderne pour tableau de bord gestionnaire */
+.pagination-wrapper .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.pagination-wrapper .page-item {
+  margin: 0;
+}
+
+.pagination-wrapper .page-link {
+  border: none;
+  background: #f8f9fa;
+  color: #6c757d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-wrapper .page-link:hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+.pagination-wrapper .page-item.active .page-link {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+  background: #e9ecef;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.pagination-wrapper .page-item.disabled .page-link:hover {
+  background: #e9ecef;
+  color: #adb5bd;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Flèches de navigation */
+.pagination-wrapper .page-link[aria-label="Previous"],
+.pagination-wrapper .page-link[aria-label="Next"] {
+  font-size: 14px;
+  padding: 8px 10px;
 }
 </style>
 @endpush
@@ -371,6 +433,15 @@
           </a>
         </div>
         @endforelse
+        
+        <!-- Pagination des colis récents -->
+        @if($colisRecents->hasPages())
+        <div class="d-flex justify-content-center mt-3">
+          <div class="pagination-wrapper">
+            {{ $colisRecents->appends(request()->query())->links('pagination::bootstrap-4') }}
+          </div>
+        </div>
+        @endif
       </div>
     </div>
   </div>

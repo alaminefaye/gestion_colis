@@ -22,7 +22,8 @@ class Bagage extends Model
         'valeur',
         'montant',
         'poids',
-        'contenu'
+        'contenu',
+        'created_by'
     ];
 
     protected $casts = [

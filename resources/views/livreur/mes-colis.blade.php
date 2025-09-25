@@ -138,7 +138,17 @@
             </div>
             <div>
               <h3 class="text-white mb-1">Mes Colis</h3>
-              <p class="text-white-75 mb-0">{{ $livreur->nom_complet }} • {{ $colis->total() }} colis au total</p>
+              <p class="text-white-75 mb-0">{{ $livreur->nom_complet }} • {{ $colis->total() }} colis 
+                @if($periode != 'tout')
+                  @switch($periode)
+                    @case('aujourd_hui') aujourd'hui @break
+                    @case('cette_semaine') cette semaine @break
+                    @case('ce_mois') ce mois @break
+                  @endswitch
+                @else
+                  au total
+                @endif
+              </p>
             </div>
           </div>
           <div class="text-end">
@@ -204,14 +214,50 @@
   </div>
 </div>
 
-<!-- Filtres modernes -->
+<!-- Filtres par période -->
 <div class="card filter-card stat-card mb-4 border-0">
   <div class="card-body">
     <div class="d-flex align-items-center mb-3">
-      <i class="ti ti-filter me-2 text-primary"></i>
-      <h6 class="mb-0 fw-bold">Filtrer mes colis</h6>
+      <i class="ti ti-calendar me-2 text-primary"></i>
+      <h6 class="mb-0 fw-bold">Filtrer par période</h6>
+      @if($periode != 'tout')
+        <span class="badge bg-primary ms-2">
+          @switch($periode)
+            @case('aujourd_hui') 📅 Aujourd'hui @break
+            @case('cette_semaine') 📅 Cette semaine @break
+            @case('ce_mois') 📅 Ce mois @break
+          @endswitch
+        </span>
+      @endif
     </div>
+    
+    <!-- Boutons de période -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="btn-group w-100" role="group">
+          <a href="{{ route('livreur.mes-colis', array_merge(request()->except('periode'), ['periode' => 'aujourd_hui'])) }}" 
+             class="btn {{ $periode == 'aujourd_hui' ? 'btn-primary' : 'btn-outline-primary' }} flex-fill">
+            📅 Aujourd'hui
+          </a>
+          <a href="{{ route('livreur.mes-colis', array_merge(request()->except('periode'), ['periode' => 'cette_semaine'])) }}" 
+             class="btn {{ $periode == 'cette_semaine' ? 'btn-primary' : 'btn-outline-primary' }} flex-fill">
+            📊 Cette semaine
+          </a>
+          <a href="{{ route('livreur.mes-colis', array_merge(request()->except('periode'), ['periode' => 'ce_mois'])) }}" 
+             class="btn {{ $periode == 'ce_mois' ? 'btn-primary' : 'btn-outline-primary' }} flex-fill">
+            🗓️ Ce mois
+          </a>
+          <a href="{{ route('livreur.mes-colis', array_merge(request()->except('periode'), ['periode' => 'tout'])) }}" 
+             class="btn {{ $periode == 'tout' ? 'btn-primary' : 'btn-outline-primary' }} flex-fill">
+            🔍 Tout
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtres avancés -->
     <form method="GET" id="filterForm">
+      <input type="hidden" name="periode" value="{{ $periode }}">
       <div class="row g-3">
         <div class="col-lg-3 col-md-4">
           <label class="form-label fw-500">Statut</label>
@@ -334,6 +380,12 @@
       <p class="text-muted mb-4">
         @if(request()->hasAny(['statut', 'date_du', 'date_au']))
           Aucun colis ne correspond aux filtres sélectionnés.
+        @elseif($periode == 'aujourd_hui')
+          Vous n'avez encore ramassé ou livré aucun colis aujourd'hui.
+        @elseif($periode == 'cette_semaine')
+          Vous n'avez encore ramassé ou livré aucun colis cette semaine.
+        @elseif($periode == 'ce_mois')
+          Vous n'avez encore ramassé ou livré aucun colis ce mois.
         @else
           Vous n'avez encore ramassé ou livré aucun colis.
         @endif

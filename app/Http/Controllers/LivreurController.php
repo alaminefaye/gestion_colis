@@ -229,6 +229,9 @@ class LivreurController extends Controller
                            ->with('error', 'Aucun profil de livreur associé à votre email. Contactez l\'administrateur.');
         }
 
+        // Période par défaut : aujourd'hui
+        $periode = $request->get('periode', 'aujourd_hui');
+        
         // Query de base pour les colis de ce livreur
         $query = Colis::with(['livreurRamassage', 'livreurLivraison'])
                      ->where(function($q) use ($livreur) {
@@ -236,31 +239,98 @@ class LivreurController extends Controller
                            ->orWhere('livre_par', $livreur->id);
                      });
 
+        // Filtrage par période
+        $today = now();
+        switch ($periode) {
+            case 'aujourd_hui':
+                $query->where(function($q) use ($today, $livreur) {
+                    $q->whereDate('ramasse_le', $today->toDateString())
+                      ->orWhereDate('livre_le', $today->toDateString());
+                });
+                break;
+            case 'cette_semaine':
+                $startOfWeek = $today->startOfWeek();
+                $endOfWeek = $today->copy()->endOfWeek();
+                $query->where(function($q) use ($startOfWeek, $endOfWeek) {
+                    $q->whereBetween('ramasse_le', [$startOfWeek, $endOfWeek])
+                      ->orWhereBetween('livre_le', [$startOfWeek, $endOfWeek]);
+                });
+                break;
+            case 'ce_mois':
+                $startOfMonth = $today->startOfMonth();
+                $endOfMonth = $today->copy()->endOfMonth();
+                $query->where(function($q) use ($startOfMonth, $endOfMonth) {
+                    $q->whereBetween('ramasse_le', [$startOfMonth, $endOfMonth])
+                      ->orWhereBetween('livre_le', [$startOfMonth, $endOfMonth]);
+                });
+                break;
+            case 'tout':
+                // Pas de filtre par date
+                break;
+        }
+
         // Filtrage par statut
         if ($request->statut) {
             $query->where('statut_livraison', $request->statut);
         }
 
-        // Filtrage par date
-        if ($request->date_du) {
-            $query->whereDate('created_at', '>=', $request->date_du);
-        }
-        if ($request->date_au) {
-            $query->whereDate('created_at', '<=', $request->date_au);
+        // Filtrage par date manuel (prioritaire sur la période)
+        if ($request->date_du || $request->date_au) {
+            if ($request->date_du) {
+                $query->where(function($q) use ($request) {
+                    $q->whereDate('ramasse_le', '>=', $request->date_du)
+                      ->orWhereDate('livre_le', '>=', $request->date_du);
+                });
+            }
+            if ($request->date_au) {
+                $query->where(function($q) use ($request) {
+                    $q->whereDate('ramasse_le', '<=', $request->date_au)
+                      ->orWhereDate('livre_le', '<=', $request->date_au);
+                });
+            }
         }
 
         $colis = $query->orderByRaw('COALESCE(livre_le, ramasse_le, created_at) DESC')
                       ->paginate(9);
 
-        // Statistiques du livreur
-        $stats = [
-            'total_ramasse' => $livreur->colisRamasses()->count(),
-            'total_livre' => $livreur->colisLivres()->count(),
-            'en_cours' => $livreur->colisRamasses()->where('statut_livraison', 'ramasse')->count(),
-            'en_transit' => $livreur->colisRamasses()->where('statut_livraison', 'en_transit')->count()
-        ];
+        // Statistiques du livreur selon la période
+        $statsQuery = function() use ($livreur, $periode, $today) {
+            $ramassesQuery = $livreur->colisRamasses();
+            $livresQuery = $livreur->colisLivres();
+            
+            switch ($periode) {
+                case 'aujourd_hui':
+                    $ramassesQuery->whereDate('ramasse_le', $today->toDateString());
+                    $livresQuery->whereDate('livre_le', $today->toDateString());
+                    break;
+                case 'cette_semaine':
+                    $startOfWeek = $today->copy()->startOfWeek();
+                    $endOfWeek = $today->copy()->endOfWeek();
+                    $ramassesQuery->whereBetween('ramasse_le', [$startOfWeek, $endOfWeek]);
+                    $livresQuery->whereBetween('livre_le', [$startOfWeek, $endOfWeek]);
+                    break;
+                case 'ce_mois':
+                    $startOfMonth = $today->copy()->startOfMonth();
+                    $endOfMonth = $today->copy()->endOfMonth();
+                    $ramassesQuery->whereBetween('ramasse_le', [$startOfMonth, $endOfMonth]);
+                    $livresQuery->whereBetween('livre_le', [$startOfMonth, $endOfMonth]);
+                    break;
+                case 'tout':
+                    // Pas de filtre
+                    break;
+            }
+            
+            return [
+                'total_ramasse' => $ramassesQuery->count(),
+                'total_livre' => $livresQuery->count(),
+                'en_cours' => $ramassesQuery->where('statut_livraison', 'ramasse')->count(),
+                'en_transit' => $ramassesQuery->where('statut_livraison', 'en_transit')->count()
+            ];
+        };
+        
+        $stats = $statsQuery();
 
-        return view('livreur.mes-colis', compact('livreur', 'colis', 'stats'));
+        return view('livreur.mes-colis', compact('livreur', 'colis', 'stats', 'periode'));
     }
 
     /**

@@ -18,6 +18,7 @@ use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 use App\Http\Controllers\BagageController;
+use App\Http\Controllers\PerformanceLivreurController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -68,6 +69,7 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/clients/api/telephone/{telephone}', [ClientController::class, 'getByTelephone'])->name('clients.api.telephone');
     
     // Gestion des bagages - CRUD complet
+    Route::get('/bagages/tableau-de-bord', [BagageController::class, 'dashboard'])->name('bagages.dashboard')->middleware('can:view_bagages');
     Route::get('/bagages', [BagageController::class, 'index'])->name('bagages.index')->middleware('can:view_bagages');
     Route::get('/bagages/nouveau', [BagageController::class, 'create'])->name('bagages.create')->middleware('can:create_bagages');
     Route::post('/bagages', [BagageController::class, 'store'])->name('bagages.store')->middleware('can:create_bagages');
@@ -142,8 +144,12 @@ Route::prefix('scan')->name('scan.')->middleware('auth')->group(function () {
     Route::get('/suggestions', [ScanQRController::class, 'suggestions'])->name('suggestions')->middleware('can:scan_qr_colis');
 });
 
-// Admin Routes - Gestion des utilisateurs et rôles/permissions
+// Admin Routes - Gestion des utilisateurs et rôles/permissions  
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    
+    // Performances des livreurs
+    Route::get('/performances-livreurs', [PerformanceLivreurController::class, 'index'])->name('performances-livreurs.index')->middleware('can:view_livreurs');
+    Route::get('/performances-livreurs/data', [PerformanceLivreurController::class, 'getData'])->name('performances-livreurs.data')->middleware('can:view_livreurs');
     // Gestion des utilisateurs
     Route::middleware('can:view_users')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

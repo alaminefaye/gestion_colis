@@ -435,11 +435,10 @@ class ApplicationController extends Controller
                                                  ->count(),
         ];
 
-        // Colis récents créés par l'utilisateur (filtrés par période)
+        // Colis récents créés par l'utilisateur (filtrés par période) avec pagination
         $colisRecents = (clone $baseQuery)->with(['livreurRamassage', 'livreurLivraison'])
                                           ->orderBy('created_at', 'desc')
-                                          ->take(10)
-                                          ->get();
+                                          ->paginate(5, ['*'], 'colis_page');
 
         // Revenus générés par les colis de l'utilisateur (filtrés par période)
         $revenus = [

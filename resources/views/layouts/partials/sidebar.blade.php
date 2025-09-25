@@ -20,11 +20,23 @@
         @endcan
         @endif
         @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('super-admin'))
-        @can('view_analytics')
+        <!-- @can('view_analytics')
         <li class="pc-item">
           <a href="{{ route('dashboard.analytics') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-chart-line"></i></span>
-            <span class="pc-mtext">Analytics</span>
+            <span class="pc-mtext">Analyse des données</span>
+          </a>
+        </li>
+        @endcan -->
+        @can('view_livreurs')
+        <li class="pc-item pc-caption">
+          <label>Données & Analytics</label>
+          <i class="ti ti-chart-bar"></i>
+        </li>
+        <li class="pc-item">
+          <a href="{{ route('admin.performances-livreurs.index') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-chart-pie"></i></span>
+            <span class="pc-mtext">Données Livreurs</span>
           </a>
         </li>
         @endcan
@@ -93,6 +105,7 @@
           </a>
           <ul class="pc-submenu">
             @can('view_bagages')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.bagages.dashboard') }}">Tableau de Bord</a></li>
             <li class="pc-item"><a class="pc-link" href="{{ route('application.bagages.index') }}">Liste des Bagages</a></li>
             @endcan
             @can('create_bagages')
@@ -164,6 +177,8 @@
         @endcan
         @endhasrole
         @endcanany
+
+        
 
         @canany(['view_users', 'view_roles'])
         <li class="pc-item pc-caption">
