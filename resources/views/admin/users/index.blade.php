@@ -182,9 +182,48 @@
               Affichage de {{ $users->firstItem() }} à {{ $users->lastItem() }} sur {{ $users->total() }} entrées
             </p>
           </div>
-          <nav>
-            {{ $users->links() }}
-          </nav>
+          
+          <!-- Pagination moderne -->
+          <div class="pagination-wrapper">
+            <nav aria-label="Navigation">
+              <ul class="pagination mb-0">
+                {{-- Lien "Précédent" --}}
+                @if ($users->onFirstPage())
+                  <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                  </li>
+                @else
+                  <li class="page-item">
+                    <a class="page-link" href="{{ $users->previousPageUrl() }}" rel="prev">&laquo;</a>
+                  </li>
+                @endif
+
+                {{-- Liens de pagination --}}
+                @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                  @if ($page == $users->currentPage())
+                    <li class="page-item active">
+                      <span class="page-link">{{ $page }}</span>
+                    </li>
+                  @else
+                    <li class="page-item">
+                      <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                    </li>
+                  @endif
+                @endforeach
+
+                {{-- Lien "Suivant" --}}
+                @if ($users->hasMorePages())
+                  <li class="page-item">
+                    <a class="page-link" href="{{ $users->nextPageUrl() }}" rel="next">&raquo;</a>
+                  </li>
+                @else
+                  <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                  </li>
+                @endif
+              </ul>
+            </nav>
+          </div>
         </div>
         @endif
       </div>
@@ -198,6 +237,68 @@
   @csrf
   @method('DELETE')
 </form>
+
+@push('styles')
+<style>
+/* Style moderne pour la pagination - Thème Gestion Utilisateurs */
+.pagination-wrapper .pagination {
+  gap: 8px;
+}
+
+.pagination-wrapper .page-link {
+  border: none;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  font-weight: 500;
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.pagination-wrapper .page-link:hover {
+  background: linear-gradient(135deg, #3730a3 0%, #6b21a8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  color: white;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+  background: linear-gradient(135deg, #1e1b4b 0%, #581c87 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination-wrapper .page-item.disabled .page-link:hover {
+  background: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pagination-wrapper .page-link {
+    padding: 8px 12px;
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 14px;
+  }
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
