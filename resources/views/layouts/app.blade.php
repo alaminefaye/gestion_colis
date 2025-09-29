@@ -2,17 +2,17 @@
 <html lang="en">
 <!-- [Head] start -->
 <head>
-  <title>@yield('title', 'Gestion Colis | Mantis Admin Template')</title>
+  <title>@yield('title', 'TSR - Système de Gestion des Colis')</title>
   <!-- [Meta] -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Système de gestion des colis utilisant Mantis Bootstrap 5">
+  <meta name="description" content="TSR - Système de gestion des colis moderne et professionnel">
   <meta name="keywords" content="Gestion Colis, Dashboard UI Kit, Bootstrap 5, Admin Template, Admin Dashboard">
   <meta name="author" content="Gestion Colis Team">
 
   <!-- [Favicon] icon -->
-  <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">
+  <link rel="icon" href="{{ asset('assets/images/logo.jpeg') }}" type="image/x-icon">
   
   <!-- [Google Font] Family -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
@@ -34,6 +34,44 @@
   <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
   
   @stack('styles')
+  
+  <!-- CSS pour supprimer complètement Mantis et afficher uniquement TSR -->
+  <style>
+    /* Suppression de tout texte Mantis ajouté automatiquement par le template */
+    .b-brand::after, .b-brand::before, 
+    .b-brand .logo-lg::after, .b-brand .logo-lg::before,
+    .pc-sidebar .m-header .b-brand::after,
+    .pc-sidebar .m-header .b-brand::before,
+    .tsr-logo-only::after, .tsr-logo-only::before {
+      display: none !important;
+      content: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    
+    /* Force l'affichage uniquement de l'image TSR */
+    .tsr-logo-only {
+      overflow: hidden !important;
+      position: relative !important;
+    }
+    
+    .tsr-logo-only *:not(img) {
+      display: none !important;
+    }
+    
+    .tsr-logo-only img {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* Suppression de tous les pseudo-éléments qui pourraient ajouter "Mantis" */
+    .pc-sidebar .navbar-wrapper .m-header .b-brand::after,
+    .pc-sidebar .navbar-wrapper .m-header .b-brand::before {
+      content: none !important;
+      display: none !important;
+    }
+  </style>
 </head>
 <!-- [Head] end -->
 

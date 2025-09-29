@@ -2,9 +2,9 @@
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
     <div class="m-header">
-        <a href="{{ dashboard_route() }}" class="b-brand text-primary">
-        <!-- ========   Change your logo from here   ============ -->
-        <img src="{{ asset('assets/images/logo-dark.svg') }}" class="img-fluid logo-lg" alt="logo">
+        <a href="{{ dashboard_route() }}" class="b-brand text-primary d-flex align-items-center justify-content-center tsr-logo-only">
+        <!-- ========   Logo TSR uniquement - Suppression complète de Mantis   ============ -->
+        <img src="{{ asset('assets/images/logo.jpeg') }}" class="img-fluid" alt="TSR Logo" style="height: 50px; max-width: 100%; object-fit: contain;">
       </a>
     </div>
     <div class="navbar-content">
@@ -224,10 +224,10 @@
       
       <div class="card text-center">
         <div class="card-body">
-          <img src="{{ asset('assets/images/img-navbar-card.png') }}" alt="images" class="img-fluid mb-2">
-          <h5>Système de Gestion</h5>
+          <img src="{{ asset('assets/images/logo.jpeg') }}" alt="TSR Logo" class="img-fluid mb-2" style="height: 50px;">
+          <h5>TSR Système</h5>
           <p>Application de gestion des colis</p>
-          <p>Developpe par : Al Amine Faye</p>
+          <p>Développé par : Al Amine Faye</p>
         </div>
       </div>
     </div>

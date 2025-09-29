@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Gestion des Colis</title>
+    <title>Connexion - TSR Gestion des colis</title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/bootstrap.min.css') }}">
@@ -93,15 +93,15 @@
         }
         
         .logo {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 90px;
+            height: 90px;
+            background: transparent;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            box-shadow: none;
             position: relative;
             overflow: hidden;
         }
@@ -384,14 +384,10 @@
             <div class="login-header">
                 <div class="logo-wrapper">
                     <div class="logo">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="white"/>
-                            <path d="M2 17l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="TSR Logo" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                     </div>
                 </div>
-                <h1 class="login-title">Gestion des Colis</h1>
+                <h1 class="login-title">TSR Gestion des colis</h1>
                 <p class="login-subtitle">Connectez-vous pour accéder à votre espace</p>
             </div>
             

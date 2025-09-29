@@ -2,7 +2,7 @@
   <div class="footer-wrapper container-fluid">
     <div class="row">
       <div class="col-sm my-1">
-        <p class="m-0">Système de Gestion des Colis &#9829; développé avec <a href="https://mantisdashboard.io/" target="_blank">Mantis Template</a></p>
+        <p class="m-0">TSR - Système de Gestion des Colis &#9829; développé par Al Amine Faye</p>
       </div>
       <div class="col-auto my-1">
         <ul class="list-inline footer-link mb-0">

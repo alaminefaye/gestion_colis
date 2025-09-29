@@ -1,0 +1,32 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Continent africain stylisé en vert -->
+  <path d="M25 55 C20 50 18 40 22 30 C25 25 30 23 35 25 C40 27 45 30 47 35 C50 40 48 45 45 50 C42 55 38 58 35 60 C32 62 28 60 25 55 Z" 
+        fill="#7CB342" stroke="#689F38" stroke-width="1.5" opacity="0.9"/>
+  
+  <!-- Forme interne du continent -->
+  <path d="M30 50 C28 45 29 40 32 38 C35 36 38 37 40 40 C42 43 41 46 39 48 C37 50 34 51 32 50 C30.5 49 29.5 48 30 50 Z" 
+        fill="#8BC34A" opacity="0.7"/>
+  
+  <!-- Aigle rouge stylisé -->
+  <path d="M35 30 C30 25 25 20 20 15 C15 10 10 8 8 12 C7 15 12 18 18 22 C24 26 30 28 36 26 C42 24 48 22 54 18 C58 15 60 12 58 15 C56 18 50 22 45 25 C40 28 37 30 35 30 Z" 
+        fill="#D32F2F" stroke="#B71C1C" stroke-width="1" opacity="0.9"/>
+  
+  <!-- Ailes détaillées -->
+  <path d="M20 18 C15 15 12 12 15 14 C18 16 22 18 25 20" fill="#C62828" opacity="0.8"/>
+  <path d="M50 18 C55 15 58 12 55 14 C52 16 48 18 45 20" fill="#C62828" opacity="0.8"/>
+  
+  <!-- Texte TSR avec style moderne -->
+  <g font-family="Arial Black, Arial, sans-serif" font-weight="900">
+    <text x="80" y="35" font-size="32" fill="#4CAF50" stroke="#388E3C" stroke-width="0.5">T</text>
+    <text x="105" y="35" font-size="32" fill="#4CAF50" stroke="#388E3C" stroke-width="0.5">S</text>
+    <text x="130" y="35" font-size="32" fill="#4CAF50" stroke="#388E3C" stroke-width="0.5">R</text>
+  </g>
+  
+  <!-- Sous-titre optionnel -->
+  <text x="80" y="50" font-family="Arial, sans-serif" font-size="10" fill="#666" opacity="0.8">Transport & Services</text>
+  
+  <!-- Points décoratifs -->
+  <circle cx="70" cy="40" r="1.5" fill="#FF5722" opacity="0.6"/>
+  <circle cx="74" cy="35" r="1" fill="#4CAF50" opacity="0.7"/>
+  <circle cx="155" cy="25" r="1.2" fill="#FF9800" opacity="0.5"/>
+</svg>
