@@ -42,6 +42,10 @@ class Colis extends Model
         'photo_piece_recto',
         'photo_piece_verso',
         'created_by',
+        'est_receptionne',
+        'receptionne_par',
+        'receptionne_le',
+        'notes_reception',
     ];
 
     protected $casts = [
@@ -51,6 +55,8 @@ class Colis extends Model
         'livre_le' => 'datetime',
         'recupere_gare' => 'boolean',
         'recupere_le' => 'datetime',
+        'est_receptionne' => 'boolean',
+        'receptionne_le' => 'datetime',
     ];
 
     /**

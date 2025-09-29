@@ -19,6 +19,7 @@ use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 use App\Http\Controllers\BagageController;
 use App\Http\Controllers\PerformanceLivreurController;
+use App\Http\Controllers\ScanReceptionController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -77,6 +78,12 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/bagages/{bagage}/modifier', [BagageController::class, 'edit'])->name('bagages.edit')->middleware('can:edit_bagages');
     Route::put('/bagages/{bagage}', [BagageController::class, 'update'])->name('bagages.update')->middleware('can:edit_bagages');
     Route::delete('/bagages/{bagage}', [BagageController::class, 'destroy'])->name('bagages.destroy')->middleware('can:delete_bagages');
+    
+    // Scanner et réceptionner des colis
+    Route::get('/scan', [ScanReceptionController::class, 'index'])->name('scan.index')->middleware('can:scan_qr_colis');
+    Route::post('/scan', [ScanReceptionController::class, 'scanColis'])->name('scan.colis')->middleware('can:scan_qr_colis');
+    Route::post('/colis/{id}/receptionner', [ScanReceptionController::class, 'receptionnerColis'])->name('colis.receptionner')->middleware('can:scan_qr_colis');
+    Route::get('/colis/receptionnes', [ScanReceptionController::class, 'colisReceptionnes'])->name('colis.receptionnes')->middleware('can:view_colis_receptionnes');
     
     // Récupération des colis à la gare
     Route::post('/colis/marquer-recupere', [GestionController::class, 'marquerRecupere'])->name('colis.marquer-recupere');
