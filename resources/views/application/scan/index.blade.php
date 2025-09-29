@@ -398,18 +398,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Notification de succès
         showAlert('success', 'QR Code scanné avec succès!');
         
-        // Auto-submit du formulaire après 1 seconde
-        setTimeout(() => {
-            console.log('Soumission automatique du formulaire...');
-            // Cliquer sur le bouton submit au lieu de faire submit() direct
-            const submitButton = scanForm.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.click();
-            } else {
-                // Fallback : soumission directe
-                scanForm.submit();
-            }
-        }, 1000);
+        // Auto-submit du formulaire immédiatement
+        console.log('Soumission automatique du formulaire...');
+        
+        // Forcer la soumission du formulaire directement
+        scanForm.submit();
     }
 
     // Fonction appelée lors d'une erreur de scan (normale, se produit en continu)
