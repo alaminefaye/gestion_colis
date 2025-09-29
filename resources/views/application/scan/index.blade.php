@@ -240,7 +240,7 @@
                 <h5 class="modal-title">📦 Réceptionner le Colis</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="receptionForm" method="POST" action="{{ route('colis.receptionner', ['id' => $colis->id ?? 0]) }}">
+            <form id="receptionForm" method="POST" action="{{ route('application.colis.receptionner', ['id' => $colis->id ?? 0]) }}">
                 @csrf
                 <div class="modal-body">
                     <p>Confirmez-vous la réception de ce colis ?</p>
