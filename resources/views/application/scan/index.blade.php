@@ -240,7 +240,7 @@
                 <h5 class="modal-title">📦 Réceptionner le Colis</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="receptionForm">
+            <form id="receptionForm" method="POST" action="{{ route('colis.receptionner', ['id' => $colis->id ?? 0]) }}">
                 @csrf
                 <div class="modal-body">
                     <p>Confirmez-vous la réception de ce colis ?</p>
@@ -468,48 +468,26 @@ document.addEventListener('DOMContentLoaded', function() {
         isScanning = false;
     }
     
-    // Reception form submission
-    receptionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Fonction pour ouvrir le modal de réception
+    window.ouvrirModalReception = function(colisId) {
+        console.log('Ouverture modal pour colis ID:', colisId);
         
-        const colisId = document.getElementById('colisId').value;
-        const formData = new FormData(receptionForm);
-        const submitBtn = receptionForm.querySelector('button[type="submit"]');
+        // Mettre l'ID du colis dans le champ caché
+        const colisIdField = document.getElementById('colisId');
+        if (colisIdField) {
+            colisIdField.value = colisId;
+        }
         
-        // Loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="ti ti-loader-2 spin"></i> Traitement...';
+        // Mettre à jour l'action du formulaire avec l'ID correct
+        const form = document.getElementById('receptionForm');
+        if (form) {
+            form.action = `/application/colis/${colisId}/receptionner`;
+        }
         
-        fetch(`/application/colis/${colisId}/receptionner`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('success', data.message);
-                // Fermer le modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('receptionModal'));
-                modal.hide();
-                // Rafraîchir les détails du colis
-                afficherColis(data.colis);
-            } else {
-                showAlert('danger', data.message || 'Erreur lors de la réception.');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            showAlert('danger', 'Une erreur est survenue.');
-        })
-        .finally(() => {
-            // Reset button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="ti ti-check"></i> Confirmer la Réception';
-        });
-    });
+        // Ouvrir le modal
+        const modal = new bootstrap.Modal(document.getElementById('receptionModal'));
+        modal.show();
+    };
     
     function afficherColis(colis) {
         // Cacher l'aide et afficher les détails
