@@ -1,10 +1,18 @@
-@extends('layouts.app')
+{{ ... }}
 
 @section('title', 'Scanner Colis - TSR Système')
 
 @section('content')
 <div class="container-fluid">
-    <!-- Header section -->
+    <!-- Messages de succès -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="ti ti-check me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    
+    <!-- En-tête -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">

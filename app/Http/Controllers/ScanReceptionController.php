@@ -17,13 +17,18 @@ class ScanReceptionController extends Controller
         $colis = null;
         $error = null;
 
-        // Si on a un code QR en POST, chercher le colis
-        if ($request->isMethod('post') && $request->has('qr_code')) {
-            $request->validate([
-                'qr_code' => 'required|string'
-            ]);
-
-            $codeRecherche = $request->qr_code;
+        // Si on a un code QR en POST ou en session (après réception), chercher le colis
+        if (($request->isMethod('post') && $request->has('qr_code')) || $request->session()->has('qr_code')) {
+            $codeRecherche = $request->qr_code ?? $request->session()->get('qr_code');
+            
+            // Nettoyer la session après utilisation
+            $request->session()->forget('qr_code');
+            
+            if ($request->isMethod('post')) {
+                $request->validate([
+                    'qr_code' => 'required|string'
+                ]);
+            }
             
             // DEBUG: Voir ce qu'on cherche
             \Log::info('Recherche de colis avec code: ' . $codeRecherche);
@@ -98,11 +103,10 @@ class ScanReceptionController extends Controller
             'statut_livraison' => 'receptionne'
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Colis réceptionné avec succès !',
-            'colis' => $colis->fresh()
-        ]);
+        // Rediriger vers la page de scan avec le colis réceptionné
+        return redirect()->route('application.scan.index')
+                        ->with('success', 'Colis réceptionné avec succès !')
+                        ->with('qr_code', $colis->numero_courrier);
     }
 
     /**
