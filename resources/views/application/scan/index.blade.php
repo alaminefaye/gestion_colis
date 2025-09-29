@@ -33,7 +33,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form id="scanForm">
+                    <form id="scanForm" method="POST" action="{{ route('application.scan.index') }}">
                         @csrf
                         <div class="mb-3">
                             <label for="qr_code" class="form-label">Numéro de Courrier ou QR Code</label>
@@ -87,6 +87,17 @@
 
         <!-- Section des informations du colis -->
         <div class="col-lg-6 col-md-12">
+            {{-- DEBUG: Afficher les variables pour debugging --}}
+            @if(app()->environment('local'))
+                <div class="alert alert-info small">
+                    <strong>DEBUG:</strong> 
+                    Colis: {{ $colis ? 'OUI' : 'NON' }} | 
+                    Error: {{ $error ?? 'AUCUNE' }} |
+                    Method: {{ request()->method() }} |
+                    QR Code: {{ request('qr_code') ?? 'VIDE' }}
+                </div>
+            @endif
+            
             @if($colis)
             <div class="card" id="colisDetails">
                 <div class="card-header bg-info text-white">
