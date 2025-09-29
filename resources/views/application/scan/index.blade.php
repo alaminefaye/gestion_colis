@@ -389,13 +389,44 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Auto-submit du formulaire après 1 seconde
         setTimeout(() => {
-            scanForm.submit();
+            console.log('Soumission automatique du formulaire...');
+            // Cliquer sur le bouton submit au lieu de faire submit() direct
+            const submitButton = scanForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.click();
+            } else {
+                // Fallback : soumission directe
+                scanForm.submit();
+            }
         }, 1000);
     }
 
     // Fonction appelée lors d'une erreur de scan (normale, se produit en continu)
     function onScanFailure(error) {
         // Ne pas afficher les erreurs de scan (normales)
+    }
+
+    // Fonction pour afficher des notifications
+    function showAlert(type, message) {
+        // Créer une notification Bootstrap
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="ti ti-${type === 'success' ? 'check' : type === 'warning' ? 'alert-triangle' : 'x'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insérer en haut de la page
+        const container = document.querySelector('.container-fluid') || document.body;
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-supprimer après 5 secondes
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
     }
 
     // Fonction pour arrêter le scan
