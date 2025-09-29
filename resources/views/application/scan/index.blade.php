@@ -169,7 +169,16 @@
             </div>
 
             <!-- Actions disponibles -->
-            @if(!$colis->est_receptionne && in_array($colis->statut_livraison, ['en_transit', 'ramasse']))
+            @if(app()->environment('local'))
+                <div class="alert alert-warning small">
+                    <strong>DEBUG BOUTON:</strong> 
+                    Est réceptionné: {{ $colis->est_receptionne ? 'OUI' : 'NON' }} | 
+                    Statut: {{ $colis->statut_livraison }} |
+                    Peut réceptionner: {{ (!$colis->est_receptionne && !in_array($colis->statut_livraison, ['livre', 'receptionne'])) ? 'OUI' : 'NON' }}
+                </div>
+            @endif
+            
+            @if(!$colis->est_receptionne && !in_array($colis->statut_livraison, ['livre', 'receptionne']))
             <div class="card mt-3" id="actionsSection">
                 <div class="card-body">
                     <div class="row text-center">
