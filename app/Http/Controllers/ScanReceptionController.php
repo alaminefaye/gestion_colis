@@ -23,8 +23,10 @@ class ScanReceptionController extends Controller
                 'qr_code' => 'required|string'
             ]);
 
-            // Rechercher le colis par numéro de courrier
-            $colis = Colis::where('numero_courrier', $request->qr_code)->first();
+            // Rechercher le colis par numéro de courrier ET par QR code
+            $colis = Colis::where('numero_courrier', $request->qr_code)
+                          ->orWhere('qr_code', $request->qr_code)
+                          ->first();
 
             if (!$colis) {
                 $error = 'Aucun colis trouvé avec ce numéro : ' . $request->qr_code;
