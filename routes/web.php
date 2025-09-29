@@ -80,8 +80,7 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::delete('/bagages/{bagage}', [BagageController::class, 'destroy'])->name('bagages.destroy')->middleware('can:delete_bagages');
     
     // Scanner et réceptionner des colis
-    Route::get('/scan', [ScanReceptionController::class, 'index'])->name('scan.index')->middleware('can:scan_qr_colis');
-    Route::post('/scan', [ScanReceptionController::class, 'scanColis'])->name('scan.colis')->middleware('can:scan_qr_colis');
+    Route::match(['get', 'post'], '/scan', [ScanReceptionController::class, 'index'])->name('scan.index')->middleware('can:scan_qr_colis');
     Route::post('/colis/{id}/receptionner', [ScanReceptionController::class, 'receptionnerColis'])->name('colis.receptionner')->middleware('can:scan_qr_colis');
     Route::get('/colis/receptionnes', [ScanReceptionController::class, 'colisReceptionnes'])->name('colis.receptionnes')->middleware('can:view_colis_receptionnes');
     

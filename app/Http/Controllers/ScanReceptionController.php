@@ -12,9 +12,26 @@ class ScanReceptionController extends Controller
     /**
      * Afficher la page de scan avec les détails du colis
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('application.scan.index');
+        $colis = null;
+        $error = null;
+
+        // Si on a un code QR en POST, chercher le colis
+        if ($request->isMethod('post') && $request->has('qr_code')) {
+            $request->validate([
+                'qr_code' => 'required|string'
+            ]);
+
+            // Rechercher le colis par numéro de courrier
+            $colis = Colis::where('numero_courrier', $request->qr_code)->first();
+
+            if (!$colis) {
+                $error = 'Aucun colis trouvé avec ce numéro : ' . $request->qr_code;
+            }
+        }
+
+        return view('application.scan.index', compact('colis', 'error'));
     }
 
     /**

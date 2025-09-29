@@ -45,6 +45,7 @@
                                        name="qr_code" 
                                        placeholder="Tapez ou scannez le numéro..." 
                                        autocomplete="off"
+                                       value="{{ old('qr_code', request('qr_code')) }}"
                                        required>
                             </div>
                             <small class="text-muted">
@@ -86,17 +87,100 @@
 
         <!-- Section des informations du colis -->
         <div class="col-lg-6 col-md-12">
-            <div class="card" id="colisDetails" style="display: none;">
+            @if($colis)
+            <div class="card" id="colisDetails">
                 <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-package"></i> Informations du Colis
-                    </h5>
+                    <h5 class="mb-0"><i class="ti ti-package"></i> Informations du Colis</h5>
                 </div>
-                <div class="card-body" id="colisContent">
-                    <!-- Le contenu sera injecté ici via JavaScript -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="ti ti-hash"></i> Numéro de Courrier</h6>
+                            <p class="fw-bold text-primary">{{ $colis->numero_courrier }}</p>
+                            
+                            <h6><i class="ti ti-user"></i> Expéditeur</h6>
+                            <p>{{ $colis->nom_expediteur }}</p>
+                            
+                            <h6><i class="ti ti-user-check"></i> Bénéficiaire</h6>
+                            <p>{{ $colis->nom_beneficiaire }}</p>
+                            
+                            <h6><i class="ti ti-phone"></i> Téléphone</h6>
+                            <p>{{ $colis->telephone_beneficiaire }}</p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="ti ti-flag"></i> Statut</h6>
+                            <p>
+                                @switch($colis->statut_livraison)
+                                    @case('en_attente')
+                                        <span class="badge bg-warning">🔄 En Attente</span>
+                                        @break
+                                    @case('ramasse')
+                                        <span class="badge bg-info">📦 Ramassé</span>
+                                        @break
+                                    @case('en_transit')
+                                        <span class="badge bg-primary">🚛 En Transit</span>
+                                        @break
+                                    @case('livre')
+                                        <span class="badge bg-success">✅ Livré</span>
+                                        @break
+                                    @case('receptionne')
+                                        <span class="badge bg-success">📥 Réceptionné</span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">❓ {{ $colis->statut_livraison }}</span>
+                                @endswitch
+                            </p>
+                            
+                            <h6><i class="ti ti-map-pin"></i> Destination</h6>
+                            <p>{{ $colis->destination }}</p>
+                            
+                            <h6><i class="ti ti-building"></i> Agence</h6>
+                            <p>{{ $colis->agence_reception }}</p>
+                            
+                            <h6><i class="ti ti-cash"></i> Montant</h6>
+                            <p class="fw-bold text-success">{{ number_format($colis->montant) }} FCFA</p>
+                        </div>
+                    </div>
+                    
+                    @if($colis->est_receptionne)
+                        <div class="alert alert-success mt-3">
+                            <i class="ti ti-check-circle me-2"></i>
+                            <strong>Colis déjà réceptionné</strong>
+                            <p class="mb-1"><strong>Par:</strong> {{ $colis->receptionne_par }}</p>
+                            <p class="mb-1"><strong>Le:</strong> {{ $colis->receptionne_le ? $colis->receptionne_le->format('d/m/Y à H:i') : '' }}</p>
+                            @if($colis->notes_reception)
+                                <p class="mb-0"><strong>Notes:</strong> {{ $colis->notes_reception }}</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 
+            <!-- Actions disponibles -->
+            @if(!$colis->est_receptionne && in_array($colis->statut_livraison, ['en_transit', 'ramasse']))
+            <div class="card mt-3" id="actionsSection">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-success btn-lg w-100" onclick="ouvrirModalReception({{ $colis->id }})">
+                                <i class="ti ti-package-import"></i><br>
+                                Réceptionner le Colis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            @elseif($error)
+            <div class="alert alert-danger">
+                <i class="ti ti-alert-circle me-2"></i>
+                {{ $error }}
+            </div>
+            @endif
+
+            @if(!$colis && !$error)
             <!-- Message d'aide initial -->
             <div class="card" id="helpCard">
                 <div class="card-body text-center py-5">
@@ -105,6 +189,7 @@
                     <p class="text-muted">Les informations complètes s'afficheront ici</p>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
