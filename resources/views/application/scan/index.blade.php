@@ -1,4 +1,4 @@
-{{ ... }}
+@extends('layouts.app')
 
 @section('title', 'Scanner Colis - TSR Système')
 
