@@ -17,8 +17,10 @@ class ApplicationController extends Controller
      */
     public function ecomProductList()
     {
-        // Charger tous les colis avec les relations pour afficher qui a ramassé/livré
+        // Charger tous les colis SAUF ceux avec statut "receptionne" (créés via scan)
+        // Les colis "receptionne" apparaissent uniquement dans la section "Colis Réceptionnés"
         $colis = Colis::with(['livreurRamassage', 'livreurLivraison', 'receptionneParUser'])
+                      ->where('statut_livraison', '!=', 'receptionne')
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
         return view('application.ecom-product-list', compact('colis'));
@@ -29,7 +31,10 @@ class ApplicationController extends Controller
      */
     public function ecomProductListAll()
     {
-        $colis = Colis::orderBy('created_at', 'desc')->paginate(10);
+        // Exclure les colis "receptionne" ici aussi pour cohérence
+        $colis = Colis::where('statut_livraison', '!=', 'receptionne')
+                      ->orderBy('created_at', 'desc')
+                      ->paginate(10);
         return view('application.ecom-product-list-all', compact('colis'));
     }
 
