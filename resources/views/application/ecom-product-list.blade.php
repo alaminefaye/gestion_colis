@@ -276,6 +276,7 @@
                 <th>MONTANT</th>
                 <th>VALEUR COLIS</th>
                 <th>QR CODE</th>
+                <th>RAMASSÉ/LIVRÉ PAR</th>
                 <th>DATE CRÉATION</th>
                 <th class="text-end">ACTIONS</th>
               </tr>
@@ -333,6 +334,51 @@
                     </div>
                     <small class="text-muted">{{ $item->qr_code }}</small>
                   </div>
+                </td>
+                <td>
+                  @if($item->statut_livraison === 'livre' && $item->livreurLivraison)
+                    <div class="text-center">
+                      <div class="badge bg-success text-white mb-1 p-2">
+                        <i class="ti ti-truck me-1"></i>Livré par
+                      </div>
+                      <div>
+                        <h6 class="mb-1 text-success">{{ $item->livreurLivraison->nom_complet }}</h6>
+                        @if($item->livre_le)
+                          <small class="text-muted">{{ $item->livre_le->format('d/m/Y H:i') }}</small>
+                        @endif
+                      </div>
+                    </div>
+                  @elseif(in_array($item->statut_livraison, ['ramasse', 'en_transit']) && $item->livreurRamassage)
+                    <div class="text-center">
+                      <div class="badge bg-warning text-white mb-1 p-2">
+                        <i class="ti ti-package me-1"></i>Ramassé par
+                      </div>
+                      <div>
+                        <h6 class="mb-1 text-warning">{{ $item->livreurRamassage->nom_complet }}</h6>
+                        @if($item->ramasse_le)
+                          <small class="text-muted">{{ $item->ramasse_le->format('d/m/Y H:i') }}</small>
+                        @endif
+                      </div>
+                    </div>
+                  @elseif($item->statut_livraison === 'receptionne' && $item->receptionneParUser)
+                    <div class="text-center">
+                      <div class="badge bg-info text-white mb-1 p-2">
+                        <i class="ti ti-check me-1"></i>Réceptionné par
+                      </div>
+                      <div>
+                        <h6 class="mb-1 text-info">{{ $item->receptionneParUser->name }}</h6>
+                        @if($item->receptionne_le)
+                          <small class="text-muted">{{ $item->receptionne_le->format('d/m/Y H:i') }}</small>
+                        @endif
+                      </div>
+                    </div>
+                  @else
+                    <div class="text-center">
+                      <span class="badge bg-light-secondary p-2">
+                        <i class="ti ti-clock me-1"></i>{{ ucfirst(str_replace('_', ' ', $item->statut_livraison)) }}
+                      </span>
+                    </div>
+                  @endif
                 </td>
                 <td>{{ $item->created_at->format('d/m/Y') }}<br><span class="text-muted">{{ $item->created_at->format('H:i') }}</span></td>
                 <td class="text-end">
@@ -552,15 +598,32 @@
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
-
 .table thead th {
   background: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
   font-weight: 600;
+  font-size: 13px;
   color: #495057;
-  font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  padding: 15px 12px;
+}
+
+/* Styles pour les avatars des livreurs */
+.avatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
 }
 
 /* Animation pour les lignes de la table */

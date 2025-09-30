@@ -301,72 +301,57 @@
           </div>
 
           <!-- Pagination moderne -->
-          <div class="pagination-wrapper mt-4">
-            <style>
-              .pagination-wrapper .pagination {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 8px;
-                flex-wrap: wrap;
-                margin: 0;
-              }
-              
-              .pagination-wrapper .page-link {
-                background: linear-gradient(135deg, #007bff 0%, #74c0fc 100%);
-                border: none;
-                color: white;
-                padding: 12px 18px;
-                border-radius: 10px;
-                text-decoration: none;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-                min-width: 44px;
-                height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              
-              .pagination-wrapper .page-link:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-                background: linear-gradient(135deg, #0056b3 0%, #339af0 100%);
-                color: white;
-              }
-              
-              .pagination-wrapper .page-item.active .page-link {
-                background: linear-gradient(135deg, #28a745 0%, #51cf66 100%);
-                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-                transform: translateY(-1px);
-              }
-              
-              .pagination-wrapper .page-item.disabled .page-link {
-                background: #e9ecef;
-                color: #6c757d;
-                cursor: not-allowed;
-                box-shadow: none;
-                transform: none;
-              }
-              
-              .pagination-wrapper .page-item.disabled .page-link:hover {
-                transform: none;
-                box-shadow: none;
-                background: #e9ecef;
-              }
-              
-              @media (max-width: 576px) {
-                .pagination-wrapper .page-link {
-                  padding: 10px 14px;
-                  min-width: 38px;
-                  height: 38px;
-                  font-size: 14px;
-                }
-              }
-            </style>
-            {{ $colis->links('pagination::bootstrap-4') }}
+          @if($colis->hasPages())
+          <div class="d-flex align-items-center justify-content-between mt-4">
+            <div>
+              <p class="text-muted mb-0">
+                Affichage de {{ $colis->firstItem() }} à {{ $colis->lastItem() }} sur {{ $colis->total() }} entrées
+              </p>
+            </div>
+            
+            <!-- Pagination moderne -->
+            <div class="pagination-wrapper">
+              <nav aria-label="Navigation">
+                <ul class="pagination mb-0">
+                  {{-- Lien "Précédent" --}}
+                  @if ($colis->onFirstPage())
+                    <li class="page-item disabled">
+                      <span class="page-link">&laquo;</span>
+                    </li>
+                  @else
+                    <li class="page-item">
+                      <a class="page-link" href="{{ $colis->previousPageUrl() }}" rel="prev">&laquo;</a>
+                    </li>
+                  @endif
+
+                  {{-- Liens de pagination --}}
+                  @foreach ($colis->getUrlRange(1, $colis->lastPage()) as $page => $url)
+                    @if ($page == $colis->currentPage())
+                      <li class="page-item active">
+                        <span class="page-link">{{ $page }}</span>
+                      </li>
+                    @else
+                      <li class="page-item">
+                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                      </li>
+                    @endif
+                  @endforeach
+
+                  {{-- Lien "Suivant" --}}
+                  @if ($colis->hasMorePages())
+                    <li class="page-item">
+                      <a class="page-link" href="{{ $colis->nextPageUrl() }}" rel="next">&raquo;</a>
+                    </li>
+                  @else
+                    <li class="page-item disabled">
+                      <span class="page-link">&raquo;</span>
+                    </li>
+                  @endif
+                </ul>
+              </nav>
+            </div>
           </div>
+          @endif
 
         @else
           <div class="text-center py-5">
@@ -448,6 +433,54 @@
   font-weight: 600;
 }
 
+/* Style moderne pour la pagination - Thème Admin */
+.pagination-wrapper .pagination {
+  gap: 8px;
+}
+
+.pagination-wrapper .page-link {
+  border: none;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  font-weight: 500;
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.pagination-wrapper .page-link:hover {
+  background: linear-gradient(135deg, #3730a3 0%, #6b21a8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  color: white;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+  background: linear-gradient(135deg, #1e1b4b 0%, #581c87 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination-wrapper .page-item.disabled .page-link:hover {
+  background: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     font-size: 0.875rem;
@@ -459,6 +492,13 @@
   
   .btn {
     font-size: 0.875rem;
+  }
+
+  .pagination-wrapper .page-link {
+    padding: 8px 12px;
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 14px;
   }
 }
 </style>
