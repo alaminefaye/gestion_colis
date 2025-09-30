@@ -125,6 +125,24 @@
           </div>
           @endif
           
+          @if($colis->receptionne_le)
+          <div class="timeline-item">
+            <div class="timeline-marker bg-info"></div>
+            <div class="timeline-content">
+              <h6 class="mb-1">Colis réceptionné à la gare</h6>
+              <p class="mb-1">Par {{ $colis->receptionneParUser->name ?? 'Inconnu' }}</p>
+              @if($colis->receptionne_le)
+                <small class="text-muted">{{ $colis->receptionne_le->format('d/m/Y à H:i') }}</small>
+              @endif
+              @if($colis->notes_reception)
+                <div class="mt-2">
+                  <small><strong>Note :</strong> {{ $colis->notes_reception }}</small>
+                </div>
+              @endif
+            </div>
+          </div>
+          @endif
+          
           @if($colis->livre_le)
           <div class="timeline-item">
             <div class="timeline-marker bg-success"></div>
@@ -189,8 +207,39 @@
           <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalLivraison">
             <i class="ti ti-check me-2"></i>Livrer ce Colis
           </button>
+
+        @elseif($colis->statut_livraison === 'receptionne')
+          <!-- Colis réceptionné à la gare -->
+          <div class="alert alert-info mb-3">
+            <i class="ti ti-building me-2"></i>
+            <strong>Colis réceptionné à la gare</strong><br>
+            Ce colis est disponible pour ramassage
+            @if($colis->receptionne_le)
+              depuis le {{ $colis->receptionne_le->format('d/m/Y à H:i') }}
+            @endif
+            @if($colis->receptionneParUser)
+              par {{ $colis->receptionneParUser->name }}
+            @endif
+          </div>
           
-        @else
+          <!-- Ramasser le colis réceptionné -->
+          <form action="{{ route('scan.ramasser') }}" method="POST" class="mb-3">
+            @csrf
+            <input type="hidden" name="colis_id" value="{{ $colis->id }}">
+            <input type="hidden" name="livreur_id" value="{{ $livreur->id }}">
+            
+            <div class="mb-3">
+              <label class="form-label">Notes de ramassage (optionnel)</label>
+              <textarea class="form-control" name="notes_ramassage" rows="2" 
+                        placeholder="Ex: Colis récupéré à la gare, en bon état..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-warning btn-lg">
+              <i class="ti ti-package me-2"></i>Ramasser ce Colis
+            </button>
+          </form>
+
+        @elseif($colis->statut_livraison === 'livre')
           <!-- Colis déjà livré -->
           <div class="alert alert-success">
             <i class="ti ti-check-circle me-2"></i>
@@ -200,6 +249,14 @@
               le {{ $colis->livre_le->format('d/m/Y à H:i') }}
             @endif
             par {{ $colis->livreurLivraison->nom_complet ?? 'Inconnu' }}.
+          </div>
+
+        @else
+          <!-- Autres statuts -->
+          <div class="alert alert-secondary">
+            <i class="ti ti-info-circle me-2"></i>
+            <strong>Statut actuel :</strong> {{ ucfirst(str_replace('_', ' ', $colis->statut_livraison)) }}<br>
+            Aucune action disponible pour ce statut.
           </div>
         @endif
         
