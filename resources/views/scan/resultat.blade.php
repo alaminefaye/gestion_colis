@@ -113,7 +113,9 @@
             <div class="timeline-content">
               <h6 class="mb-1">Colis ramassé</h6>
               <p class="mb-1">Par {{ $colis->livreurRamassage->nom_complet ?? 'Inconnu' }}</p>
-              <small class="text-muted">{{ $colis->ramasse_le->format('d/m/Y à H:i') }}</small>
+              @if($colis->ramasse_le)
+                <small class="text-muted">{{ $colis->ramasse_le->format('d/m/Y à H:i') }}</small>
+              @endif
               @if($colis->notes_ramassage)
                 <div class="mt-2">
                   <small><strong>Note :</strong> {{ $colis->notes_ramassage }}</small>
@@ -129,7 +131,9 @@
             <div class="timeline-content">
               <h6 class="mb-1">Colis livré</h6>
               <p class="mb-1">Par {{ $colis->livreurLivraison->nom_complet ?? 'Inconnu' }}</p>
-              <small class="text-muted">{{ $colis->livre_le->format('d/m/Y à H:i') }}</small>
+              @if($colis->livre_le)
+                <small class="text-muted">{{ $colis->livre_le->format('d/m/Y à H:i') }}</small>
+              @endif
               @if($colis->notes_livraison)
                 <div class="mt-2">
                   <small><strong>Note :</strong> {{ $colis->notes_livraison }}</small>
@@ -191,7 +195,10 @@
           <div class="alert alert-success">
             <i class="ti ti-check-circle me-2"></i>
             <strong>Colis déjà livré</strong><br>
-            Ce colis a été livré le {{ $colis->livre_le->format('d/m/Y à H:i') }} 
+            Ce colis a été livré
+            @if($colis->livre_le)
+              le {{ $colis->livre_le->format('d/m/Y à H:i') }}
+            @endif
             par {{ $colis->livreurLivraison->nom_complet ?? 'Inconnu' }}.
           </div>
         @endif
