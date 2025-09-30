@@ -62,11 +62,11 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/checkout', [ApplicationController::class, 'ecomCheckout'])->name('ecom-checkout');
 
     // Scan et réception des colis
-    Route::get('/scan-colis', [App\Http\Controllers\ScanReceptionController::class, 'index'])->name('scan-colis')->middleware('can:view_colis');
-    Route::post('/scan-colis/rechercher', [App\Http\Controllers\ScanReceptionController::class, 'rechercher'])->name('scan-colis.rechercher')->middleware('can:view_colis');
-    Route::post('/colis/receptionner', [App\Http\Controllers\ScanReceptionController::class, 'receptionner'])->name('colis.receptionner')->middleware('can:edit_colis');
-    Route::get('/colis-receptionnes', [App\Http\Controllers\ScanReceptionController::class, 'colisReceptionnes'])->name('reception.colis-receptionnes')->middleware('can:view_colis');
-    Route::get('/api/scan-reception/suggestions', [App\Http\Controllers\ScanReceptionController::class, 'suggestions'])->name('scan-reception.suggestions');
+    Route::get('/scan-colis', [App\Http\Controllers\ScanReceptionController::class, 'index'])->name('application.scan-colis')->middleware('can:view_colis');
+    Route::post('/scan-colis/rechercher', [App\Http\Controllers\ScanReceptionController::class, 'rechercher'])->name('application.scan-colis.rechercher')->middleware('can:view_colis');
+    Route::post('/colis/receptionner', [App\Http\Controllers\ScanReceptionController::class, 'receptionner'])->name('application.colis.receptionner')->middleware('can:edit_colis');
+    Route::get('/colis-receptionnes', [App\Http\Controllers\ScanReceptionController::class, 'colisReceptionnes'])->name('application.reception.colis-receptionnes')->middleware('can:view_colis');
+    Route::get('/api/scan-reception/suggestions', [App\Http\Controllers\ScanReceptionController::class, 'suggestions'])->name('application.scan-reception.suggestions');
     
     // Gestion des clients
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');

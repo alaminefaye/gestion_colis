@@ -81,7 +81,7 @@ class ScanReceptionController extends Controller
 
         $user = Auth::user();
 
-        return redirect()->route('reception.colis-receptionnes')->with('success', "Colis réceptionné avec succès par {$user->name}!");
+        return redirect()->route('application.reception.colis-receptionnes')->with('success', "Colis réceptionné avec succès par {$user->name}!");
     }
 
     /**
