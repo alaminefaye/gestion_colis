@@ -34,7 +34,7 @@ class ScanReceptionController extends Controller
             // Rechercher des codes similaires pour suggestions  
             $suggestions = Colis::where('numero_courrier', 'LIKE', '%' . $request->code . '%')
                                 ->orWhere('qr_code', 'LIKE', '%' . $request->code . '%')
-                                ->whereIn('statut_livraison', ['livre'])
+                                ->whereIn('statut_livraison', ['livre', 'en_transit', 'ramasse'])
                                 ->take(5)
                                 ->pluck('numero_courrier')
                                 ->toArray();
@@ -66,9 +66,9 @@ class ScanReceptionController extends Controller
 
         $colis = Colis::find($request->colis_id);
         
-        // Vérifier que le colis peut être réceptionné (doit être livré)
-        if ($colis->statut_livraison !== 'livre') {
-            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné car il n\'est pas livré. Statut actuel : ' . $colis->statut_livraison_label]);
+        // Vérifier que le colis peut être réceptionné
+        if (!in_array($colis->statut_livraison, ['livre', 'en_transit', 'ramasse'])) {
+            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné. Statut actuel : ' . $colis->statut_livraison_label . '. Seuls les colis ramassés, en transit ou livrés peuvent être réceptionnés.']);
         }
 
         // Mettre à jour le statut du colis
@@ -108,7 +108,7 @@ class ScanReceptionController extends Controller
             return response()->json([]);
         }
 
-        $suggestions = Colis::where('statut_livraison', 'livre')
+        $suggestions = Colis::whereIn('statut_livraison', ['livre', 'en_transit', 'ramasse'])
                            ->where(function($q) use ($query) {
                                $q->where('numero_courrier', 'LIKE', '%' . $query . '%')
                                  ->orWhere('qr_code', 'LIKE', '%' . $query . '%');

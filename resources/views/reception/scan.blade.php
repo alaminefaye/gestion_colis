@@ -44,7 +44,7 @@
       <div class="card-body">
         <div class="alert alert-info mb-3">
           <i class="ti ti-info-circle me-2"></i>
-          <strong>Information :</strong> Seuls les colis avec le statut <span class="badge bg-success">Livré</span> peuvent être réceptionnés.
+          <strong>Information :</strong> Les colis avec les statuts <span class="badge bg-warning">Ramassé</span>, <span class="badge bg-info">En transit</span> ou <span class="badge bg-success">Livré</span> peuvent être réceptionnés.
         </div>
         <p class="mb-2">Processus de réception :</p>
         <ol class="mb-0">
