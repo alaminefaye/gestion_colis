@@ -60,6 +60,9 @@
             @can('view_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-list') }}">Liste des Colis</a></li>
             @endcan
+            @can('view_colis')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.scan-colis') }}">Scan Colis</a></li>
+            @endcan
             @can('create_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.ecom-product-add') }}">Ajouter un Colis</a></li>
             @endcan
@@ -69,9 +72,7 @@
             @can('view_colis_recuperes')
             <li class="pc-item"><a class="pc-link" href="{{ route('livreurs.colis.recuperes') }}">Colis Récupérés</a></li>
             @endcan
-            @can('view_colis')
-            <li class="pc-item"><a class="pc-link" href="{{ route('application.scan-colis') }}">Scan Colis</a></li>
-            @endcan
+            
             @can('view_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.reception.colis-receptionnes') }}">Colis Réceptionnés</a></li>
             @endcan
