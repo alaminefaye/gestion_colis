@@ -55,9 +55,9 @@
   <div class="col-md-6 col-xl-3">
     <div class="card">
       <div class="card-body">
-        <h6 class="mb-2 f-w-400 text-muted">En Transit</h6>
-        <h4 class="mb-3">{{ $stats['en_transit'] }} <span class="badge bg-light-warning border border-warning"><i class="ti ti-truck"></i> En cours</span></h4>
-        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-warning">{{ $stats['en_transit_jour'] }}</span> en transit</p>
+        <h6 class="mb-2 f-w-400 text-muted">Colis Réceptionnés</h6>
+        <h4 class="mb-3">{{ $stats['receptionnes'] }} <span class="badge bg-light-info border border-info"><i class="ti ti-building"></i> À la gare</span></h4>
+        <p class="mb-0 text-muted text-sm">Aujourd'hui: <span class="text-info">{{ $stats['receptionnes_jour'] }}</span> réceptionnés</p>
       </div>
     </div>
   </div>
@@ -287,6 +287,8 @@
               <div class="avtar avtar-s rounded-circle text-{{ $transaction->statut_color }} bg-light-{{ $transaction->statut_color }}">
                 @if($transaction->statut_livraison == 'livre')
                   <i class="ti ti-package f-18"></i>
+                @elseif($transaction->statut_livraison == 'receptionne')
+                  <i class="ti ti-building f-18"></i>
                 @elseif($transaction->statut_livraison == 'en_transit')
                   <i class="ti ti-truck f-18"></i>
                 @else

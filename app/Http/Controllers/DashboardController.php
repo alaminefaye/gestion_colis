@@ -42,8 +42,8 @@ class DashboardController extends Controller
         $totalBagages = Bagage::whereDate('created_at', $today)->count();
         $livraisonsReussies = Colis::whereDate('created_at', $today)
             ->where('statut_livraison', 'livre')->count();
-        $enTransit = Colis::whereDate('created_at', $today)
-            ->where('statut_livraison', 'en_transit')->count();
+        $receptionnes = Colis::whereDate('created_at', $today)
+            ->where('statut_livraison', 'receptionne')->count();
         $revenus_jour = Colis::whereDate('created_at', $today)->sum('montant');
         $revenus_bagages_jour = Bagage::whereDate('created_at', $today)->sum('montant');
 
@@ -62,8 +62,8 @@ class DashboardController extends Controller
             'livraisons_reussies_jour' => $livraisonsReussies,
             'taux_reussite' => Colis::count() > 0 ? round((Colis::where('statut_livraison', 'livre')->count() / Colis::count()) * 100, 1) : 0,
             
-            'en_transit' => Colis::where('statut_livraison', 'en_transit')->count(),
-            'en_transit_jour' => $enTransit,
+            'receptionnes' => Colis::where('statut_livraison', 'receptionne')->count(),
+            'receptionnes_jour' => $receptionnes,
             
             'revenus_total' => Colis::sum('montant') + Bagage::sum('montant'),
             'revenus_colis' => Colis::sum('montant'),
@@ -116,7 +116,7 @@ class DashboardController extends Controller
 
         // Transactions récentes (de la journée)
         $transactionsRecentes = Colis::whereDate('created_at', $today)
-            ->whereIn('statut_livraison', ['livre', 'en_transit', 'ramasse'])
+            ->whereIn('statut_livraison', ['livre', 'receptionne', 'ramasse'])
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get();

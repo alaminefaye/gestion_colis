@@ -431,8 +431,8 @@ class ApplicationController extends Controller
                                               ->count(),
             'ramasses' => (clone $baseQuery)->where('statut_livraison', 'ramasse')
                                             ->count(),
-            'en_transit' => (clone $baseQuery)->where('statut_livraison', 'en_transit')
-                                             ->count(),
+            'receptionnes' => (clone $baseQuery)->where('statut_livraison', 'receptionne')
+                                               ->count(),
             'livres' => (clone $baseQuery)->where('statut_livraison', 'livre')
                                          ->count(),
             'recuperes_gare' => (clone $baseQuery)->where('recupere_gare', true)

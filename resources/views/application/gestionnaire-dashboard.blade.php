@@ -251,11 +251,11 @@
     <div class="card stat-card border-0 h-100">
       <div class="card-body text-center">
         <div class="d-flex align-items-center justify-content-center mb-3" 
-             style="width: 50px; height: 50px; background: linear-gradient(135deg, #fd7e14, #ff922b); border-radius: 50%; margin: 0 auto;">
-          <i class="ti ti-truck text-white" style="font-size: 18px;"></i>
+             style="width: 50px; height: 50px; background: linear-gradient(135deg, #17a2b8, #20c997); border-radius: 50%; margin: 0 auto;">
+          <i class="ti ti-building text-white" style="font-size: 18px;"></i>
         </div>
-        <h3 class="mb-1 fw-bold text-dark">{{ $stats['en_transit'] }}</h3>
-        <p class="text-muted mb-0 fw-500">En Transit</p>
+        <h3 class="mb-1 fw-bold text-dark">{{ $stats['receptionnes'] }}</h3>
+        <p class="text-muted mb-0 fw-500">Réceptionnés</p>
       </div>
     </div>
   </div>
@@ -408,8 +408,10 @@
                   <span class="status-badge bg-danger text-white">En Attente</span>
                 @elseif($colis->statut_livraison === 'ramasse')
                   <span class="status-badge bg-warning text-white">Ramassé</span>
+                @elseif($colis->statut_livraison === 'receptionne')
+                  <span class="status-badge bg-info text-white">Réceptionné</span>
                 @elseif($colis->statut_livraison === 'en_transit')
-                  <span class="status-badge bg-info text-white">En Transit</span>
+                  <span class="status-badge bg-secondary text-white">En Transit</span>
                 @elseif($colis->statut_livraison === 'livre')
                   <span class="status-badge bg-success text-white">Livré</span>
                 @elseif($colis->recupere_gare)
