@@ -155,7 +155,7 @@
             <h6 class="mb-0">🎯 Action de Réception</h6>
           </div>
           <div class="card-body">
-            @if(in_array($colis->statut_livraison, ['livre', 'en_transit', 'ramasse']))
+            @if(in_array($colis->statut_livraison, ['en_attente', 'ramasse', 'en_transit', 'livre']))
               <div class="alert alert-success mb-3">
                 <i class="ti ti-check-circle me-2"></i>
                 <strong>Colis prêt à être réceptionné</strong>
@@ -194,7 +194,7 @@
                 <i class="ti ti-alert-triangle me-2"></i>
                 <strong>Colis non eligible</strong>
                 <br>Statut actuel : <span class="badge bg-{{ $colis->statut_color }}">{{ $colis->statut_livraison_label }}</span>
-                <br><small>Seuls les colis ramassés, en transit ou livrés peuvent être réceptionnés.</small>
+                <br><small>Seuls les colis déjà réceptionnés ne peuvent être re-réceptionnés.</small>
               </div>
             @endif
           </div>

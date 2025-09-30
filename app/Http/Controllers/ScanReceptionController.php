@@ -34,7 +34,7 @@ class ScanReceptionController extends Controller
             // Rechercher des codes similaires pour suggestions  
             $suggestions = Colis::where('numero_courrier', 'LIKE', '%' . $request->code . '%')
                                 ->orWhere('qr_code', 'LIKE', '%' . $request->code . '%')
-                                ->whereIn('statut_livraison', ['livre', 'en_transit', 'ramasse'])
+                                ->whereIn('statut_livraison', ['en_attente', 'ramasse', 'en_transit', 'livre'])
                                 ->take(5)
                                 ->pluck('numero_courrier')
                                 ->toArray();
@@ -66,9 +66,9 @@ class ScanReceptionController extends Controller
 
         $colis = Colis::find($request->colis_id);
         
-        // Vérifier que le colis peut être réceptionné
-        if (!in_array($colis->statut_livraison, ['livre', 'en_transit', 'ramasse'])) {
-            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné. Statut actuel : ' . $colis->statut_livraison_label . '. Seuls les colis ramassés, en transit ou livrés peuvent être réceptionnés.']);
+        // Vérifier que le colis peut être réceptionné (processus gare-à-gare)
+        if (!in_array($colis->statut_livraison, ['en_attente', 'ramasse', 'en_transit', 'livre'])) {
+            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné. Statut actuel : ' . $colis->statut_livraison_label . '. Seuls les colis déjà réceptionnés ne peuvent être re-réceptionnés.']);
         }
 
         // Mettre à jour le statut du colis
@@ -108,7 +108,7 @@ class ScanReceptionController extends Controller
             return response()->json([]);
         }
 
-        $suggestions = Colis::whereIn('statut_livraison', ['livre', 'en_transit', 'ramasse'])
+        $suggestions = Colis::whereIn('statut_livraison', ['en_attente', 'ramasse', 'en_transit', 'livre'])
                            ->where(function($q) use ($query) {
                                $q->where('numero_courrier', 'LIKE', '%' . $query . '%')
                                  ->orWhere('qr_code', 'LIKE', '%' . $query . '%');

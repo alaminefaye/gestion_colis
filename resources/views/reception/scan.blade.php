@@ -9,7 +9,7 @@
     <div class="row align-items-center">
       <div class="col-md-12">
         <div class="page-header-title">
-          <h5 class="m-b-10">📦 Scanner Colis pour Réception</h5>
+          <h5 class="m-b-10">🏢 Scanner Colis - Réception Gare</h5>
         </div>
         <ul class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Accueil</a></li>
@@ -38,20 +38,20 @@
     <div class="card mb-4 border-primary">
       <div class="card-header bg-light-primary">
         <h5 class="text-primary mb-0">
-          <i class="ti ti-scan me-2"></i>Réception des Colis
+          <i class="ti ti-scan me-2"></i>Réception Gare-à-Gare
         </h5>
       </div>
       <div class="card-body">
         <div class="alert alert-info mb-3">
           <i class="ti ti-info-circle me-2"></i>
-          <strong>Information :</strong> Les colis avec les statuts <span class="badge bg-warning">Ramassé</span>, <span class="badge bg-info">En transit</span> ou <span class="badge bg-success">Livré</span> peuvent être réceptionnés.
+          <strong>Information :</strong> Réception gare-à-gare. Tous les colis (sauf ceux déjà réceptionnés) peuvent être réceptionnés à votre gare.
         </div>
         <p class="mb-2">Processus de réception :</p>
         <ol class="mb-0">
-          <li>Scannez ou saisissez le code du colis livré</li>
-          <li>Vérifiez les informations affichées</li>
-          <li>Ajoutez des notes si nécessaire</li>
-          <li>Cliquez sur "Réceptionner" pour finaliser</li>
+          <li>Scannez ou saisissez le code du colis arrivé</li>
+          <li>Vérifiez les informations du colis</li>
+          <li>Ajoutez des notes de réception si nécessaire</li>
+          <li>Cliquez sur "Réceptionner" pour confirmer l'arrivée à votre gare</li>
         </ol>
       </div>
     </div>
@@ -70,7 +70,7 @@
                 <label for="codeInput" class="form-label">QR Code ou N° Courrier *</label>
                 <input type="text" class="form-control @error('code') is-invalid @enderror" 
                        name="code" id="codeInput" 
-                       placeholder="Scanner ou taper le code du colis livré" 
+                       placeholder="Scanner ou taper le code du colis arrivé" 
                        value="{{ old('code') }}" required autocomplete="off">
                 
                 <!-- Dropdown pour suggestions -->
