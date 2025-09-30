@@ -17,7 +17,7 @@ class ScanReceptionController extends Controller
     }
 
     /**
-     * Rechercher un colis par QR code ou numéro courrier pour réception
+     * Rechercher un colis par code
      */
     public function rechercher(Request $request)
     {
@@ -25,32 +25,20 @@ class ScanReceptionController extends Controller
             'code' => 'required|string'
         ]);
 
-        // Chercher le colis par QR code ou numéro courrier
-        $colis = Colis::where('qr_code', $request->code)
-                     ->orWhere('numero_courrier', $request->code)
-                     ->first();
+        $colis = Colis::where('numero_courrier', $request->code)
+                      ->orWhere('qr_code', $request->code)
+                      ->with(['livreurRamassage', 'livreurLivraison'])
+                      ->first();
 
         if (!$colis) {
-            // Rechercher des codes similaires pour suggestions  
-            $suggestions = Colis::where('numero_courrier', 'LIKE', '%' . $request->code . '%')
-                                ->orWhere('qr_code', 'LIKE', '%' . $request->code . '%')
-                                ->whereIn('statut_livraison', ['en_attente', 'ramasse', 'en_transit', 'livre'])
-                                ->take(5)
-                                ->pluck('numero_courrier')
-                                ->toArray();
-            
-            $message = "❌ Aucun colis trouvé avec le code : <strong>{$request->code}</strong>";
-            
-            if (!empty($suggestions)) {
-                $message .= "<br><br>🔍 <strong>Codes similaires disponibles :</strong><br>";
-                foreach ($suggestions as $suggestion) {
-                    $message .= "• <span class='text-primary' style='cursor: pointer;' onclick='fillCodeFromError(\"{$suggestion}\")'>{$suggestion}</span><br>";
-                }
-            }
-            
-            return redirect()->route('application.scan-colis')->withErrors(['code' => $message]);
+            // Colis n'existe pas - afficher le formulaire de création
+            return view('reception.resultat', [
+                'colis' => null,
+                'code_scanne' => $request->code
+            ]);
         }
 
+        // Colis existe - afficher les informations
         return view('reception.resultat', compact('colis'));
     }
 
@@ -82,6 +70,41 @@ class ScanReceptionController extends Controller
         $user = Auth::user();
 
         return redirect()->route('application.reception.colis-receptionnes')->with('success', "Colis réceptionné avec succès par {$user->name}!");
+    }
+
+    /**
+     * Enregistrer un nouveau colis scanné
+     */
+    public function enregistrerNouveau(Request $request)
+    {
+        $request->validate([
+            'numero_courrier' => 'required|string|unique:colis,numero_courrier',
+            'nom_complet' => 'nullable|string|max:255',
+            'numero_telephone' => 'nullable|string|max:20'
+        ]);
+
+        // Créer le nouveau colis avec statut "receptionne"
+        $colis = Colis::create([
+            'numero_courrier' => $request->numero_courrier,
+            'qr_code' => $request->numero_courrier, // Utiliser le numéro comme QR code
+            'nom_expediteur' => $request->nom_complet ?? 'Non renseigné',
+            'telephone_expediteur' => $request->numero_telephone ?? '',
+            'nom_beneficiaire' => $request->nom_complet ?? 'Non renseigné',
+            'telephone_beneficiaire' => $request->numero_telephone ?? '',
+            'destination' => 'A définir',
+            'agence_reception' => 'Gare centrale',
+            'type_colis' => 'standard',
+            'montant' => 0,
+            'valeur_colis' => 0,
+            'statut_livraison' => 'receptionne',
+            'receptionne_par' => Auth::id(),
+            'receptionne_le' => now(),
+            'notes_reception' => 'Colis créé via scan - Informations à compléter',
+            'created_by' => Auth::id()
+        ]);
+
+        return redirect()->route('application.reception.colis-receptionnes')
+                        ->with('success', "Nouveau colis {$colis->numero_courrier} enregistré avec succès !");
     }
 
     /**
