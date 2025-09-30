@@ -98,7 +98,7 @@ class ScanQRController extends Controller
         $colis = Colis::find($request->colis_id);
         
         // Vérifier que le colis peut être ramassé
-        if ($colis->statut_livraison !== 'en_attente') {
+        if (!in_array($colis->statut_livraison, ['en_attente', 'receptionne'])) {
             return back()->withErrors(['error' => 'Ce colis ne peut pas être ramassé car il est déjà ' . $colis->statut_livraison_label]);
         }
 
