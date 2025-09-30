@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('colis', function (Blueprint $table) {
-            $table->boolean('est_receptionne')->default(false)->after('description');
-            $table->string('receptionne_par')->nullable()->after('est_receptionne');
+            $table->unsignedBigInteger('receptionne_par')->nullable()->after('livre_le');
             $table->timestamp('receptionne_le')->nullable()->after('receptionne_par');
             $table->text('notes_reception')->nullable()->after('receptionne_le');
+            
+            $table->foreign('receptionne_par')->references('id')->on('users')->onDelete('set null');
         });
     }
 
@@ -25,7 +26,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('colis', function (Blueprint $table) {
-            $table->dropColumn(['est_receptionne', 'receptionne_par', 'receptionne_le', 'notes_reception']);
+            $table->dropForeign(['receptionne_par']);
+            $table->dropColumn(['receptionne_par', 'receptionne_le', 'notes_reception']);
         });
     }
 };

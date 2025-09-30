@@ -4,120 +4,125 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Colis;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ScanReceptionController extends Controller
 {
     /**
-     * Afficher la page de scan avec les détails du colis
+     * Page de scan pour la réception
      */
-    public function index(Request $request)
+    public function index()
     {
-        $colis = null;
-        $error = null;
-
-        // Si on a un code QR en POST ou en session (après réception), chercher le colis
-        if (($request->isMethod('post') && $request->has('qr_code')) || $request->session()->has('qr_code')) {
-            $codeRecherche = $request->qr_code ?? $request->session()->get('qr_code');
-            
-            // Nettoyer la session après utilisation
-            $request->session()->forget('qr_code');
-            
-            if ($request->isMethod('post')) {
-                $request->validate([
-                    'qr_code' => 'required|string'
-                ]);
-            }
-            
-            // DEBUG: Voir ce qu'on cherche
-            \Log::info('Recherche de colis avec code: ' . $codeRecherche);
-
-            // Rechercher le colis par numéro de courrier ET par QR code
-            $colis = Colis::where('numero_courrier', $codeRecherche)
-                          ->orWhere('qr_code', $codeRecherche)
-                          ->first();
-
-            // DEBUG: Voir le résultat
-            if ($colis) {
-                \Log::info('Colis trouvé: ' . $colis->id . ' - ' . $colis->numero_courrier);
-            } else {
-                \Log::info('Aucun colis trouvé');
-                // Essayer de voir ce qu'il y a dans la base
-                $totalColis = Colis::count();
-                $premiers = Colis::take(3)->pluck('numero_courrier')->toArray();
-                \Log::info('Total colis en base: ' . $totalColis);
-                \Log::info('Exemples: ' . implode(', ', $premiers));
-            }
-
-            if (!$colis) {
-                $error = 'Aucun colis trouvé avec ce numéro : ' . $codeRecherche;
-            }
-        }
-
-        return view('application.scan.index', compact('colis', 'error'));
+        return view('reception.scan');
     }
 
     /**
-     * Scanner un colis par QR code ou numéro
+     * Rechercher un colis par QR code ou numéro courrier pour réception
      */
-    public function scanColis(Request $request)
+    public function rechercher(Request $request)
     {
         $request->validate([
-            'qr_code' => 'required|string'
+            'code' => 'required|string'
         ]);
 
-        // Rechercher le colis par numéro de courrier
-        $colis = Colis::where('numero_courrier', $request->qr_code)->first();
+        // Chercher le colis par QR code ou numéro courrier
+        $colis = Colis::where('qr_code', $request->code)
+                     ->orWhere('numero_courrier', $request->code)
+                     ->first();
 
         if (!$colis) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Aucun colis trouvé avec ce numéro.'
-            ]);
+            // Rechercher des codes similaires pour suggestions  
+            $suggestions = Colis::where('numero_courrier', 'LIKE', '%' . $request->code . '%')
+                                ->orWhere('qr_code', 'LIKE', '%' . $request->code . '%')
+                                ->whereIn('statut_livraison', ['livre'])
+                                ->take(5)
+                                ->pluck('numero_courrier')
+                                ->toArray();
+            
+            $message = "❌ Aucun colis trouvé avec le code : <strong>{$request->code}</strong>";
+            
+            if (!empty($suggestions)) {
+                $message .= "<br><br>🔍 <strong>Codes similaires disponibles :</strong><br>";
+                foreach ($suggestions as $suggestion) {
+                    $message .= "• <span class='text-primary' style='cursor: pointer;' onclick='fillCodeFromError(\"{$suggestion}\")'>{$suggestion}</span><br>";
+                }
+            }
+            
+            return back()->withErrors(['code' => $message]);
         }
 
-        return response()->json([
-            'success' => true,
-            'colis' => $colis
-        ]);
+        return view('reception.resultat', compact('colis'));
     }
 
     /**
      * Réceptionner un colis
      */
-    public function receptionnerColis(Request $request, $id)
+    public function receptionner(Request $request)
     {
         $request->validate([
-            'notes_reception' => 'nullable|string|max:500'
+            'colis_id' => 'required|exists:colis,id',
+            'notes_reception' => 'nullable|string'
         ]);
 
-        $colis = Colis::findOrFail($id);
+        $colis = Colis::find($request->colis_id);
         
-        // Marquer le colis comme réceptionné
+        // Vérifier que le colis peut être réceptionné (doit être livré)
+        if ($colis->statut_livraison !== 'livre') {
+            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné car il n\'est pas livré. Statut actuel : ' . $colis->statut_livraison_label]);
+        }
+
+        // Mettre à jour le statut du colis
         $colis->update([
-            'est_receptionne' => true,
-            'receptionne_par' => Auth::user()->name,
-            'receptionne_le' => Carbon::now(),
-            'notes_reception' => $request->notes_reception,
-            'statut_livraison' => 'receptionne'
+            'statut_livraison' => 'receptionne',
+            'receptionne_par' => Auth::id(),
+            'receptionne_le' => now(),
+            'notes_reception' => $request->notes_reception
         ]);
 
-        // Rediriger vers la page de scan avec le colis réceptionné
-        return redirect()->route('application.scan.index')
-                        ->with('success', 'Colis réceptionné avec succès !')
-                        ->with('qr_code', $colis->numero_courrier);
+        $user = Auth::user();
+
+        return redirect()->route('reception.colis-receptionnes')->with('success', "Colis réceptionné avec succès par {$user->name}!");
     }
 
     /**
-     * Afficher la liste des colis réceptionnés
+     * Liste des colis réceptionnés
      */
     public function colisReceptionnes()
     {
-        $colisReceptionnes = Colis::where('est_receptionne', true)
-            ->orderBy('receptionne_le', 'desc')
-            ->paginate(20);
+        $colis = Colis::where('statut_livraison', 'receptionne')
+                     ->with(['receptionneParUser'])
+                     ->orderBy('receptionne_le', 'desc')
+                     ->paginate(20);
 
-        return view('application.colis.receptionnes', compact('colisReceptionnes'));
+        return view('reception.colis-receptionnes', compact('colis'));
+    }
+
+    /**
+     * API pour suggestions de codes livrés
+     */
+    public function suggestions(Request $request)
+    {
+        $query = $request->get('q', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $suggestions = Colis::where('statut_livraison', 'livre')
+                           ->where(function($q) use ($query) {
+                               $q->where('numero_courrier', 'LIKE', '%' . $query . '%')
+                                 ->orWhere('qr_code', 'LIKE', '%' . $query . '%');
+                           })
+                           ->take(8)
+                           ->get(['numero_courrier', 'nom_beneficiaire', 'statut_livraison'])
+                           ->map(function($colis) {
+                               return [
+                                   'code' => $colis->numero_courrier,
+                                   'label' => $colis->numero_courrier . ' - ' . $colis->nom_beneficiaire,
+                                   'statut' => $colis->statut_livraison_label
+                               ];
+                           });
+
+        return response()->json($suggestions);
     }
 }

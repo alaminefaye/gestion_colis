@@ -42,7 +42,6 @@ class Colis extends Model
         'photo_piece_recto',
         'photo_piece_verso',
         'created_by',
-        'est_receptionne',
         'receptionne_par',
         'receptionne_le',
         'notes_reception',
@@ -55,7 +54,6 @@ class Colis extends Model
         'livre_le' => 'datetime',
         'recupere_gare' => 'boolean',
         'recupere_le' => 'datetime',
-        'est_receptionne' => 'boolean',
         'receptionne_le' => 'datetime',
     ];
 
@@ -81,6 +79,14 @@ class Colis extends Model
     }
 
     /**
+     * Utilisateur qui a réceptionné le colis
+     */
+    public function receptionneParUser()
+    {
+        return $this->belongsTo(User::class, 'receptionne_par');
+    }
+
+    /**
      * Générer un QR code unique
      */
     public static function boot()
@@ -103,7 +109,8 @@ class Colis extends Model
             'en_attente' => 'En attente',
             'ramasse' => 'Ramassé',
             'en_transit' => 'En transit',
-            'livre' => 'Livré'
+            'livre' => 'Livré',
+            'receptionne' => 'Réceptionné'
         ];
         
         return $statuts[$this->statut_livraison] ?? 'Inconnu';
@@ -115,7 +122,8 @@ class Colis extends Model
             'en_attente' => 'secondary',
             'ramasse' => 'warning',
             'en_transit' => 'info',
-            'livre' => 'success'
+            'livre' => 'success',
+            'receptionne' => 'primary'
         ];
         
         return $colors[$this->statut_livraison] ?? 'secondary';

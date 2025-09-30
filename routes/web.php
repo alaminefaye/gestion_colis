@@ -19,7 +19,6 @@ use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 use App\Http\Controllers\BagageController;
 use App\Http\Controllers\PerformanceLivreurController;
-use App\Http\Controllers\ScanReceptionController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -61,6 +60,13 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::put('/colis/{id}', [ApplicationController::class, 'ecomProductUpdate'])->name('ecom-product-update');
     Route::delete('/colis/{id}', [ApplicationController::class, 'ecomProductDestroy'])->name('ecom-product-destroy');
     Route::get('/checkout', [ApplicationController::class, 'ecomCheckout'])->name('ecom-checkout');
+
+    // Scan et réception des colis
+    Route::get('/scan-colis', [App\Http\Controllers\ScanReceptionController::class, 'index'])->name('scan-colis')->middleware('can:view_colis');
+    Route::post('/scan-colis/rechercher', [App\Http\Controllers\ScanReceptionController::class, 'rechercher'])->name('scan-colis.rechercher')->middleware('can:view_colis');
+    Route::post('/colis/receptionner', [App\Http\Controllers\ScanReceptionController::class, 'receptionner'])->name('colis.receptionner')->middleware('can:edit_colis');
+    Route::get('/colis-receptionnes', [App\Http\Controllers\ScanReceptionController::class, 'colisReceptionnes'])->name('reception.colis-receptionnes')->middleware('can:view_colis');
+    Route::get('/api/scan-reception/suggestions', [App\Http\Controllers\ScanReceptionController::class, 'suggestions'])->name('scan-reception.suggestions');
     
     // Gestion des clients
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
@@ -78,11 +84,6 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/bagages/{bagage}/modifier', [BagageController::class, 'edit'])->name('bagages.edit')->middleware('can:edit_bagages');
     Route::put('/bagages/{bagage}', [BagageController::class, 'update'])->name('bagages.update')->middleware('can:edit_bagages');
     Route::delete('/bagages/{bagage}', [BagageController::class, 'destroy'])->name('bagages.destroy')->middleware('can:delete_bagages');
-    
-    // Scanner et réceptionner des colis
-    Route::match(['get', 'post'], '/scan', [ScanReceptionController::class, 'index'])->name('scan.index')->middleware('can:scan_qr_colis');
-    Route::post('/colis/{id}/receptionner', [ScanReceptionController::class, 'receptionnerColis'])->name('colis.receptionner')->middleware('can:scan_qr_colis');
-    Route::get('/colis/receptionnes', [ScanReceptionController::class, 'colisReceptionnes'])->name('colis.receptionnes')->middleware('can:view_colis_receptionnes');
     
     // Récupération des colis à la gare
     Route::post('/colis/marquer-recupere', [GestionController::class, 'marquerRecupere'])->name('colis.marquer-recupere');
