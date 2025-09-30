@@ -98,6 +98,19 @@ class ScanReceptionController extends Controller
     }
 
     /**
+     * Liste des colis livrés
+     */
+    public function colisLivres()
+    {
+        $colis = Colis::where('statut_livraison', 'livre')
+                     ->with(['livreurLivraison'])
+                     ->orderBy('livre_le', 'desc')
+                     ->paginate(20);
+
+        return view('reception.colis-livres', compact('colis'));
+    }
+
+    /**
      * API pour suggestions de codes livrés
      */
     public function suggestions(Request $request)

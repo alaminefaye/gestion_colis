@@ -69,6 +69,7 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     })->middleware('can:view_colis');
     Route::post('/colis/receptionner', [App\Http\Controllers\ScanReceptionController::class, 'receptionner'])->name('colis.receptionner')->middleware('can:edit_colis');
     Route::get('/colis-receptionnes', [App\Http\Controllers\ScanReceptionController::class, 'colisReceptionnes'])->name('reception.colis-receptionnes')->middleware('can:view_colis');
+    Route::get('/colis-livres', [App\Http\Controllers\ScanReceptionController::class, 'colisLivres'])->name('colis-livres')->middleware('can:view_colis');
     Route::get('/api/scan-reception/suggestions', [App\Http\Controllers\ScanReceptionController::class, 'suggestions'])->name('scan-reception.suggestions');
     
     // Gestion des clients

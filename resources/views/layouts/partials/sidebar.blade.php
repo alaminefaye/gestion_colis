@@ -75,6 +75,9 @@
             @can('view_colis')
             <li class="pc-item"><a class="pc-link" href="{{ route('application.reception.colis-receptionnes') }}">Colis Réceptionnés</a></li>
             @endcan
+            @can('view_colis')
+            <li class="pc-item"><a class="pc-link" href="{{ route('application.colis-livres') }}">Colis Livrés</a></li>
+            @endcan
             
           </ul>
         </li>
