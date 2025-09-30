@@ -48,7 +48,7 @@ class ScanReceptionController extends Controller
                 }
             }
             
-            return back()->withErrors(['code' => $message]);
+            return redirect()->route('application.scan-colis')->withErrors(['code' => $message]);
         }
 
         return view('reception.resultat', compact('colis'));
@@ -68,7 +68,7 @@ class ScanReceptionController extends Controller
         
         // Vérifier que le colis peut être réceptionné (processus gare-à-gare)
         if (!in_array($colis->statut_livraison, ['en_attente', 'ramasse', 'en_transit', 'livre'])) {
-            return back()->withErrors(['error' => 'Ce colis ne peut pas être réceptionné. Statut actuel : ' . $colis->statut_livraison_label . '. Seuls les colis déjà réceptionnés ne peuvent être re-réceptionnés.']);
+            return redirect()->route('application.scan-colis')->withErrors(['error' => 'Ce colis ne peut pas être réceptionné. Statut actuel : ' . $colis->statut_livraison_label . '. Seuls les colis déjà réceptionnés ne peuvent être re-réceptionnés.']);
         }
 
         // Mettre à jour le statut du colis
