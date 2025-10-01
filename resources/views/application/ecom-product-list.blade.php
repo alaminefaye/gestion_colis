@@ -396,12 +396,16 @@
                     </a>
                     @endif
                     @can('marquer_recupere_colis')
-                    @if(!$item->recupere_gare)
+                    @if(!$item->recupere_gare && $item->statut_livraison !== 'livre')
                     <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Marquer comme récupéré" onclick="marquerRecupere({{ $item->id }}, '{{ $item->nom_beneficiaire }}', '{{ $item->telephone_beneficiaire }}')">
                       <i class="ti ti-check"></i>
                     </button>
-                    @else
+                    @elseif($item->recupere_gare)
                     <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip" title="Récupéré le {{ $item->recupere_le?->format('d/m/Y H:i') }}">
+                      <i class="ti ti-check-circle"></i>
+                    </button>
+                    @elseif($item->statut_livraison === 'livre')
+                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled data-bs-toggle="tooltip" title="Colis déjà livré - Récupération non disponible">
                       <i class="ti ti-check-circle"></i>
                     </button>
                     @endif
