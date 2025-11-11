@@ -2,9 +2,9 @@
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
     <div class="m-header">
-        <a href="{{ dashboard_route() }}" class="b-brand text-primary d-flex align-items-center justify-content-center tsr-logo-only">
+        <a href="{{ dashboard_route() }}" class="b-brand text-primary d-flex align-items-center justify-content-center tsr-logo-only" style="padding: 15px 0;">
         <!-- ========   Logo TSR uniquement - Suppression complète de Mantis   ============ -->
-        <img src="{{ asset('assets/images/logo.jpeg') }}" class="img-fluid" alt="TSR Logo" style="height: 50px; max-width: 100%; object-fit: contain;">
+        <img src="{{ asset('assets/images/logo.jpeg') }}" class="img-fluid" alt="TSR Logo" style="height: 90px; max-width: 110%; object-fit: contain; display: block; margin: 0 auto;">
       </a>
     </div>
     <div class="navbar-content">

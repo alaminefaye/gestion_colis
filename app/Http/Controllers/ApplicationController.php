@@ -125,7 +125,8 @@ class ApplicationController extends Controller
         // Créer le colis
         $colis = Colis::create($validated);
 
-        return redirect()->route('application.ecom-product-list')
+        // Rediriger vers la page du reçu pour impression
+        return redirect()->route('application.colis.recu', $colis->id)
                          ->with('success', 'Colis ajouté avec succès! Les clients ont été créés automatiquement.');
     }
 
@@ -527,5 +528,14 @@ class ApplicationController extends Controller
             'user',
             'periode'
         ));
+    }
+
+    /**
+     * Afficher le reçu d'un colis au format 58mm pour impression
+     */
+    public function recuColis($id)
+    {
+        $colis = Colis::findOrFail($id);
+        return view('application.recu-colis', compact('colis'));
     }
 }

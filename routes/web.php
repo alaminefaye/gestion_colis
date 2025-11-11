@@ -55,6 +55,7 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/colis/ramasses', [ApplicationController::class, 'ecomProductListRamasses'])->name('ecom-product-list-ramasses')->middleware('can:voir_colis_ramasses');
     Route::get('/colis/nouveau', [ApplicationController::class, 'ecomProductAdd'])->name('ecom-product-add');
     Route::post('/colis', [ApplicationController::class, 'ecomProductStore'])->name('ecom-product-store');
+    Route::get('/colis/{id}/recu', [ApplicationController::class, 'recuColis'])->name('colis.recu');
     Route::get('/colis/{id}', [ApplicationController::class, 'ecomProductShow'])->name('ecom-product-show');
     Route::get('/colis/{id}/modifier', [ApplicationController::class, 'ecomProductEdit'])->name('ecom-product-edit');
     Route::put('/colis/{id}', [ApplicationController::class, 'ecomProductUpdate'])->name('ecom-product-update');

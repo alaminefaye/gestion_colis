@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - TSR Gestion des colis</title>
+    <title>Connexion - IvoryShip </title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/bootstrap.min.css') }}">
@@ -93,8 +93,8 @@
         }
         
         .logo {
-            width: 90px;
-            height: 90px;
+            width: 120px;
+            height: 120px;
             background: transparent;
             border-radius: 20px;
             display: flex;
@@ -357,13 +357,14 @@
             }
             
             .logo {
-                width: 64px;
-                height: 64px;
+                width: 80px;
+                height: 80px;
                 border-radius: 16px;
             }
             
-            .logo i {
-                font-size: 28px;
+            .logo img {
+                width: 70px !important;
+                height: 70px !important;
             }
             
             .login-title {
@@ -384,10 +385,10 @@
             <div class="login-header">
                 <div class="logo-wrapper">
                     <div class="logo">
-                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="TSR Logo" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
+                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="TSR Logo" style="width: 100px; height: 100px; border-radius: 16px; object-fit: cover;">
                     </div>
                 </div>
-                <h1 class="login-title">TSR Gestion des colis</h1>
+                <h1 class="login-title"> IvoryShip</h1>
                 <p class="login-subtitle">Connectez-vous pour accéder à votre espace</p>
             </div>
             

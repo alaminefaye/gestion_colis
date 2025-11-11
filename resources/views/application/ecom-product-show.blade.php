@@ -30,6 +30,9 @@
         <div class="d-flex align-items-center justify-content-between">
           <h5>Informations du Colis</h5>
           <div>
+            <a href="{{ route('application.colis.recu', $colis->id) }}" class="btn btn-info btn-sm" target="_blank" title="Imprimer le reçu">
+              <i class="ti ti-printer"></i> Imprimer Reçu
+            </a>
             @if($colis->recupere_gare)
             <button type="button" class="btn btn-secondary btn-sm" disabled title="Modification impossible - Colis récupéré">
               <i class="ti ti-edit"></i> Modifier
