@@ -55,11 +55,16 @@ Route::prefix('application')->name('application.')->middleware(['auth', 'force.p
     Route::get('/colis/ramasses', [ApplicationController::class, 'ecomProductListRamasses'])->name('ecom-product-list-ramasses')->middleware('can:voir_colis_ramasses');
     Route::get('/colis/nouveau', [ApplicationController::class, 'ecomProductAdd'])->name('ecom-product-add');
     Route::post('/colis', [ApplicationController::class, 'ecomProductStore'])->name('ecom-product-store');
+    
+    // Routes spécifiques AVANT les routes avec {id}
     Route::get('/colis/{id}/recu', [ApplicationController::class, 'recuColis'])->name('colis.recu');
-    Route::get('/colis/{id}', [ApplicationController::class, 'ecomProductShow'])->name('ecom-product-show');
     Route::get('/colis/{id}/modifier', [ApplicationController::class, 'ecomProductEdit'])->name('ecom-product-edit');
-    Route::put('/colis/{id}', [ApplicationController::class, 'ecomProductUpdate'])->name('ecom-product-update');
-    Route::delete('/colis/{id}', [ApplicationController::class, 'ecomProductDestroy'])->name('ecom-product-destroy');
+    
+    // Routes avec {id} (doivent être à la fin)
+    Route::get('/colis/{id}', [ApplicationController::class, 'ecomProductShow'])->name('ecom-product-show');
+    Route::put('/colis/{id}', [ApplicationController::class, 'ecomProductUpdate'])->name('ecom-product-update')->middleware('can:edit_colis');
+    Route::delete('/colis/{id}', [ApplicationController::class, 'ecomProductDestroy'])->name('ecom-product-destroy')->middleware('can:delete_colis');
+    
     Route::get('/checkout', [ApplicationController::class, 'ecomCheckout'])->name('ecom-checkout');
 
     // Scan et réception des colis
