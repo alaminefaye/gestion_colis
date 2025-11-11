@@ -398,6 +398,12 @@
   </div>
 </div>
 
+<!-- Formulaire caché pour les suppressions -->
+<form id="deleteForm" method="POST" style="display: none;">
+  @csrf
+  @method('DELETE')
+</form>
+
 @endsection
 
 @push('styles')
@@ -609,12 +615,6 @@
 </style>
 @endpush
 
-<!-- Formulaire caché pour les suppressions -->
-<form id="deleteForm" method="POST" style="display: none;">
-  @csrf
-  @method('DELETE')
-</form>
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -642,6 +642,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function deleteColis(id) {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce colis ? Cette action est irréversible.')) {
     const form = document.getElementById('deleteForm');
+    if (!form) {
+      console.error('Formulaire deleteForm non trouvé !');
+      alert('Erreur: Formulaire de suppression non trouvé. Veuillez recharger la page.');
+      return;
+    }
     form.action = '/application/colis/' + id;
     form.submit();
   }
@@ -888,14 +893,6 @@ function showSearchNotification(message, type = 'info') {
       notification.remove();
     }
   }, 3000);
-}
-
-
-function deleteColis(id) {
-  if (confirm('Êtes-vous sûr de vouloir supprimer ce colis ?')) {
-    // Implémentation de suppression
-    console.log('Suppression du colis ID:', id);
-  }
 }
 
 // Fonction pour marquer un colis comme récupéré
