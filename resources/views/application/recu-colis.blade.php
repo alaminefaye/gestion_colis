@@ -3,43 +3,46 @@
 @section('title', 'Reçu Colis - ' . $colis->numero_courrier)
 
 @section('content')
-<div class="pc-container">
-    <div class="pc-content">
-        <!-- Breadcrumb -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('application.ecom-product-list') }}">Liste des Colis</a></li>
-                            <li class="breadcrumb-item" aria-current="page">Reçu Colis</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h2 class="mb-0">📄 Reçu Colis</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- [ breadcrumb ] start -->
+<div class="page-header">
+  <div class="page-block">
+    <div class="row align-items-center">
+      <div class="col-md-12">
+        <div class="page-header-title">
+          <h5 class="m-b-10">📄 Reçu Colis</h5>
         </div>
-        <!-- [ breadcrumb ] end -->
+        <ul class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('application.ecom-product-list') }}">Liste des Colis</a></li>
+          <li class="breadcrumb-item" aria-current="page">Reçu Colis</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- [ breadcrumb ] end -->
 
-        <!-- Success Message -->
-        <div class="row">
-            <div class="col-12">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="ti ti-check me-2"></i>
-                    <strong>Succès!</strong> Le colis <strong>{{ $colis->numero_courrier }}</strong> a été créé avec succès.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-        </div>
+<!-- [ Main Content ] start -->
+<div class="row">
+  <div class="col-12">
+    <!-- Success Message -->
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="ti ti-check-circle me-2"></i>{{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @else
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="ti ti-check me-2"></i>
+      <strong>Succès!</strong> Le colis <strong>{{ $colis->numero_courrier }}</strong> a été créé avec succès.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+  </div>
+</div>
 
-        <!-- Receipt Preview -->
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+<div class="row justify-content-center">
+  <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">📋 Aperçu du Reçu</h5>
@@ -61,15 +64,15 @@
                                     <div class="logo-section">
                                         <img src="{{ asset('assets/images/logo.jpeg') }}" alt="IvoryShip Logo" style="height: 45px; max-width: 150px; object-fit: contain;">
                                     </div>
-                                    <h3 style="margin: 8px 0; font-size: 16px; font-weight: bold;">IvoryShip</h3>
-                                    <p style="margin: 3px 0; font-size: 10px;">Transport & Services Rapides</p>
+                                    <h3 style="margin: 8px 0; font-size: 16px; font-weight: bold !important;">IvoryShip</h3>
+                                    <p style="margin: 3px 0; font-size: 10px; font-weight: bold !important;">Transport & Services Rapides</p>
                                     <div class="divider"></div>
                                 </div>
 
                                 <!-- Receipt Title -->
                                 <div class="receipt-title">
                                     <h4>REÇU DE COLIS</h4>
-                                    <p style="font-size: 9px; margin-top: 3px;">{{ now()->format('d/m/Y à H:i') }}</p>
+                                    <p style="font-size: 9px; margin-top: 3px; font-weight: bold !important;">{{ now()->format('d/m/Y à H:i') }}</p>
                                 </div>
 
                                 <!-- Colis Information -->
@@ -150,7 +153,7 @@
                                 <div class="divider"></div>
                                 <div class="receipt-section">
                                     <div class="section-title">📝 Description</div>
-                                    <p style="font-size: 9px; margin: 5px 0; word-wrap: break-word;">{{ $colis->description }}</p>
+                                    <p style="font-size: 9px; margin: 5px 0; word-wrap: break-word; font-weight: bold !important;">{{ $colis->description }}</p>
                                 </div>
                                 @endif
 
@@ -159,19 +162,19 @@
                                     <div class="qr-code-container">
                                         {!! $colis->generateQrCode(110) !!}
                                     </div>
-                                    <p style="font-size: 8px; margin-top: 5px;">Scannez ce code pour le suivi</p>
+                                    <p style="font-size: 8px; margin-top: 5px; font-weight: bold !important;">Scannez ce code pour le suivi</p>
                                 </div>
 
                                 <!-- Footer -->
                                 <div class="receipt-footer">
                                     <div class="divider"></div>
-                                    <p style="font-size: 8px; margin: 8px 0; text-align: center;">
+                                    <p style="font-size: 8px; margin: 8px 0; text-align: center; font-weight: bold !important;">
                                         Merci de votre confiance!<br>
                                         Pour toute réclamation, contactez-nous<br>
-                                        📞 +221 XX XXX XX XX<br>
+                                        📞 +225 XX XXX XX XX<br>
                                         📧 contact@ivoryship.com
                                     </p>
-                                    <p style="font-size: 7px; margin: 5px 0; text-align: center; color: #999;">
+                                    <p style="font-size: 7px; margin: 5px 0; text-align: center; color: #999; font-weight: bold !important;">
                                         Conservez ce reçu jusqu'à la livraison
                                     </p>
                                 </div>
@@ -179,11 +182,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-    </div>
+  </div>
 </div>
+<!-- [ Main Content ] end -->
 
 <style>
 /* Receipt Container - Format 58mm */
@@ -200,12 +201,22 @@
     padding: 12px;
     font-family: 'Courier New', Courier, monospace;
     color: #000;
+    font-weight: bold; /* Tout en gras pour imprimantes thermiques */
+}
+
+.receipt-content * {
+    font-weight: bold !important; /* Force tout le texte en gras */
 }
 
 /* Header */
 .receipt-header {
     text-align: center;
     margin-bottom: 12px;
+}
+
+.receipt-header h3,
+.receipt-header p {
+    font-weight: bold !important;
 }
 
 .logo-section {
@@ -220,11 +231,15 @@
 
 .receipt-title h4 {
     font-size: 13px;
-    font-weight: bold;
+    font-weight: bold !important;
     margin: 0;
     padding: 5px 0;
     background: #f0f0f0;
     border-radius: 4px;
+}
+
+.receipt-title p {
+    font-weight: bold !important;
 }
 
 /* Divider */
@@ -240,10 +255,18 @@
 
 .section-title {
     font-size: 10px;
-    font-weight: bold;
+    font-weight: bold !important;
     margin-bottom: 6px;
     padding: 3px 0;
     border-bottom: 1px solid #ddd;
+}
+
+.receipt-section p {
+    font-weight: bold !important;
+}
+
+.receipt-footer p {
+    font-weight: bold !important;
 }
 
 /* Table */
@@ -251,6 +274,7 @@
     width: 100%;
     font-size: 9px;
     margin: 5px 0;
+    font-weight: bold;
 }
 
 .receipt-table tr {
@@ -260,16 +284,18 @@
 .receipt-table td {
     padding: 2px 0;
     vertical-align: top;
+    font-weight: bold;
 }
 
 .receipt-table .label {
     width: 40%;
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .receipt-table .value {
     width: 60%;
     text-align: right;
+    font-weight: bold;
 }
 
 /* QR Code */
@@ -311,6 +337,11 @@
     
     .receipt-content {
         padding: 8px;
+    }
+    
+    /* Force bold for thermal printers */
+    .receipt-content * {
+        font-weight: bold !important;
     }
     
     /* Hide non-printable elements */

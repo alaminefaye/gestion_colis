@@ -234,8 +234,8 @@
       
       <div class="card text-center">
         <div class="card-body">
-          <img src="{{ asset('assets/images/logo.jpeg') }}" alt="TSR Logo" class="img-fluid mb-2" style="height: 50px;">
-          <h5>TSR Système</h5>
+          <img src="{{ asset('assets/images/logo.jpeg') }}" alt="IvoryShip Logo" class="img-fluid mb-2" style="height: 50px;">
+          <h5>IvoryShip Système</h5>
           <p>Application de gestion des colis</p>
           <p>Développé par : Al Amine Faye</p>
         </div>
