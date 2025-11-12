@@ -36,8 +36,10 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label" for="numero_courrier">Numéro de courrier <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="numero_courrier" name="numero_courrier" value="{{ old('numero_courrier') }}" required placeholder="Ex: MAIL-20250919-0001">
-                <div class="form-text">Le numéro doit être unique</div>
+                <input type="text" class="form-control" id="numero_courrier" name="numero_courrier" value="{{ old('numero_courrier', $numeroCourrier ?? '') }}" required readonly style="background-color: #f8f9fa; font-weight: bold;">
+                <div class="form-text">
+                  <i class="ti ti-lock me-1"></i>Ce numéro est généré automatiquement
+                </div>
               </div>
             </div>
             <div class="col-md-6">

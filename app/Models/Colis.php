@@ -87,6 +87,46 @@ class Colis extends Model
     }
 
     /**
+     * Générer un numéro de courrier automatique au format: colis-YYYYMMDD-NNNN
+     */
+    public static function generateNumeroCourrier()
+    {
+        $date = now()->format('Ymd');
+        $prefix = 'colis-' . $date . '-';
+        
+        // Trouver le dernier numéro utilisé aujourd'hui
+        $lastColis = self::where('numero_courrier', 'like', $prefix . '%')
+                         ->whereDate('created_at', now()->toDateString())
+                         ->orderBy('numero_courrier', 'desc')
+                         ->first();
+        
+        if ($lastColis) {
+            // Extraire le numéro séquentiel du dernier colis
+            $lastNumero = (int) substr($lastColis->numero_courrier, -4);
+            $nextNumero = $lastNumero + 1;
+        } else {
+            // Premier colis de la journée
+            $nextNumero = 1;
+        }
+        
+        // Générer le numéro avec padding
+        $numero = str_pad($nextNumero, 4, '0', STR_PAD_LEFT);
+        $numeroCourrier = $prefix . $numero;
+        
+        // Vérifier l'unicité (protection contre les collisions)
+        $maxAttempts = 100;
+        $attempts = 0;
+        while (self::where('numero_courrier', $numeroCourrier)->exists() && $attempts < $maxAttempts) {
+            $nextNumero++;
+            $numero = str_pad($nextNumero, 4, '0', STR_PAD_LEFT);
+            $numeroCourrier = $prefix . $numero;
+            $attempts++;
+        }
+        
+        return $numeroCourrier;
+    }
+
+    /**
      * Générer un QR code unique
      */
     public static function boot()
@@ -94,6 +134,11 @@ class Colis extends Model
         parent::boot();
         
         static::creating(function ($colis) {
+            // Générer automatiquement le numéro de courrier s'il n'est pas fourni
+            if (empty($colis->numero_courrier)) {
+                $colis->numero_courrier = self::generateNumeroCourrier();
+            }
+            
             if (empty($colis->qr_code)) {
                 $colis->qr_code = $colis->numero_courrier;
             }

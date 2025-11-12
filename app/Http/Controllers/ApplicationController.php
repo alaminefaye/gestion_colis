@@ -58,7 +58,10 @@ class ApplicationController extends Controller
         $destinations = Destination::actif()->orderBy('libelle')->get();
         $agences = Agence::actif()->orderBy('libelle')->get();
         
-        return view('application.ecom-product-add', compact('destinations', 'agences'));
+        // Générer automatiquement le numéro de courrier
+        $numeroCourrier = Colis::generateNumeroCourrier();
+        
+        return view('application.ecom-product-add', compact('destinations', 'agences', 'numeroCourrier'));
     }
 
     /**
@@ -66,6 +69,17 @@ class ApplicationController extends Controller
      */
     public function ecomProductStore(Request $request)
     {
+        // Générer automatiquement le numéro de courrier
+        $numeroCourrier = $request->input('numero_courrier');
+        
+        // Si le numéro fourni existe déjà ou est vide, en générer un nouveau
+        if (empty($numeroCourrier) || Colis::where('numero_courrier', $numeroCourrier)->exists()) {
+            $numeroCourrier = Colis::generateNumeroCourrier();
+        }
+        
+        // Remplacer le numéro dans la requête pour la validation
+        $request->merge(['numero_courrier' => $numeroCourrier]);
+        
         // Validation des données
         $validated = $request->validate([
             'numero_courrier' => 'required|string|unique:colis,numero_courrier|max:50',
