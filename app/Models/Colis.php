@@ -87,30 +87,38 @@ class Colis extends Model
     }
 
     /**
-     * Générer un numéro de courrier automatique au format: colis-YYYYMMDD-NNNN
+     * Générer un numéro de courrier automatique au format: colis-NNNNNNN
      */
     public static function generateNumeroCourrier()
     {
-        $date = now()->format('Ymd');
-        $prefix = 'colis-' . $date . '-';
+        $prefix = 'colis-';
         
-        // Trouver le dernier numéro utilisé aujourd'hui
-        $lastColis = self::where('numero_courrier', 'like', $prefix . '%')
-                         ->whereDate('created_at', now()->toDateString())
-                         ->orderBy('numero_courrier', 'desc')
-                         ->first();
+        // Récupérer tous les colis avec le nouveau format (colis-NNNNNNN)
+        $colisList = self::where('numero_courrier', 'like', $prefix . '%')
+                         ->where('numero_courrier', 'not like', $prefix . '%-%') // Exclure les anciens formats avec date
+                         ->pluck('numero_courrier')
+                         ->toArray();
         
-        if ($lastColis) {
-            // Extraire le numéro séquentiel du dernier colis
-            $lastNumero = (int) substr($lastColis->numero_courrier, -4);
-            $nextNumero = $lastNumero + 1;
-        } else {
-            // Premier colis de la journée
-            $nextNumero = 1;
+        $maxNumero = 0;
+        
+        // Extraire le numéro maximum des colis existants
+        foreach ($colisList as $numeroCourrier) {
+            // Extraire le numéro après "colis-"
+            $numeroStr = substr($numeroCourrier, strlen($prefix));
+            // Vérifier que c'est un nombre
+            if (is_numeric($numeroStr)) {
+                $numero = (int) $numeroStr;
+                if ($numero > $maxNumero) {
+                    $maxNumero = $numero;
+                }
+            }
         }
         
-        // Générer le numéro avec padding
-        $numero = str_pad($nextNumero, 4, '0', STR_PAD_LEFT);
+        // Prochain numéro
+        $nextNumero = $maxNumero + 1;
+        
+        // Générer le numéro avec padding de 7 chiffres
+        $numero = str_pad($nextNumero, 7, '0', STR_PAD_LEFT);
         $numeroCourrier = $prefix . $numero;
         
         // Vérifier l'unicité (protection contre les collisions)
@@ -118,7 +126,7 @@ class Colis extends Model
         $attempts = 0;
         while (self::where('numero_courrier', $numeroCourrier)->exists() && $attempts < $maxAttempts) {
             $nextNumero++;
-            $numero = str_pad($nextNumero, 4, '0', STR_PAD_LEFT);
+            $numero = str_pad($nextNumero, 7, '0', STR_PAD_LEFT);
             $numeroCourrier = $prefix . $numero;
             $attempts++;
         }
