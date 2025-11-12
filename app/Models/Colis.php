@@ -88,50 +88,53 @@ class Colis extends Model
 
     /**
      * Générer un numéro de courrier automatique au format: colis-NNNNNNN
+     * Utilise une transaction avec verrou de ligne pour éviter les doublons en cas de création simultanée
+     * Fonctionne même si plusieurs utilisateurs créent des colis en même temps
      */
     public static function generateNumeroCourrier()
     {
-        $prefix = 'colis-';
-        
-        // Récupérer tous les colis avec le nouveau format (colis-NNNNNNN)
-        $colisList = self::where('numero_courrier', 'like', $prefix . '%')
-                         ->where('numero_courrier', 'not like', $prefix . '%-%') // Exclure les anciens formats avec date
-                         ->pluck('numero_courrier')
-                         ->toArray();
-        
-        $maxNumero = 0;
-        
-        // Extraire le numéro maximum des colis existants
-        foreach ($colisList as $numeroCourrier) {
-            // Extraire le numéro après "colis-"
-            $numeroStr = substr($numeroCourrier, strlen($prefix));
-            // Vérifier que c'est un nombre
-            if (is_numeric($numeroStr)) {
-                $numero = (int) $numeroStr;
-                if ($numero > $maxNumero) {
-                    $maxNumero = $numero;
+        return \DB::transaction(function () {
+            $prefix = 'colis-';
+            
+            // Récupérer le numéro maximum avec un verrou de ligne (lockForUpdate)
+            // Cela garantit qu'un seul processus à la fois peut lire et générer un numéro
+            // Les autres processus attendront que la transaction soit terminée
+            $lastColis = self::where('numero_courrier', 'like', $prefix . '%')
+                             ->where('numero_courrier', 'not like', $prefix . '%-%') // Exclure les anciens formats avec date
+                             ->orderByRaw('CAST(SUBSTRING(numero_courrier, ' . (strlen($prefix) + 1) . ') AS UNSIGNED) DESC')
+                             ->lockForUpdate() // Verrou de ligne : bloque les autres transactions jusqu'à la fin
+                             ->first();
+            
+            $maxNumero = 0;
+            
+            if ($lastColis) {
+                // Extraire le numéro après "colis-"
+                $numeroStr = substr($lastColis->numero_courrier, strlen($prefix));
+                if (is_numeric($numeroStr)) {
+                    $maxNumero = (int) $numeroStr;
                 }
             }
-        }
-        
-        // Prochain numéro
-        $nextNumero = $maxNumero + 1;
-        
-        // Générer le numéro avec padding de 7 chiffres
-        $numero = str_pad($nextNumero, 7, '0', STR_PAD_LEFT);
-        $numeroCourrier = $prefix . $numero;
-        
-        // Vérifier l'unicité (protection contre les collisions)
-        $maxAttempts = 100;
-        $attempts = 0;
-        while (self::where('numero_courrier', $numeroCourrier)->exists() && $attempts < $maxAttempts) {
-            $nextNumero++;
+            
+            // Prochain numéro
+            $nextNumero = $maxNumero + 1;
+            
+            // Générer le numéro avec padding de 7 chiffres
             $numero = str_pad($nextNumero, 7, '0', STR_PAD_LEFT);
             $numeroCourrier = $prefix . $numero;
-            $attempts++;
-        }
-        
-        return $numeroCourrier;
+            
+            // Vérifier l'unicité une dernière fois (double sécurité)
+            // Même avec le verrou, on vérifie pour être sûr
+            $maxAttempts = 100;
+            $attempts = 0;
+            while (self::where('numero_courrier', $numeroCourrier)->exists() && $attempts < $maxAttempts) {
+                $nextNumero++;
+                $numero = str_pad($nextNumero, 7, '0', STR_PAD_LEFT);
+                $numeroCourrier = $prefix . $numero;
+                $attempts++;
+            }
+            
+            return $numeroCourrier;
+        });
     }
 
     /**
