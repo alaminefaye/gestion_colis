@@ -65,7 +65,6 @@
                                         <img src="{{ asset('assets/images/logo.jpeg') }}" alt="IvoryShip Logo" style="height: 45px; max-width: 150px; object-fit: contain;">
                                     </div>
                                     <h3 style="margin: 8px 0; font-size: 16px; font-weight: bold !important;">IvoryShip</h3>
-                                    <p style="margin: 3px 0; font-size: 10px; font-weight: bold !important;">Transport & Services Rapides</p>
                                     <div class="divider"></div>
                                 </div>
 
