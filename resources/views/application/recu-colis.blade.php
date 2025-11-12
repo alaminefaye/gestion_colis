@@ -77,7 +77,7 @@
 
                                 <!-- Colis Information -->
                                 <div class="receipt-section">
-                                    <div class="section-title">📦 Informations Colis</div>
+                        
                                     <table class="receipt-table">
                                         <tr>
                                             <td class="label">N° Courrier:</td>
