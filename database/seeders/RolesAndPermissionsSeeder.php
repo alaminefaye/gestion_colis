@@ -19,6 +19,8 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        $guardName = config('auth.defaults.guard', 'web');
+
         // Create permissions
         $permissions = [
             // Gestion des colis
@@ -90,17 +92,17 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => $guardName]);
         }
 
         // Create roles and assign permissions
         
         // Super Admin - Tous les droits
-        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
-        $superAdminRole->syncPermissions(Permission::all());
+        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => $guardName]);
+        $superAdminRole->syncPermissions(Permission::query()->where('guard_name', $guardName)->get());
 
         // Admin - Gestion complète sauf super admin
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guardName]);
         $adminRole->syncPermissions([
             'view_colis', 'create_colis', 'edit_colis', 'delete_colis', 'marquer_recupere_colis', 'voir_colis_ramasses',
             'view_clients', 'create_clients', 'edit_clients', 'delete_clients',
@@ -115,7 +117,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Gestionnaire - Gestion des colis et clients
-        $gestionnaireRole = Role::firstOrCreate(['name' => 'gestionnaire']);
+        $gestionnaireRole = Role::firstOrCreate(['name' => 'gestionnaire', 'guard_name' => $guardName]);
         $gestionnaireRole->syncPermissions([
             'view_colis', 'create_colis', 'edit_colis', 'marquer_recupere_colis', 'voir_colis_ramasses',
             'view_clients', 'create_clients', 'edit_clients',
@@ -127,7 +129,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Employé - Lecture seule + création de colis
-        $employeRole = Role::firstOrCreate(['name' => 'employe']);
+        $employeRole = Role::firstOrCreate(['name' => 'employe', 'guard_name' => $guardName]);
         $employeRole->syncPermissions([
             'view_colis', 'create_colis',
             'view_clients', 'create_clients',
@@ -137,7 +139,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Livreur - Scan QR et livraison
-        $livreurRole = Role::firstOrCreate(['name' => 'livreur']);
+        $livreurRole = Role::firstOrCreate(['name' => 'livreur', 'guard_name' => $guardName]);
         $livreurRole->syncPermissions([
             'scan_qr_colis',
             'ramasser_colis', 
@@ -148,7 +150,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Client - Accès limité
-        $clientRole = Role::firstOrCreate(['name' => 'client']);
+        $clientRole = Role::firstOrCreate(['name' => 'client', 'guard_name' => $guardName]);
         $clientRole->syncPermissions([
             'view_dashboard',
         ]);
