@@ -83,7 +83,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_bagages',
             'create_bagages',
             'edit_bagages',
-            'delete_bagages'
+            'delete_bagages',
+            
+            // Rapports
+            'view_reports'
         ];
 
         foreach ($permissions as $permission) {
@@ -108,7 +111,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_colis_recuperes', 'view_mes_colis', 'view_colis_detail',
             'scan_qr_colis', 'ramasser_colis', 'livrer_colis', // Admin peut aussi scanner
             'view_bagages', 'create_bagages', 'edit_bagages', 'delete_bagages', // Gestion bagages
-            'view_dashboard', 'view_analytics',
+            'view_dashboard', 'view_analytics', 'view_reports',
         ]);
 
         // Gestionnaire - Gestion des colis et clients
@@ -120,7 +123,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_livreurs', 'view_colis_recuperes', 'view_mes_colis', 'view_colis_detail',
             'scan_qr_colis', 'ramasser_colis', 'livrer_colis', // Gestionnaire peut scanner
             'view_bagages', 'create_bagages', 'edit_bagages', // Gestionnaire peut gérer les bagages
-            'view_dashboard', 'view_analytics',
+            'view_dashboard', 'view_analytics', 'view_reports',
         ]);
 
         // Employé - Lecture seule + création de colis

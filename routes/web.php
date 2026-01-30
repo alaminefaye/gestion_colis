@@ -46,7 +46,7 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'force.passw
 });
 
 // Reports Routes
-Route::prefix('rapports')->name('reports.')->middleware(['auth', 'force.password.change'])->group(function () {
+Route::prefix('rapports')->name('reports.')->middleware(['auth', 'force.password.change', 'can:view_reports'])->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('index');
     Route::get('/export-csv', [ReportController::class, 'exportCsv'])->name('export-csv');
 });
