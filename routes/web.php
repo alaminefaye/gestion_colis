@@ -19,6 +19,7 @@ use App\Http\Controllers\LivreurController;
 use App\Http\Controllers\ScanQRController;
 use App\Http\Controllers\BagageController;
 use App\Http\Controllers\PerformanceLivreurController;
+use App\Http\Controllers\ReportController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -42,6 +43,12 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'force.passw
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
     Route::get('/statistiques/{periode}', [DashboardController::class, 'getStatistiques'])->name('statistiques');
+});
+
+// Reports Routes
+Route::prefix('rapports')->name('reports.')->middleware(['auth', 'force.password.change'])->group(function () {
+    Route::get('/', [ReportController::class, 'index'])->name('index');
+    Route::get('/export-csv', [ReportController::class, 'exportCsv'])->name('export-csv');
 });
 
 // Application Routes

@@ -204,12 +204,11 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // Créer un utilisateur super admin par défaut
-        $superAdmin = User::firstOrCreate(
-            ['email' => 'admin@gestioncolis.com'],
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'admin@admin.com'],
             [
                 'name' => 'Super Admin',
-                'email' => 'admin@gestioncolis.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('passer123'),
                 'email_verified_at' => now(),
             ]
         );
@@ -247,7 +246,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $this->command->info('Rôles et permissions créés avec succès!');
         $this->command->info('Utilisateurs par défaut:');
-        $this->command->info('Super Admin: admin@gestioncolis.com / password123');
+        $this->command->info('Super Admin: admin@admin.com / passer123');
         $this->command->info('Admin: administrateur@gestioncolis.com / password123');
         $this->command->info('Gestionnaire: gestionnaire@gestioncolis.com / password123');
         $this->command->info('');

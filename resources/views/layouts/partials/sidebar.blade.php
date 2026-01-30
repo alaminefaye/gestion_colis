@@ -39,6 +39,12 @@
             <span class="pc-mtext">Données Livreurs</span>
           </a>
         </li>
+        <li class="pc-item">
+          <a href="{{ route('reports.index') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-file-analytics"></i></span>
+            <span class="pc-mtext">Rapports d'activité</span>
+          </a>
+        </li>
         @endcan
         @endif
 
