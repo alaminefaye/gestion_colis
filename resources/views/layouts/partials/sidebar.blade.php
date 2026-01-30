@@ -40,6 +40,8 @@
           </a>
         </li>
         @endcan
+        @endif
+
         @can('view_reports')
         <li class="pc-item">
           <a href="{{ route('reports.index') }}" class="pc-link">
@@ -48,7 +50,6 @@
           </a>
         </li>
         @endcan
-        @endif
 
         @can('view_colis')
         <li class="pc-item pc-caption">
