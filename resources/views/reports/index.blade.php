@@ -3,6 +3,119 @@
 @section('title', 'Rapports & Statistiques')
 
 @section('content')
+<style>
+    @media print {
+        /* Masquer les éléments de navigation et d'interface */
+        .pc-sidebar, 
+        .pc-header, 
+        .page-header, 
+        .btn, 
+        form, 
+        .pc-footer,
+        .footer-fab,
+        .breadcrumb,
+        .page-block {
+            display: none !important;
+        }
+
+        /* Ajuster le conteneur principal */
+        body, 
+        .pc-container, 
+        .pc-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background-color: white !important;
+            position: static !important;
+            overflow: visible !important;
+        }
+
+        /* Afficher l'en-tête d'impression */
+        #print-header {
+            display: block !important;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        /* Ajuster les cartes de statistiques pour l'impression */
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #ddd !important;
+            break-inside: avoid;
+        }
+
+        .col-md-3 {
+            width: 25% !important;
+            float: left !important;
+        }
+
+        /* Ajuster le tableau */
+        .table-responsive {
+            overflow: visible !important;
+        }
+        
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+        
+        th, td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+        }
+
+        /* Forcer l'affichage des couleurs de fond (badges) */
+        .badge {
+            border: 1px solid #000;
+            color: #000 !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        .bg-success { background-color: #d1e7dd !important; }
+        .bg-warning { background-color: #fff3cd !important; }
+        .bg-info { background-color: #cff4fc !important; }
+        .bg-secondary { background-color: #e2e3e5 !important; }
+        .bg-primary { background-color: #cfe2ff !important; }
+    }
+
+    /* Masquer l'en-tête d'impression à l'écran */
+    #print-header {
+        display: none;
+    }
+</style>
+
+<!-- [ Print Header ] start -->
+<div id="print-header">
+    <div class="row align-items-center">
+        <div class="col-6">
+            <img src="{{ asset('assets/images/logo.jpeg') }}" alt="Logo" style="max-height: 80px;">
+        </div>
+        <div class="col-6 text-right" style="text-align: right;">
+            <h2 class="mb-0">Rapport d'activité</h2>
+            <p class="text-muted mb-0">Généré le {{ now()->format('d/m/Y à H:i') }}</p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body p-3">
+                    <h6 class="mb-2">Paramètres du rapport :</h6>
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><strong>Période :</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item"><strong>Statut :</strong> {{ $status == 'all' ? 'Tous' : ucfirst($status) }}</li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item"><strong>Type :</strong> {{ $type == 'all' ? 'Tous' : ucfirst($type) }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- [ Print Header ] end -->
+
 <!-- [ breadcrumb ] start -->
 <div class="page-header">
   <div class="page-block">
